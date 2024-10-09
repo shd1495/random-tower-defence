@@ -1,4 +1,5 @@
 const handlerMappings = {
-  2: gameStart,
+     11: killMonster,
+     12: attackedByMonster,
 };
 export default handlerMappings;
