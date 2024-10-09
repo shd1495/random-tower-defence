@@ -1,5 +1,5 @@
-// import { throwError } from '../utils/error.handle.js';
-// import accountService from '../services/account.service.js';
+// import { throwError } from '../utils/errorHandle.js';
+// import accountService from '../services/accountService.js';
 // import bcrypt from 'bcrypt';
 // import jwt from 'jsonwebtoken';
 // import Joi from 'joi';

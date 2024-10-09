@@ -1,5 +1,5 @@
 import { CLIENT_VERSION } from '../utils/constans.js';
-import handlerMappings from './handler.mapping.js';
+import handlerMappings from './handlerMapping.js';
 
 /**
  * 접속 해제
