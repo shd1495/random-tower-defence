@@ -1,4 +1,4 @@
-import { CLIENT_VERSION } from '../utils/constans.js';
+import { CLIENT_VERSION } from '../utils/constants.js';
 import handlerMappings from './handlerMapping.js';
 
 /**
@@ -17,10 +17,10 @@ export const handleDisconnect = async (socket, uuid) => {
  * @param {String} uuid
  */
 export const handleConnection = async (socket, uuid) => {
-  console.log('새로운 유저가 연결되었습니다.');
+  console.log('새로운 유저가 연결되었습니다.', uuid);
   console.log('현재 접속 중인 유저들:');
 
-  socket.emit('connection', { uuid });
+  socket.emit('connected', { uuid }); // 'connected' 이벤트로 변경
 };
 
 /**
@@ -45,7 +45,7 @@ export const handleEvent = async (io, socket, data) => {
     return;
   }
 
-  const response = await handler(data.userId, data.payload, io);
+  const response = await handler(data.userId, data.payload, socket, io);
 
   // 한 유저에게 보낼시
   socket.emit('response', response);
