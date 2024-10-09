@@ -224,18 +224,21 @@ function gameLoop() {
       monster.draw(ctx);
     } else {
       /* 몬스터가 죽었을 때 */
-      const monsterId = monster.monsterId;
-      const incrementMoney = monster.reward;
-      const incrementScore = monster.score;
 
-      userGold += incrementMoney;
-      score += incrementScore;
+      if (monster.hp <= 0) {
+        const monsterId = monster.monsterId;
+        const incrementMoney = monster.reward;
+        const incrementScore = monster.score;
 
-      // sendMonsterEvent(11, {
-      //   monsterId,
-      //   incrementMoney,
-      //   incrementScore,
-      // });
+        userGold += incrementMoney;
+        score += incrementScore;
+        sendMonsterEvent(11, {
+          monsterId,
+          incrementMoney,
+          incrementScore,
+        });
+      }
+
       monsters.splice(i, 1);
     }
   }
