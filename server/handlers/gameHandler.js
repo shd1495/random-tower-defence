@@ -23,3 +23,10 @@ export const gameStart = (uuid, payload, socket) => {
     });
   }
 };
+
+export const gameEnd = (uuid, payload, socket) => {
+  const { timestamp, score } = payload;
+  const { game, monster } = getGameAssets();
+
+  socket.emit('gameEnd', { status: 'success', message: 'game over' });
+};
