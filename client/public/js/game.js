@@ -3,9 +3,8 @@ import { Monster } from './monster.js';
 import { Tower } from './tower.js';
 import { CLIENT_VERSION } from './constants.js';
 import { MONSTERS, WAVE_LEVEL } from '../utils/constants.js';
-import { sendMonsterEvent } from './socket.js';
 
-const SERVER_URL = 'http://localhost:3000'; // 실제 서버 주소로 변경하세요.
+const SERVER_URL = 'http://localhost:3080'; // 실제 서버 주소로 변경하세요.
 
 /* 
   어딘가에 엑세스 토큰이 저장이 안되어 있다면 로그인을 유도하는 코드를 여기에 추가해주세요!
@@ -13,6 +12,7 @@ const SERVER_URL = 'http://localhost:3000'; // 실제 서버 주소로 변경하
 
 let serverSocket; // 서버 웹소켓 객체
 let sendEvent;
+export let sendMonsterEvent;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -176,7 +176,7 @@ function placeBase() {
 }
 
 function spawnMonster() {
-  monsters.push(new Monster(monsterPath, monsterImages, MONSTERS, waveLevel));
+  monsters.push(new Monster(monsterPath, monsterImages, MONSTERS, monsterLevel));
   //  console.log("MONSTERS", MONSTERS);
 }
 
@@ -193,7 +193,7 @@ function gameLoop() {
   ctx.fillStyle = 'yellow';
   ctx.fillText(`골드: ${userGold}`, 100, 150); // 골드 표시
   ctx.fillStyle = 'black';
-  ctx.fillText(`현재 레벨: ${waveLevel}`, 100, 200); // 최고 기록 표시
+  ctx.fillText(`현재 레벨: ${monsterLevel}`, 100, 200); // 최고 기록 표시
 
   // 타워 그리기 및 몬스터 공격 처리
   towers.forEach((tower) => {
@@ -231,11 +231,11 @@ function gameLoop() {
       userGold += incrementMoney;
       score += incrementScore;
 
-      sendMonsterEvent(11, {
-        monsterId,
-        incrementMoney,
-        incrementScore,
-      });
+      // sendMonsterEvent(11, {
+      //   monsterId,
+      //   incrementMoney,
+      //   incrementScore,
+      // });
       monsters.splice(i, 1);
     }
   }
@@ -282,6 +282,7 @@ Promise.all([
   serverSocket.on('connected', async (data) => {
     console.log('서버에서 연결 정보를 받았습니다.', data);
     userId = data.uuid;
+    console.log('연결');
     sendEvent(2);
   });
 
@@ -293,12 +294,12 @@ Promise.all([
 
   serverSocket.on('response', (data) => {
     if (data.type == 'gameStart') {
-      userGold = data.userGold;
-      baseHp = data.baseHp;
-      towerCost = data.towerCost;
-      numOfInitialTowers = data.numOfInitialTowers;
-      monsterLevel = data.monsterLevel;
-      monsterSpawnInterval = data.monsterSpawnInterval;
+      userGold = data.data.userGold;
+      baseHp = data.data.baseHp;
+      towerCost = data.data.towerCost;
+      numOfInitialTowers = data.data.numOfInitialTowers;
+      monsterLevel = data.data.monsterLevel;
+      monsterSpawnInterval = data.data.monsterSpawnInterval;
 
       if (!isInitGame) {
         initGame();
@@ -320,6 +321,14 @@ Promise.all([
 
   sendEvent = (handlerId, payload) => {
     serverSocket.emit('event', {
+      clientVersion: CLIENT_VERSION,
+      handlerId,
+      payload,
+    });
+  };
+
+  sendMonsterEvent = (handlerId, payload) => {
+    serverSocket.emit('monsterEvent', {
       clientVersion: CLIENT_VERSION,
       handlerId,
       payload,
