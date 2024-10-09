@@ -1,0 +1,30 @@
+{
+  "name": "tower",
+  "version": "1.0.0",
+  "data": [
+    {
+      "id": 1,
+      "price": 100,
+      "towerDamage": 40,
+      "beamDuration": 0.5,
+      "coolDown": 1,
+      "image": "../images/tower.png"
+    },
+    {
+      "id": 1,
+      "price": 100,
+      "towerDamage": 40,
+      "beamDuration": 0.5,
+      "coolDown": 1,
+      "image": "../images/towerleveltest2.png"
+    },
+    {
+      "id": 1,
+      "price": 100,
+      "towerDamage": 40,
+      "beamDuration": 0.5,
+      "coolDown": 1,
+      "image": "../images/towerleveltest3.png"
+    }
+  ]
+}
