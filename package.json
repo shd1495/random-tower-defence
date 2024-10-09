@@ -20,5 +20,7 @@
   "devDependencies": {
     "nodemon": "^3.1.7",
     "prettier": "^3.3.3"
-  }
+  },
+  "repository": "https://github.com/shd1495/random-tower-defence.git",
+  "author": "surinnnnnn <didthfls2@naver.com>"
 }
