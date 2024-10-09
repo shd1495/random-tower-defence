@@ -311,6 +311,11 @@ Promise.all([
     if (data.type === 'gameEnd') {
       console.log(data.message);
     }
+
+    if (data.type === 'waveLevelIncrease') {
+      console.log(data.message);
+      monsterLevel = data.waveLevel;
+    }
   });
 
   /* 
