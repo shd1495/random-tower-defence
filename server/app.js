@@ -2,6 +2,7 @@ import express from 'express';
 import initSocket from './init/socket.js';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
+import { loadGameAssets } from './init/assets.js';
 // import accountRouter from './routes/accountRouter.js';
 
 dotenv.config();
