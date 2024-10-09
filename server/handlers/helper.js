@@ -1,3 +1,5 @@
+// server/handlers/helper.js
+import { removeUser } from '../models/account.model.js';
 import { CLIENT_VERSION } from '../utils/constans.js';
 import handlerMappings from './handlerMapping.js';
 
@@ -7,6 +9,7 @@ import handlerMappings from './handlerMapping.js';
  * @param {String} uuid
  */
 export const handleDisconnect = async (socket, uuid) => {
+  removeUser(socket.id);
   console.log(`${uuid} 유저가 연결을 해제했습니다`);
   console.log('현재 접속 중인 유저들:');
 };
