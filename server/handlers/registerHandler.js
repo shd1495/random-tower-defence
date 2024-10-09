@@ -6,9 +6,10 @@ const registerHandler = (io) => {
      io.on("connection", async (socket) => {
           // 이벤트 처리
 
-          // 유저 등록
-          //await addUser(user);
-          handleConnection(socket);
+    // 유저 등록
+    //await addUser(user);
+    const uuid = uuidv4();
+    handleConnection(socket, uuid);
 
           // 이벤트 처리
           socket.on("event", (data) => handleEvent(io, socket, data));

@@ -1,6 +1,7 @@
-import { Base } from "./base.js";
-import { Monster } from "./monster.js";
-import { Tower } from "./tower.js";
+import { Base } from './base.js';
+import { Monster } from './monster.js';
+import { Tower } from './tower.js';
+import { CLIENT_VERSION } from './constants.js';
 import { MONSTERS, WAVE_LEVEL } from "../utils/constants.js";
 import { sendMonsterEvent } from "./socket.js";
 
@@ -11,18 +12,20 @@ const SERVER_URL = "http://localhost:3000"; // 실제 서버 주소로 변경하
 */
 
 let serverSocket; // 서버 웹소켓 객체
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+let sendEvent;
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
 const NUM_OF_MONSTERS = 5; // 몬스터 개수
 
-let userGold = 100; // 유저 골드
+let userGold = 0; // 유저 골드
 let base; // 기지 객체
-let baseHp = 100; // 기지 체력
-let towerCost = 100; // 타워 구입 비용
-let numOfInitialTowers = 1; // 초기 타워 개수
-let waveLevel = 1; // 몬스터 레벨
-let monsterSpawnInterval = 2000; // 몬스터 생성 주기
+let baseHp = 0; // 기지 체력
+let towerCost = 0; // 타워 구입 비용
+let numOfInitialTowers = 0; // 초기 타워 개수
+let monsterLevel = 0; // 몬스터 레벨
+let monsterSpawnInterval = 0; // 몬스터 생성 주기
+
 const monsters = [];
 const towers = [];
 
@@ -275,21 +278,38 @@ Promise.all([
           (img) => new Promise((resolve) => (img.onload = resolve))
      ),
 ]).then(() => {
-     /* 서버 접속 코드 (여기도 완성해주세요!) */
-     let somewhere;
-     serverSocket = io(SERVER_URL, {});
+  /* 서버 접속 코드 (여기도 완성해주세요!) */
+  let somewhere;
+  serverSocket = io(SERVER_URL, {
+    query: {
+      clientVersion: CLIENT_VERSION,
+    },
+  });
 
      serverSocket.on("connect", () => {
           console.log("서버에 연결되었습니다.");
      });
 
-     /* 서버 연결 오류 시 */
-     serverSocket.on("connect_error", (err) => {
-          console.error("서버 연결 오류:", err.message);
-          alert("서버에 연결할 수 없습니다. 다시 시도해주세요.");
-     });
+  let userId = null;
+  serverSocket.on('connected', async (data) => {
+    console.log('서버에서 연결 정보를 받았습니다.', data);
+    userId = data.uuid;
+    sendEvent(2);
+  });
 
-     /* 
+  /* 서버 연결 오류 시 */
+  serverSocket.on('connect_error', (err) => {
+    console.error('서버 연결 오류:', err.message);
+    alert('서버에 연결할 수 없습니다. 다시 시도해주세요.');
+  });
+
+  serverSocket.on('response', (data) => {
+    if (data) {
+      console.log(data);
+    }
+  });
+
+  /* 
     서버의 이벤트들을 받는 코드들은 여기다가 쭉 작성해주시면 됩니다! 
     e.g. serverSocket.on("...", () => {...});
     이 때, 상태 동기화 이벤트의 경우에 아래의 코드를 마지막에 넣어주세요! 최초의 상태 동기화 이후에 게임을 초기화해야 하기 때문입니다! 
@@ -297,17 +317,47 @@ Promise.all([
       initGame();
     }
   */
-     initGame();
+
+  serverSocket.on('gameStart', (data) => {
+    if (data.status === 'success') {
+      userGold = data.userGold;
+      baseHp = data.baseHp;
+      towerCost = data.towerCost;
+      numOfInitialTowers = data.numOfInitialTowers;
+      monsterLevel = data.monsterLevel;
+      monsterSpawnInterval = data.monsterSpawnInterval;
+
+      if (!isInitGame) {
+        initGame();
+      }
+    }
+  });
+
+  serverSocket.on('gameEnd', (data) => {
+    if (data.status === 'success') {
+      console.log(data.message);
+    }
+  });
+
+  sendEvent = (handlerId, payload) => {
+    serverSocket.emit('event', {
+      clientVersion: CLIENT_VERSION,
+      handlerId,
+      payload,
+    });
+  };
 });
 
-const buyTowerButton = document.createElement("button");
-buyTowerButton.textContent = "타워 구입";
-buyTowerButton.style.position = "absolute";
-buyTowerButton.style.top = "10px";
-buyTowerButton.style.right = "10px";
-buyTowerButton.style.padding = "10px 20px";
-buyTowerButton.style.fontSize = "16px";
-buyTowerButton.style.cursor = "pointer";
+export { sendEvent };
+
+const buyTowerButton = document.createElement('button');
+buyTowerButton.textContent = '타워 구입';
+buyTowerButton.style.position = 'absolute';
+buyTowerButton.style.top = '10px';
+buyTowerButton.style.right = '10px';
+buyTowerButton.style.padding = '10px 20px';
+buyTowerButton.style.fontSize = '16px';
+buyTowerButton.style.cursor = 'pointer';
 
 buyTowerButton.addEventListener("click", placeNewTower);
 
