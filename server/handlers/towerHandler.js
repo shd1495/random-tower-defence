@@ -63,21 +63,21 @@ export const towerCreate = async (uuid, payload) => {
 };
 
 // 타워 판매
-export const towerSell = async (uuid, payload) => {
-    // 로직 미구현
-    // 검증 모두 성공하면 타워 생성(타워 종류 생기면 코드 수정 필요)
-    await setTower(uuid, towerId, tower);
-    return {
-        type: 'sellTower',
-        status: 'success',
-        message: 'Sell Tower successfully',
-        result: {
-            towerCount: currentTower.length + 1,
-            tower,
-            //towerImage: towers[towerType].image
-        }
-    };
-}
+// export const towerSell = async (uuid, payload) => {
+//     // 로직 미구현
+//     // 검증 모두 성공하면 타워 생성(타워 종류 생기면 코드 수정 필요)
+//     await setTower(uuid, towerId, tower);
+//     return {
+//         type: 'sellTower',
+//         status: 'success',
+//         message: 'Sell Tower successfully',
+//         result: {
+//             towerCount: currentTower.length + 1,
+//             tower,
+//             //towerImage: towers[towerType].image
+//         }
+//     };
+// }
 
 // 타워 업그레이드
 export const handleUpgradeTower = (userId, payload) => {

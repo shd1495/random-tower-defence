@@ -192,7 +192,7 @@ function placeNewTower() {
 }
 
 // function sellTower(index) {
-
+//   sendEvent(22, { tower: towers[index] });
 // }
 
 function placeBase() {
@@ -355,13 +355,15 @@ Promise.all([
     if (data.type === 'gameEnd') {
       console.log(data.message);
     }
-    if (data.type === 'setTower') {
-      console.log("data: ", data);
+    if (data.type === 'setTower') {      
       const TOWER = new Tower(data.result.tower.x, data.result.tower.y, data.result.tower.price);
       //console.log("data.result.towerCount: ", data.result.towerCount);
       towers.push(TOWER);
       TOWER.draw(ctx, towerImage);
     }
+    // else if(data.type === 'sellTower') {
+    //   console.log("data: ", data);
+    // }
     if (data.type === 'waveLevelIncrease') {
       console.log(data.message);
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
