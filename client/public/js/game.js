@@ -157,14 +157,13 @@ function placeInitialTowers() {
 
   for (let i = 0; i < numOfInitialTowers; i++) {
     const { x, y } = getRandomPositionNearPath(200);
-    const newTower = new Tower(x, y, 100); // 타워 여러 종류면 수정 필요
+    const newTower = new Tower(x, y, 100) // 타워 여러 종류면 수정 필요
 
-    sendEvent(21, {
-      userGold: userGold,
-      towerCount: towers.length,
-      towerId: 1, // Tower 클래스로 넣어야할것 같습니다.
-      towerType: 0, // 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.
-      tower: newTower, // 생성할 타워 보내기(타워 종류 생기면 수정)
+    sendEvent(20, {
+      towerId: 1,// Tower 클래스로 넣어야할것 같습니다.
+      towerCount: i + 1,
+      //towerType: 0,// 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.(타워 종류 생기면 추가)
+      tower: newTower,// 생성할 타워 보내기(타워 종류 생기면 수정)
     });
   }
 }
@@ -191,6 +190,10 @@ function placeNewTower() {
   userGold -= newTower.price;
   console.log('userGold: ', userGold);
 }
+
+// function sellTower(index) {
+//   sendEvent(22, { tower: towers[index] });
+// }
 
 function placeBase() {
   const lastPoint = monsterPath[monsterPath.length - 1];
@@ -352,13 +355,15 @@ Promise.all([
     if (data.type === 'gameEnd') {
       console.log(data.message);
     }
-    if (data.type === 'setTower') {
+    if (data.type === 'setTower') {      
       const TOWER = new Tower(data.result.tower.x, data.result.tower.y, data.result.tower.price);
-      console.log('setTower: ', data.result);
       //console.log("data.result.towerCount: ", data.result.towerCount);
       towers.push(TOWER);
       TOWER.draw(ctx, towerImage);
     }
+    // else if(data.type === 'sellTower') {
+    //   console.log("data: ", data);
+    // }
     if (data.type === 'waveLevelIncrease') {
       console.log(data.message);
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
