@@ -25,7 +25,6 @@ let towerCost = 0; // 타워 구입 비용
 let numOfInitialTowers = 0; // 초기 타워 개수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
-let monsterKillList = [];
 
 const monsters = [];
 const towers = [];
@@ -337,6 +336,7 @@ Promise.all([
   sendMonsterEvent = (handlerId, payload) => {
     serverSocket.emit('monsterEvent', {
       clientVersion: CLIENT_VERSION,
+      userId,
       handlerId,
       payload,
     });
