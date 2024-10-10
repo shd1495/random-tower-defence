@@ -34,17 +34,17 @@ export class Tower {
     if (this.cooldown <= 0) {
       monster.hp -= this.attackPower;
 
-      // if (monster.hp <= 0) {
-      //   monster.hp = 0;
-      //   const monsterId = monster.monsterId;
-      //   const incrementMoney = monster.reward;
-      //   const incrementScore = monster.score;
-      //   sendMonsterEvent(11, {
-      //     monsterId,
-      //     incrementMoney,
-      //     incrementScore,
-      //   });
-      // }
+      if (monster.hp <= 0) {
+        monster.hp = 0;
+        const monsterId = monster.monsterId + 1;
+        const incrementMoney = monster.reward;
+        const incrementScore = monster.score;
+        sendMonsterEvent(11, {
+          monsterId,
+          incrementMoney,
+          incrementScore,
+        });
+      }
 
       this.cooldown = 180; // 3초 쿨타임 (초당 60프레임)
       this.beamDuration = 30; // 광선 지속 시간 (0.5초)

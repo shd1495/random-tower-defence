@@ -2,7 +2,6 @@ import { Base } from './base.js';
 import { Monster } from './monster.js';
 import { Tower } from './tower.js';
 import { CLIENT_VERSION } from './constants.js';
-import { MONSTERS, WAVE_LEVEL } from '../utils/constants.js';
 import { getGameAssets } from '../init/assets.js';
 
 const { monsterAssetData, towerAssetData, gameAssetData, waveLevelAssetData } = getGameAssets();
@@ -15,18 +14,18 @@ const SERVER_URL = 'http://localhost:3080'; // 실제 서버 주소로 변경하
 
 let serverSocket; // 서버 웹소켓 객체
 let sendEvent;
-export let sendMonsterEvent;
+let sendMonsterEvent;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const NUM_OF_MONSTERS = 5; // 몬스터 개수
 
-let userGold = 1000; // 유저 골드
+let userGold = 0; // 유저 골드
 let base; // 기지 객체
 let baseHp = 0; // 기지 체력
 // let lastSetTowerImage = new Image();
 // lastSetTowerImage.src = '../assets/images/tower.png'; // 마지막에 설치한 타워 이미지
-let numOfInitialTowers = 3; // 초기 타워 개수
+let numOfInitialTowers = 0; // 초기 타워 개수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
 
@@ -155,6 +154,7 @@ function placeInitialTowers() {
     타워를 초기에 배치하는 함수입니다.
     무언가 빠진 코드가 있는 것 같지 않나요? 
   */
+
   for (let i = 0; i < numOfInitialTowers; i++) {
     const { x, y } = getRandomPositionNearPath(200);
     const newTower = new Tower(x, y, 100) // 타워 여러 종류면 수정 필요
@@ -173,21 +173,22 @@ function placeNewTower() {
     타워를 구입할 수 있는 자원이 있을 때 타워 구입 후 랜덤 배치하면 됩니다.
     빠진 코드들을 채워넣어주세요! 
   */
+
   // 서버로 타워 구매 정보 전송
   const { x, y } = getRandomPositionNearPath(200);
-  const newTower = new Tower(x, y, 100) // 타워 여러 종류면 수정 필요
+  const newTower = new Tower(x, y, 100); // 타워 여러 종류면 수정 필요
 
   sendEvent(21, {
     userGold: userGold,
     towerCount: towers.length,
-    towerId: 1,// Tower 클래스로 넣어야할것 같습니다.
-    towerType: 0,// 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.
-    tower: newTower,// 생성할 타워 보내기(타워 종류 생기면 수정)
+    towerId: 1, // Tower 클래스로 넣어야할것 같습니다.
+    towerType: 0, // 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.
+    tower: newTower, // 생성할 타워 보내기(타워 종류 생기면 수정)
   });
 
   // 추후 기획 수정시 price 를 서버에서 받아오도록 코드 수정
   userGold -= newTower.price;
-  console.log("userGold: ", userGold);
+  console.log('userGold: ', userGold);
 }
 
 // function sellTower(index) {
@@ -201,7 +202,7 @@ function placeBase() {
 }
 
 function spawnMonster() {
-  monsters.push(new Monster(monsterPath, monsterImages, MONSTERS, monsterLevel));
+  monsters.push(new Monster(monsterPath, monsterImages, monsterAssetData.data, monsterLevel));
   //  console.log("MONSTERS", MONSTERS);
 }
 
@@ -251,18 +252,15 @@ function gameLoop() {
       /* 몬스터가 죽었을 때 */
 
       if (monster.hp <= 0) {
-        const monsterId = monster.monsterId + 1;
-        console.log('monsterId', monsterId);
-        const incrementMoney = monster.reward;
-        const incrementScore = monster.score;
+        // const monsterId = monster.monsterId + 1;
+        // const incrementMoney = monster.reward;
+        // const incrementScore = monster.score;
 
-        //userGold += incrementMoney;
-        //score += incrementScore;
-        sendMonsterEvent(11, {
-          monsterId,
-          incrementMoney,
-          incrementScore,
-        });
+        // sendMonsterEvent(11, {
+        //   monsterId,
+        //   incrementMoney,
+        //   incrementScore,
+        // });
 
         // 웨이브 레벨업 서버에 요청하기 보내주기
         if (
@@ -345,7 +343,6 @@ Promise.all([
     if (data.type == 'gameStart') {
       userGold = +data.result.userGold;
       baseHp = +data.result.baseHp;
-      towerCost = +data.result.towerCost;
       score = +data.result.score;
       numOfInitialTowers = +data.result.numOfInitialTowers;
       monsterLevel = +data.result.monsterLevel;
@@ -365,26 +362,20 @@ Promise.all([
       towers.push(TOWER);
       TOWER.draw(ctx, towerImage);
     }
-
     if (data.type === 'waveLevelIncrease') {
       console.log(data.message);
-      if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화    
-      if (data.type === 'killMonster') {
-        console.log('몬스터 동기화');
-        userGold = +data.result.userGold;
-        score = +data.result.score;
-      }
+      if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
+    }
+    if (data.type === 'killMonster') {
+      console.log('몬스터 동기화');
+      userGold = +data.result.userGold;
+      score = +data.result.score;
+    }
+    if (data.type === 'attackedByMonster') {
+      console.log('기지 동기화');
+      baseHp = +data.result.attackPower;
     }
   });
-
-  /* 
-    서버의 이벤트들을 받는 코드들은 여기다가 쭉 작성해주시면 됩니다! 
-    e.g. serverSocket.on("...", () => {...});
-    이 때, 상태 동기화 이벤트의 경우에 아래의 코드를 마지막에 넣어주세요! 최초의 상태 동기화 이후에 게임을 초기화해야 하기 때문입니다! 
-    if (!isInitGame) {
-      initGame();
-    }
-  */
 
   // 이벤트 send
   sendEvent = (handlerId, payload) => {
@@ -410,13 +401,14 @@ Promise.all([
   sendMonsterEvent = (handlerId, payload) => {
     serverSocket.emit('towerEvent', {
       clientVersion: CLIENT_VERSION,
+      userId,
       handlerId,
       payload,
     });
   };
 });
 
-export { sendEvent };
+export { sendEvent, sendMonsterEvent };
 
 const buyTowerButton = document.createElement('button');
 buyTowerButton.textContent = '타워 구입';

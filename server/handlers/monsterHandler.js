@@ -10,13 +10,15 @@ import { getScore, getUserGold, updateScore, updateUserGold } from '../models/ga
  */
 export const attackedByMonster = async (userId, payload) => {
   const { waveLevel, monsters } = getGameAssets();
-  const { monsterId, decresedHP } = payload;
+  const { monsterId, attackPower } = payload;
 
   // 몬스터 아이디 유효성 검증
   const isExistMonster = monsters.data.find((monster) => monster.id === monsterId);
+
   if (!isExistMonster) {
     return {
       status: '실패',
+      type: 'attackedByMonster',
       message: '게임에 존재 하지 않는 몬스터 정보입니다.',
     };
   }
@@ -24,22 +26,29 @@ export const attackedByMonster = async (userId, payload) => {
   // 현재 웨이브 레벨 검증
   const waveLevelData = await getWaveLevel(userId);
   const currentWaveLv = waveLevel.data.find(
-    (level) => decresedHP / level.id === isExistMonster.power,
+    (level) => attackPower / level.id === isExistMonster.power,
   );
-  if (waveLevelData.id !== currentWaveLv.id) {
+
+  if (waveLevelData != currentWaveLv.id) {
     return {
       status: '실패',
+      type: 'attackedByMonster',
       message: '웨이브 레벨 정보가 다릅니다.',
     };
   }
 
-  const isVaildHPDecrement = currentWaveLv.id * isExistMonster.power === decresedHP;
-
-  if (!isVaildHPDecrement) return { status: '실패', message: '데미지 정보가 다릅니다.' };
+  if (currentWaveLv.id * isExistMonster.power !== attackPower)
+    return {
+      status: '실패',
+      type: 'attackedByMonster',
+      message: '데미지 정보가 다릅니다.',
+    };
 
   return {
     status: '성공',
-    message: `기지 hp가 ${decresedHP}만큼 하락합니다.`,
+    message: `기지 hp가 ${attackPower}만큼 하락합니다.`,
+    type: 'attackedByMonster',
+    result: { attackPower },
   };
 };
 
@@ -51,7 +60,7 @@ export const attackedByMonster = async (userId, payload) => {
 export const killMonster = async (userId, payload) => {
   const { waveLevel, monsters } = getGameAssets();
   const { monsterId, incrementScore, incrementMoney } = payload;
-
+  //  console.log("incre", incrementScore);
   // 몬스터 아이디 유효성 검증
   const isExistMonster = monsters.data.find((monster) => monster.id === monsterId);
   if (!isExistMonster) {
@@ -60,45 +69,48 @@ export const killMonster = async (userId, payload) => {
       message: '게임에 존재 하지 않는 몬스터 정보입니다.',
     };
   }
-  
-  // 현재 웨이브 레벨 검증
+  console.log(isExistMonster);
+  console.log(payload.monsterId);
+
+  //현재 웨이브 레벨 검증
   const waveLevelData = await getWaveLevel(userId);
-  //   const currentWaveLv = waveLevel.data.find(
-  //     (level) => incrementScore / level.id === isExistMonster.score,
-  //   );
 
-  // console.log(waveLevelData);
-  // if (waveLevelData.id !== currentWaveLv.id) {
-  //   return {
-  //     status: '실패',
-  //     message: '웨이브 레벨 정보가 다릅니다.',
-  //   };
-  // }
-  
+  const currentWaveLv = waveLevel.data.find((level) => {
+    incrementScore / level.id === isExistMonster.score;
+    console.log(incrementScore);
+    console.log(isExistMonster.score);
+    console.log(incrementScore / level.id === isExistMonster.score);
+  });
 
-  // //보상 금액 유효성 검증
-  // const isVaildMoneyIncrement = currentWaveLv.id * isExistMonster.reward === incrementMoney;
-  // if (!isVaildMoneyIncrement) {
-  //   return {
-  //     status: '실패',
-  //     message: '보상 금액이 일치하지 않습니다.',
-  //   };
-  // }
+  if (waveLevelData != currentWaveLv.id) {
+    return {
+      status: '실패',
+      type: 'killMonster',
+      message: '웨이브 레벨 정보가 다릅니다.',
+    };
+  }
 
-  // //회득 점수 유효성 검증
-  // const isVaildScoreIncrement = currentWaveLv * isExistMonster.score === incrementScore;
-  // if (!isVaildScoreIncrement) {
-  //   return {
-  //     status: '실패',
-  //     message: '회득 점수가 일치하지 않습니다.',
-  //   };
-  // }
+  if (currentWaveLv.id * isExistMonster.reward !== incrementMoney) {
+    return {
+      status: '실패',
+      type: 'killMonster',
+      message: '보상 금액이 일치하지 않습니다.',
+    };
+  }
 
-  await setMonster(userId, { monsterId, currentWaveLv: waveLevelData });
+  if (currentWaveLv.id * isExistMonster.score !== incrementScore) {
+    return {
+      status: '실패',
+      type: 'killMonster',
+      message: '회득 점수가 일치하지 않습니다.',
+    };
+  }
+
   await updateScore(userId, incrementScore);
   await updateUserGold(userId, incrementMoney);
   const score = await getScore(userId);
   const userGold = await getUserGold(userId);
+  await setMonster(userId, { monsterId, waveLevelData });
 
   return {
     status: 'success',

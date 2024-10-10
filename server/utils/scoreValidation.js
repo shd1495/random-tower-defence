@@ -1,5 +1,5 @@
 import { getGameAssets } from '../init/assets.js';
-import { getMonster } from '../models/monsterModel.js';
+import { getMonsters } from '../models/monsterModel.js';
 
 // 현재 게임에선 몬스터를 처치해야 점수가 오르는 형식
 // 처치했을때의 처치한 몬스터를 저장할 모델링 또는 처치했을때 획득한 score의 저장한 모델이 있어야 될 것 같다.
@@ -13,11 +13,11 @@ import { getMonster } from '../models/monsterModel.js';
  */
 export const scoreValidation = async (uuid, payload) => {
   const { waveLevel, monsters } = getGameAssets();
-  const userMonsters = await getMonster(uuid);
+  const userMonsters = await getMonsters(uuid);
   let totalScore = 0;
 
-  console.log(uuid);
-  console.log('----userMonsters----', userMonsters);
+  // console.log(uuid);
+  // console.log('----userMonsters----', userMonsters);
 
   // 획득한 아이템 점수를 더해 주기
   for (let i = 0; i < userMonsters.length; i++) {
@@ -44,7 +44,7 @@ export const scoreValidation = async (uuid, payload) => {
  */
 export const totalScore = async (uuid) => {
   const { monsters } = getGameAssets();
-  const userMonsters = await getMonster(uuid);
+  const userMonsters = await getMonsters(uuid);
   let totalScore = 0;
 
   // 획득한 아이템 점수를 더해 주기
