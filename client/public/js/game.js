@@ -158,8 +158,8 @@ function placeInitialTowers() {
   for (let i = 0; i < numOfInitialTowers; i++) {
     const { x, y } = getRandomPositionNearPath(200);
     const newTower = new Tower(x, y, 100) // 타워 여러 종류면 수정 필요
-    
-    sendEvent(20, {      
+
+    sendEvent(20, {
       towerId: 1,// Tower 클래스로 넣어야할것 같습니다.
       towerCount: i + 1,
       //towerType: 0,// 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.(타워 종류 생기면 추가)
@@ -295,7 +295,7 @@ function initGame() {
   if (isInitGame) {
     return;
   }
-  
+
   monsterPath = generateRandomMonsterPath(); // 몬스터 경로 생성
   initMap(); // 맵 초기화 (배경, 몬스터 경로 그리기)
   placeInitialTowers(); // 설정된 초기 타워 개수만큼 사전에 타워 배치
@@ -358,19 +358,22 @@ Promise.all([
     if (data.type === 'gameEnd') {
       console.log(data.message);
     }
-    if(data.type === 'setTower') {      
+    if (data.type === 'setTower') {
       console.log("data: ", data);
-      const TOWER = new Tower(data.result.tower.x, data.result.tower.y, data.result.tower.price);      
+      const TOWER = new Tower(data.result.tower.x, data.result.tower.y, data.result.tower.price);
       //console.log("data.result.towerCount: ", data.result.towerCount);
       towers.push(TOWER);
       TOWER.draw(ctx, towerImage);
+    }
+
     if (data.type === 'waveLevelIncrease') {
       console.log(data.message);
-      if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
-    if (data.type === 'killMonster') {
-      console.log('몬스터 동기화');
-      userGold = +data.result.userGold;
-      score = +data.result.score;
+      if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화    
+      if (data.type === 'killMonster') {
+        console.log('몬스터 동기화');
+        userGold = +data.result.userGold;
+        score = +data.result.score;
+      }
     }
   });
 
