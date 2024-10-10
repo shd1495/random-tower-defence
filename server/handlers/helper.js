@@ -1,3 +1,4 @@
+import { getUsers } from '../models/userModel.js';
 import { CLIENT_VERSION } from '../utils/constants.js';
 import handlerMappings from './handlerMapping.js';
 
@@ -8,7 +9,7 @@ import handlerMappings from './handlerMapping.js';
  */
 export const handleDisconnect = async (socket, uuid) => {
   console.log(`${uuid} 유저가 연결을 해제했습니다`);
-  console.log('현재 접속 중인 유저들:');
+  console.log(`현재 접속 중인 유저들: ${await getUsers()}`);
 };
 
 /**
@@ -18,7 +19,7 @@ export const handleDisconnect = async (socket, uuid) => {
  */
 export const handleConnection = async (socket, uuid) => {
   console.log('새로운 유저가 연결되었습니다.', uuid);
-  console.log('현재 접속 중인 유저들:');
+  console.log(`현재 접속 중인 유저들: ${await getUsers()}`);
 
   socket.emit('connected', { uuid }); // 'connected' 이벤트로 변경
 };

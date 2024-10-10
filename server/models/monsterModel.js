@@ -22,7 +22,7 @@ export const clearMonsters = async (uuid) => {
  */
 export const setMonster = async (uuid, monsters) => {
   try {
-    await redisClient.rpush(ITEM_SET + uuid, JSON.stringify(monsters));
+    await redisClient.rpush(MONSTER_SET + uuid, JSON.stringify(monsters));
   } catch (error) {
     throw new Error('몬스터 업데이트 시 오류가 발생했습니다.' + error.message);
   }

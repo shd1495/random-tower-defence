@@ -1,22 +1,17 @@
 import { getGameAssets } from '../init/assets.js';
+import { getGameData, initialGameData } from '../models/gameModel.js';
 
-export const gameStart = (uuid, payload, socket) => {
-  const { user } = getGameAssets();
+export const gameStart = async (uuid, payload, socket) => {
+  const { game } = getGameAssets();
 
-  const { userGold, baseHp, towerCost, numOfInitialTowers, monsterLevel, monsterSpawnInterval } =
-    user.data;
+  await initialGameData(uuid, game);
+
+  const gameData = await getGameData(uuid);
 
   return {
     status: 'success',
     type: 'gameStart',
-    data: {
-      userGold: userGold,
-      baseHp: baseHp,
-      towerCost: towerCost,
-      numOfInitialTowers: numOfInitialTowers,
-      monsterLevel: monsterLevel,
-      monsterSpawnInterval: monsterSpawnInterval,
-    },
+    data: gameData,
   };
 };
 

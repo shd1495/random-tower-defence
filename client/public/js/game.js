@@ -297,12 +297,12 @@ Promise.all([
 
   serverSocket.on('response', (data) => {
     if (data.type == 'gameStart') {
-      userGold = data.data.userGold;
-      baseHp = data.data.baseHp;
-      towerCost = data.data.towerCost;
-      numOfInitialTowers = data.data.numOfInitialTowers;
-      monsterLevel = data.data.monsterLevel;
-      monsterSpawnInterval = data.data.monsterSpawnInterval;
+      userGold = +data.data.userGold;
+      baseHp = +data.data.baseHp;
+      towerCost = +data.data.towerCost;
+      numOfInitialTowers = +data.data.numOfInitialTowers;
+      monsterLevel = +data.data.monsterLevel;
+      monsterSpawnInterval = +data.data.monsterSpawnInterval;
 
       if (!isInitGame) {
         initGame();
