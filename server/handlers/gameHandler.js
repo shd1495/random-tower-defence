@@ -14,7 +14,7 @@ export const gameStart = async (uuid, payload, socket) => {
   return {
     status: 'success',
     type: 'gameStart',
-    data: gameData,
+    result: gameData,
   };
 };
 

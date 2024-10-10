@@ -230,8 +230,8 @@ function gameLoop() {
         const incrementMoney = monster.reward;
         const incrementScore = monster.score;
 
-        userGold += incrementMoney;
-        score += incrementScore;
+        //userGold += incrementMoney;
+        //score += incrementScore;
         sendMonsterEvent(11, {
           monsterId,
           incrementMoney,
@@ -298,13 +298,13 @@ Promise.all([
 
   serverSocket.on('response', (data) => {
     if (data.type == 'gameStart') {
-      userGold = +data.data.userGold;
-      baseHp = +data.data.baseHp;
-      towerCost = +data.data.towerCost;
-      score = +data.data.score;
-      numOfInitialTowers = +data.data.numOfInitialTowers;
-      monsterLevel = +data.data.monsterLevel;
-      monsterSpawnInterval = +data.data.monsterSpawnInterval;
+      userGold = +data.result.userGold;
+      baseHp = +data.result.baseHp;
+      towerCost = +data.result.towerCost;
+      score = +data.result.score;
+      numOfInitialTowers = +data.result.numOfInitialTowers;
+      monsterLevel = +data.result.monsterLevel;
+      monsterSpawnInterval = +data.result.monsterSpawnInterval;
 
       if (!isInitGame) {
         initGame();
@@ -312,6 +312,11 @@ Promise.all([
     }
     if (data.type === 'gameEnd') {
       console.log(data.message);
+    }
+    if (data.type === 'killMonster') {
+      console.log('몬스터 동기화');
+      userGold = +data.result.userGold;
+      score = +data.result.score;
     }
   });
 

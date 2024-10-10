@@ -70,21 +70,41 @@ export const clearGameData = (uuid) => {
   }
 };
 
-export const updateScore = async (uuid, amount) => {
+export const getScore = async (uuid, amount) => {
   const key = `user:${uuid}:${GAME_SET}`;
   try {
     const score = await redisClient.hget(key, 'score');
-    console.log(score);
+    return score;
+  } catch (error) {
+    console.error(`error getScore game data for user ${uuid}`);
+  }
+};
+
+export const updateScore = async (uuid, amount) => {
+  const key = `user:${uuid}:${GAME_SET}`;
+  try {
+    const score = await getScore(uuid);
     await redisClient.hset(key, 'score', +score + +amount);
   } catch (error) {
     console.error(`error updateScore game data for user ${uuid}`);
   }
 };
 
+export const getUserGold = async (uuid) => {
+  const key = `user:${uuid}:${GAME_SET}`;
+  try {
+    const userGold = await redisClient.hget(key, 'userGold');
+    return userGold;
+  } catch (error) {
+    console.error(`error getUserGold game data for user ${uuid}`);
+  }
+};
+
 export const updateUserGold = async (uuid, amount) => {
   const key = `user:${uuid}:${GAME_SET}`;
   try {
-    await redisClient.hset(key, 'userGold', amount);
+    const userGold = await getUserGold(uuid);
+    await redisClient.hset(key, 'userGold', +userGold + +amount);
   } catch (error) {
     console.error(`error updateUserGold game data for user ${uuid}`);
   }

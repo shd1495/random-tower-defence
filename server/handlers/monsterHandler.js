@@ -1,7 +1,7 @@
 import { setMonster } from '../models/monsterModel.js';
 import { getWaveLevel } from '../models/waveLevelModel.js';
 import { getGameAssets } from '../init/assets.js';
-import { updateScore, updateUserGold } from '../models/gameModel.js';
+import { getScore, getUserGold, updateScore, updateUserGold } from '../models/gameModel.js';
 
 /**
  * @param {String} userId
@@ -96,10 +96,12 @@ export const killMonster = async (userId, payload) => {
 
   await updateScore(userId, incrementScore);
   await updateUserGold(userId, incrementMoney);
+  const score = await getScore(userId);
+  const userGold = await getUserGold(userId);
 
   return {
-    status: '성공',
-    message: `몬스터를 처치했습니다. 점수가 ${incrementScore}만큼 상승, 
-          소지금이 ${incrementMoney}만큼 상승합니다.`,
+    status: 'success',
+    type: 'killMonster',
+    result: { score, userGold },
   };
 };
