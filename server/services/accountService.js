@@ -1,4 +1,3 @@
-// server/services/accountService.js
 import { prisma } from '../utils/prisma/index.js';
 import bcrypt from 'bcrypt';
 
@@ -13,12 +12,11 @@ class Account {
     Account.instance = this;
   }
 
-  // HIGHLIGHT: 계정 추가 부분 uuid (name을 uuid로 해야 하나?)
   async createAccount(accountId, password, uuid) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const account = await prisma.accounts.create({
-      data: { id: accountId, password: hashedPassword, name: uuid },
+      data: { accountId: accountId, password: hashedPassword, uuid: uuid },
     });
     return account;
   }

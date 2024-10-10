@@ -1,4 +1,2 @@
-const handlerMappings = {
-  2: gameStart,
-};
+const handlerMappings = {};
 export default handlerMappings;

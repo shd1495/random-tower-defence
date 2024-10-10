@@ -1,4 +1,3 @@
-// server/handlers/helper.js
 import { removeUser } from '../models/account.model.js';
 import { CLIENT_VERSION } from '../utils/constans.js';
 import handlerMappings from './handlerMapping.js';

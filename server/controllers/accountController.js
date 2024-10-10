@@ -1,8 +1,8 @@
-// server/controllers/accountController.js
 import { throwError } from '../utils/errorHandle.js';
 import accountService from '../services/accountService.js';
 import jwt from 'jsonwebtoken';
 import Joi from 'joi';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
 //  * 회원가입
@@ -13,22 +13,17 @@ import Joi from 'joi';
 //  */
 
 export async function signup(req, res, next) {
-  const { id, password, confirmPassword, name } = req.body;
+  const { accountId, password, confirmPassword } = req.body;
   try {
     // 데이터 유효성
     const schema = Joi.object({
-      id: Joi.string()
+      accountId: Joi.string()
         .pattern(/^[a-zA-Z0-9]+$/)
         .min(6)
         .max(16)
         .required(),
       password: Joi.string().min(6).max(16).required(),
       confirmPassword: Joi.valid(Joi.ref(`password`)).required(),
-      name: Joi.string()
-        .pattern(/^[가-힣]+$/)
-        .min(2)
-        .max(4)
-        .required(),
     });
     const { error } = schema.validate(req.body);
     if (error) {
@@ -37,14 +32,15 @@ export async function signup(req, res, next) {
     }
 
     // 계정 찾기, 계정 있는지 확인
-    const existingAccount = await accountService.findAccount(id);
+    const existingAccount = await accountService.findAccount(accountId);
     if (existingAccount) {
       // error: 이미 id가 일치하는 계정이 존재하는 경우
       return;
     }
 
+    const uuid = uuidv4();
     // HIGHLIGHT: 계정 추가 부분 uuid (계정 추가 부분 uuid)
-    const newAccount = await accountService.createAccount(id, password, name);
+    const newAccount = await accountService.createAccount(accountId, password, uuid);
 
     return res.status(201).json({ message: '회원 가입에 성공', account: newAccount });
   } catch (error) {
@@ -60,11 +56,11 @@ export async function signup(req, res, next) {
  * @returns
  */
 export async function signin(req, res, next) {
-  const { id, password } = req.body;
+  const { accountId, password } = req.body;
   try {
     //데이터 유효성
     const schema = Joi.object({
-      id: Joi.string()
+      accountId: Joi.string()
         .pattern(/^[a-zA-Z0-9]+$/)
         .min(6)
         .max(16)
@@ -77,7 +73,7 @@ export async function signin(req, res, next) {
     }
 
     // 존재하는 지, password는 일치하는지
-    const existingAccount = await accountService.findAccount(id);
+    const existingAccount = await accountService.findAccount(accountId);
     if (!existingAccount) {
       // error: 계정이 존재하지 않는 경우
       return;
@@ -89,7 +85,9 @@ export async function signin(req, res, next) {
     }
 
     // JWT 토큰, secret-key는 나중에 수정해야 함
-    const token = jwt.sign({ accountId: existingAccount.id }, 'secret-key', { expiresIn: '1h' });
+    const token = jwt.sign({ accountId: existingAccount.id }, process.env.SESSION_SECRET_KEY, {
+      expiresIn: '1h',
+    });
 
     res.header('authorization', `Bearer ${token}`);
 
