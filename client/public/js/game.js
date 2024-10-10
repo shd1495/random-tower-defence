@@ -23,7 +23,7 @@ let base; // 기지 객체
 let baseHp = 0; // 기지 체력
 // let lastSetTowerImage = new Image();
 // lastSetTowerImage.src = '../assets/images/tower.png'; // 마지막에 설치한 타워 이미지
-let numOfInitialTowers = 1; // 초기 타워 개수
+let numOfInitialTowers = 3; // 초기 타워 개수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
 
@@ -155,11 +155,10 @@ function placeInitialTowers() {
     const { x, y } = getRandomPositionNearPath(200);
     const newTower = new Tower(x, y, 100) // 타워 여러 종류면 수정 필요
     
-    sendEvent(21, {
-      userGold: userGold,
-      towerCount: towers.length,
+    sendEvent(20, {      
       towerId: 1,// Tower 클래스로 넣어야할것 같습니다.
-      towerType: 0,// 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.
+      towerCount: i + 1,
+      //towerType: 0,// 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.(타워 종류 생기면 추가)
       tower: newTower,// 생성할 타워 보내기(타워 종류 생기면 수정)
     });
   }
@@ -186,6 +185,10 @@ function placeNewTower() {
   userGold -= newTower.price;
   console.log("userGold: ", userGold);
 }
+
+// function sellTower(index) {
+
+// }
 
 function placeBase() {
   const lastPoint = monsterPath[monsterPath.length - 1];
@@ -331,8 +334,8 @@ Promise.all([
     }
 
     if(data.type === 'setTower') {      
-      const TOWER = new Tower(data.result.tower.x, data.result.tower.y, data.result.tower.price);
-      console.log("setTower: ", data.result);
+      console.log("data: ", data);
+      const TOWER = new Tower(data.result.tower.x, data.result.tower.y, data.result.tower.price);      
       //console.log("data.result.towerCount: ", data.result.towerCount);
       towers.push(TOWER);
       TOWER.draw(ctx, towerImage);
