@@ -6,8 +6,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const basePath = path.join(__dirname, '../../client/public/assets/dataTables');
 
-// 파일 읽는 함수
-// 비동기 병렬로 파일을 읽는다
 const readFileAsync = (filename) => {
   return new Promise((resolve, reject) => {
     fs.readFile(path.join(basePath, filename), 'utf8', (err, data) => {
@@ -20,17 +18,16 @@ const readFileAsync = (filename) => {
   });
 };
 
-// Promise.all() 비동기 병렬 처리
 export const loadGameAssets = async () => {
   try {
-    const [user, monster, tower, waveLevel] = await Promise.all([
-      readFileAsync('user.json'),
+    const [monsters, tower, game, waveLevel] = await Promise.all([
       readFileAsync('monster.json'),
       readFileAsync('tower.json'),
+      readFileAsync('game.json'),
       readFileAsync('waveLevel.json'),
     ]);
 
-    gameAssets = { user, monster, tower, waveLevel };
+    gameAssets = { monsters, tower, game, waveLevel };
     return gameAssets;
   } catch (error) {
     throw new Error('assets 파일 로드에 실패했습니다.' + error.message);

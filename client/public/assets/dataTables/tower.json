@@ -4,26 +4,29 @@
   "data": [
     {
       "id": 1,
+      "speed": 50,
       "price": 100,
-      "towerDamage": 40,
-      "beamDuration": 0.5,
-      "coolDown": 1,
+      "towerDamage": 10,
+      "beamDuration": 2000,
+      "coolDown": 3000,
       "image": "../images/tower.png"
     },
     {
-      "id": 1,
-      "price": 100,
-      "towerDamage": 40,
-      "beamDuration": 0.5,
-      "coolDown": 1,
+      "id": 2,
+      "speed": 30,
+      "price": 200,
+      "towerDamage": 20,
+      "beamDuration": 3000,
+      "coolDown": 2000,
       "image": "../images/towerleveltest2.png"
     },
     {
-      "id": 1,
-      "price": 100,
-      "towerDamage": 40,
-      "beamDuration": 0.5,
-      "coolDown": 1,
+      "id": 3,
+      "speed": 60,
+      "price": 300,
+      "towerDamage": 30,
+      "beamDuration": 4000,
+      "coolDown": 2000,
       "image": "../images/towerleveltest3.png"
     }
   ]

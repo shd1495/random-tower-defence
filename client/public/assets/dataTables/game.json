@@ -1,0 +1,12 @@
+{
+  "name": "user",
+  "version": "1.0.0",
+  "data": {
+    "userGold": 3000,
+    "baseHp": 500,
+    "towerCost": 100,
+    "numOfInitialTowers": 3,
+    "monsterLevel": 1,
+    "monsterSpawnInterval": 1000
+  }
+}
