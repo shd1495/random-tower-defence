@@ -25,6 +25,7 @@ let towerCost = 0; // 타워 구입 비용
 let numOfInitialTowers = 0; // 초기 타워 개수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
+let monsterKillList = [];
 
 const monsters = [];
 const towers = [];
@@ -300,6 +301,7 @@ Promise.all([
       userGold = +data.data.userGold;
       baseHp = +data.data.baseHp;
       towerCost = +data.data.towerCost;
+      score = +data.data.score;
       numOfInitialTowers = +data.data.numOfInitialTowers;
       monsterLevel = +data.data.monsterLevel;
       monsterSpawnInterval = +data.data.monsterSpawnInterval;
