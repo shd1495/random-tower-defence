@@ -157,13 +157,13 @@ function placeInitialTowers() {
 
   for (let i = 0; i < numOfInitialTowers; i++) {
     const { x, y } = getRandomPositionNearPath(200);
-    const newTower = new Tower(x, y, 100) // 타워 여러 종류면 수정 필요
+    const newTower = new Tower(x, y, 100); // 타워 여러 종류면 수정 필요
 
     sendEvent(20, {
-      towerId: 1,// Tower 클래스로 넣어야할것 같습니다.
+      towerId: 1, // Tower 클래스로 넣어야할것 같습니다.
       towerCount: i + 1,
       //towerType: 0,// 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.(타워 종류 생기면 추가)
-      tower: newTower,// 생성할 타워 보내기(타워 종류 생기면 수정)
+      tower: newTower, // 생성할 타워 보내기(타워 종류 생기면 수정)
     });
   }
 }
@@ -255,13 +255,11 @@ function gameLoop() {
         // const monsterId = monster.monsterId + 1;
         // const incrementMoney = monster.reward;
         // const incrementScore = monster.score;
-
         // sendMonsterEvent(11, {
         //   monsterId,
         //   incrementMoney,
         //   incrementScore,
         // });
-
         // 웨이브 레벨업 서버에 요청하기 보내주기
         if (
           waveLevelAssetData.data[monsterLevel] &&
@@ -271,7 +269,6 @@ function gameLoop() {
           sendEvent(31, { score, currentLevel: monsterLevel, nextLevel: monsterLevel + 1 });
           isWaveChange = false;
         }
-
         // 만약 웨이브이전 점수보다 높으면 isWaveChange 다시 초기화
         if (
           waveLevelAssetData.data[monsterLevel - 1] &&
@@ -355,7 +352,7 @@ Promise.all([
     if (data.type === 'gameEnd') {
       console.log(data.message);
     }
-    if (data.type === 'setTower') {      
+    if (data.type === 'setTower') {
       const TOWER = new Tower(data.result.tower.x, data.result.tower.y, data.result.tower.price);
       //console.log("data.result.towerCount: ", data.result.towerCount);
       towers.push(TOWER);
@@ -366,15 +363,16 @@ Promise.all([
     // }
     if (data.type === 'waveLevelIncrease') {
       console.log(data.message);
-      if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
+      if (data.waveLevel) {
+        monsterLevel = data.waveLevel; // 몬스터레벨 동기화
+      }
     }
-    if (data.type === 'killMonster') {
-      console.log('몬스터 동기화');
+    if (data.result && typeof data.result.userGold !== 'undefined') {
+      console.log(+data.result.userGold);
       userGold = +data.result.userGold;
       score = +data.result.score;
     }
     if (data.type === 'attackedByMonster') {
-      console.log('기지 동기화');
       baseHp = +data.result.attackPower;
     }
   });
