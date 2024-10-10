@@ -1,12 +1,14 @@
 import { getGameAssets } from '../init/assets.js';
 import { getGameData, initialGameData } from '../models/gameModel.js';
+import { setWaveLevel } from '../models/waveLevelModel.js';
 
 export const gameStart = async (uuid, payload, socket) => {
-  const { game } = getGameAssets();
+  const { game, waveLevel } = getGameAssets();
 
   await initialGameData(uuid, game);
 
   const gameData = await getGameData(uuid);
+  setWaveLevel(uuid, waveLevel.data[0].id);
 
   return {
     status: 'success',

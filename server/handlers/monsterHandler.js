@@ -60,7 +60,7 @@ export const killMonster = async (userId, payload) => {
     };
   }
   // 현재 웨이브 레벨 검증
-  //   const waveLevelData = await getWaveLevel(userId);
+  const waveLevelData = await getWaveLevel(userId);
   //   const currentWaveLv = waveLevel.data.find(
   //     (level) => incrementScore / level.id === isExistMonster.score,
   //   );
@@ -90,7 +90,7 @@ export const killMonster = async (userId, payload) => {
   //     };
   //   }
 
-  //   await setMonster(userId, { monsterId, currentWaveLv });
+  await setMonster(userId, { monsterId, currentWaveLv: waveLevelData });
 
   return {
     status: '성공',

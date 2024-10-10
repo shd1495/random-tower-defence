@@ -5,11 +5,7 @@ import { CLIENT_VERSION } from './constants.js';
 import { MONSTERS, WAVE_LEVEL } from '../utils/constants.js';
 import { getGameAssets } from '../init/assets.js';
 
-const { monsterAssetData, towerAssetData, userAssetData, waveLevelAssetData } = getGameAssets();
-console.log(monsterAssetData);
-console.log(towerAssetData);
-console.log(userAssetData);
-console.log(waveLevelAssetData);
+const { monsterAssetData, towerAssetData, gameAssetData, waveLevelAssetData } = getGameAssets();
 
 const SERVER_URL = 'http://localhost:3080'; // 실제 서버 주소로 변경하세요.
 
@@ -235,7 +231,8 @@ function gameLoop() {
       /* 몬스터가 죽었을 때 */
 
       if (monster.hp <= 0) {
-        const monsterId = monster.monsterId;
+        const monsterId = monster.monsterId + 1;
+        console.log('monsterId', monsterId);
         const incrementMoney = monster.reward;
         const incrementScore = monster.score;
 
@@ -369,6 +366,7 @@ Promise.all([
   sendMonsterEvent = (handlerId, payload) => {
     serverSocket.emit('monsterEvent', {
       clientVersion: CLIENT_VERSION,
+      userId,
       handlerId,
       payload,
     });
