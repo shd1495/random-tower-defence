@@ -5,6 +5,7 @@
     "userGold": 3000,
     "baseHp": 500,
     "towerCost": 100,
+    "score": 0,
     "numOfInitialTowers": 3,
     "monsterLevel": 1,
     "monsterSpawnInterval": 1000

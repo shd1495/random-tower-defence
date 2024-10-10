@@ -1,0 +1,38 @@
+
+// This is your Prisma  file,
+// learn more about it in the docs: https://pris.ly/d/prisma-
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Accounts {
+  id Int @id @default(autoincrement())
+  uuid String @unique
+  accountId String  @unique
+  password String 
+  createdDate DateTime @default(now())
+
+  scores  Score[]
+
+  @@map("accounts")
+}
+
+model Score {
+  id Int @id       @default(autoincrement())
+  accountId String @unique
+  highScore Int    @default(0)
+  playAt DateTime  @default(now())
+
+  account  Accounts  @relation(fields: [accountId], references:[accountId])
+
+  @@map("score")
+}
