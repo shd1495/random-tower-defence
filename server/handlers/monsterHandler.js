@@ -79,12 +79,14 @@ export const killMonster = async (userId, payload) => {
           };
      }
 
+
      //현재 웨이브 레벨 검증
      const waveLevelData = await getWaveLevel(userId);
 
      const currentWaveLv = waveLevel.data.find(
           (level) => incrementScore / level.id === isExistMonster.score
      );
+
 
      if (waveLevelData != currentWaveLv.id) {
           return {
@@ -102,6 +104,7 @@ export const killMonster = async (userId, payload) => {
           };
      }
 
+
      if (currentWaveLv.id * isExistMonster.score !== incrementScore) {
           return {
                status: "실패",
@@ -115,6 +118,7 @@ export const killMonster = async (userId, payload) => {
      await updateUserGold(userId, incrementMoney);
      const score = await getScore(userId);
      const userGold = await getUserGold(userId); //
+
 
      return {
           status: "success",

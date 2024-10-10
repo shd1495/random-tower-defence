@@ -20,14 +20,14 @@ const readFileAsync = (filename) => {
 
 export const loadGameAssets = async () => {
   try {
-    const [monsters, tower, game, waveLevel] = await Promise.all([
+    const [monsters, towers, game, waveLevel] = await Promise.all([
       readFileAsync('monster.json'),
-      readFileAsync('tower.json'),
+      readFileAsync('towers.json'),
       readFileAsync('game.json'),
       readFileAsync('waveLevel.json'),
     ]);
 
-    gameAssets = { monsters, tower, game, waveLevel };
+    gameAssets = { monsters, towers, game, waveLevel };
     return gameAssets;
   } catch (error) {
     throw new Error('assets 파일 로드에 실패했습니다.' + error.message);

@@ -9,6 +9,7 @@ const GAME_SET = "game";
  * @param {Object} game 유저의 게임 데이터
  */
 export const initialGameData = async (uuid, game) => {
+
      const {
           userGold,
           baseHp,
@@ -29,6 +30,7 @@ export const initialGameData = async (uuid, game) => {
           monsterLevel: monsterLevel,
           monsterSpawnInterval: monsterSpawnInterval,
      };
+
 
      try {
           await redisClient.hset(key, gameData);

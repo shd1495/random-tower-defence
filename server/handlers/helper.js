@@ -1,6 +1,7 @@
-import { clearGameData } from '../models/gameModel.js';
+import { getTowers, clearTowers } from '../models/towerModel.js';
 import { clearMonsters } from '../models/monsterModel.js';
 import { getUsers, removeUser } from '../models/userModel.js';
+import { clearGameData } from '../models/gameModel.js';
 import { clearWaveLevel } from '../models/waveLevelModel.js';
 import { CLIENT_VERSION } from '../utils/constants.js';
 import handlerMappings from './handlerMapping.js';
@@ -11,6 +12,11 @@ import handlerMappings from './handlerMapping.js';
  * @param {String} uuid
  */
 export const handleDisconnect = async (socket, uuid) => {
+  // 접속 해제시 타워 초기화
+  clearTowers(uuid);
+  console.log(`${uuid} 유저의 모든 타워를 삭제하였습니다`, getTowers(uuid));
+
+  // 접속 해제시 연결 초기화
   removeUser(uuid);
   clearWaveLevel(uuid);
   clearMonsters(uuid);
@@ -51,6 +57,7 @@ export const handleEvent = async (io, socket, data) => {
 
   //핸들러 체크
   const handler = handlerMappings[data.handlerId];
+
   if (!handler) {
     socket.emit('response', { status: '실패', message: '핸들러를 찾을 수 없습니다.' });
     return;
