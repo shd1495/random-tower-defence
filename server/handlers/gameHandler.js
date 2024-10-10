@@ -1,6 +1,7 @@
 import { getGameAssets } from '../init/assets.js';
 import { getGameData, initialGameData } from '../models/gameModel.js';
-import { setWaveLevel } from '../models/waveLevelModel.js';
+import { setWaveLevel, clearWaveLv } from '../models/waveLevelModel.js';
+import { clearMonsters } from '../models/monsterModel.js';
 
 export const gameStart = async (uuid, payload, socket) => {
   const { game, waveLevel } = getGameAssets();
@@ -20,6 +21,9 @@ export const gameStart = async (uuid, payload, socket) => {
 export const gameEnd = (uuid, payload, socket) => {
   const { timestamp, score } = payload;
   const { game, monster } = getGameAssets();
+
+  clearWaveLv(uuid);
+  clearMonsters(uuid);
 
   return { status: 'success', type: 'gameEnd', message: 'game over' };
 };

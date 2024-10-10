@@ -1,4 +1,6 @@
+import { clearMonsters } from '../models/monsterModel.js';
 import { getUsers, removeUser } from '../models/userModel.js';
+import { clearWaveLv } from '../models/waveLevelModel.js';
 import { CLIENT_VERSION } from '../utils/constants.js';
 import handlerMappings from './handlerMapping.js';
 
@@ -11,6 +13,9 @@ export const handleDisconnect = async (socket, uuid) => {
   await removeUser(uuid);
   console.log(`${uuid} 유저가 연결을 해제했습니다`);
   console.log('현재 접속 중인 유저들: ', await getUsers());
+
+  clearWaveLv(uuid);
+  clearMonsters(uuid);
 };
 
 /**
