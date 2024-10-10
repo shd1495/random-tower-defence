@@ -69,17 +69,12 @@ export const killMonster = async (userId, payload) => {
       message: '게임에 존재 하지 않는 몬스터 정보입니다.',
     };
   }
-  console.log(isExistMonster);
-  console.log(payload.monsterId);
 
   //현재 웨이브 레벨 검증
   const waveLevelData = await getWaveLevel(userId);
 
   const currentWaveLv = waveLevel.data.find((level) => {
-    incrementScore / level.id === isExistMonster.score;
-    console.log(incrementScore);
-    console.log(isExistMonster.score);
-    console.log(incrementScore / level.id === isExistMonster.score);
+    return incrementScore / level.id === isExistMonster.score;
   });
 
   if (waveLevelData != currentWaveLv.id) {
@@ -110,7 +105,7 @@ export const killMonster = async (userId, payload) => {
   await updateUserGold(userId, incrementMoney);
   const score = await getScore(userId);
   const userGold = await getUserGold(userId);
-  await setMonster(userId, { monsterId, waveLevelData });
+  await setMonster(userId, { monsterId: monsterId, waveLevelData });
 
   return {
     status: 'success',
