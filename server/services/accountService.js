@@ -1,5 +1,4 @@
 import { prisma } from '../utils/prisma/index.js';
-import bcrypt from 'bcrypt';
 
 class Account {
   static instance = null;
@@ -13,12 +12,10 @@ class Account {
   }
 
   async createAccount(accountId, password, uuid) {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const account = await prisma.accounts.create({
       data: {
         accountId: accountId,
-        password: hashedPassword,
+        password: password,
         uuid: uuid,
       },
     });
