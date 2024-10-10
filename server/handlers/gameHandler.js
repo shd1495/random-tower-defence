@@ -1,8 +1,7 @@
 import { getGameAssets } from '../init/assets.js';
 import { getGameData, initialGameData } from '../models/gameModel.js';
-import { setWaveLevel, clearWaveLv } from '../models/waveLevelModel.js';
+import { setWaveLevel, clearWaveLevel } from '../models/waveLevelModel.js';
 import { clearMonsters, getMonsters } from '../models/monsterModel.js';
-import { setWaveLevel } from '../models/waveLevelModel.js';
 
 export const gameStart = async (uuid, payload, socket) => {
   const { game, waveLevel } = getGameAssets();
@@ -24,7 +23,7 @@ export const gameEnd = async (uuid, payload, socket) => {
   const { timestamp, score } = payload;
   const { game, monster } = getGameAssets();
 
-  clearWaveLv(uuid);
+  clearWaveLevel(uuid);
   clearMonsters(uuid);
   await getMonsters();
 

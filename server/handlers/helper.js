@@ -1,11 +1,8 @@
 import { getTowers, clearTowers } from '../models/towerModel.js';
 import { clearMonsters } from '../models/monsterModel.js';
 import { getUsers, removeUser } from '../models/userModel.js';
-import { clearWaveLv } from '../models/waveLevelModel.js';
 import { clearGameData } from '../models/gameModel.js';
-import { clearMonsters } from '../models/monsterModel.js';
-import { getUsers, removeUser } from '../models/userModel.js';
-import { clearWaveLevel, clearWaveLv } from '../models/waveLevelModel.js';
+import { clearWaveLevel } from '../models/waveLevelModel.js';
 import { CLIENT_VERSION } from '../utils/constants.js';
 import handlerMappings from './handlerMapping.js';
 
