@@ -8,8 +8,6 @@
     "score": 0,
     "numOfInitialTowers": 3,
     "monsterLevel": 1,
-    "monsterSpawnInterval": 1000,
-    "monsterKillList": [],
-    "towerList": []
+    "monsterSpawnInterval": 1000
   }
 }

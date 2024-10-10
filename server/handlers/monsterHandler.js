@@ -1,6 +1,7 @@
 import { setMonster } from '../models/monsterModel.js';
 import { getWaveLevel } from '../models/waveLevelModel.js';
 import { getGameAssets } from '../init/assets.js';
+import { getScore, getUserGold, updateScore, updateUserGold } from '../models/gameModel.js';
 
 /**
  * @param {String} userId
@@ -59,42 +60,48 @@ export const killMonster = async (userId, payload) => {
       message: '게임에 존재 하지 않는 몬스터 정보입니다.',
     };
   }
-  // 현재 웨이브 레벨 검증
-  //   const waveLevelData = await getWaveLevel(userId);
-  //   const currentWaveLv = waveLevel.data.find(
-  //     (level) => incrementScore / level.id === isExistMonster.score,
-  //   );
+  //현재 웨이브 레벨 검증
+  const waveLevelData = await getWaveLevel(userId);
+  const currentWaveLv = waveLevel.data.find(
+    (level) => incrementScore / level.id === isExistMonster.score,
+  );
 
-  //   if (waveLevelData.id !== currentWaveLv.id) {
-  //     return {
-  //       status: '실패',
-  //       message: '웨이브 레벨 정보가 다릅니다.',
-  //     };
-  //   }
+  // console.log(waveLevelData);
+  // if (waveLevelData.id !== currentWaveLv.id) {
+  //   return {
+  //     status: '실패',
+  //     message: '웨이브 레벨 정보가 다릅니다.',
+  //   };
+  // }
 
-  //보상 금액 유효성 검증
-  //   const isVaildMoneyIncrement = currentWaveLv.id * isExistMonster.reward === incrementMoney;
-  //   if (!isVaildMoneyIncrement) {
-  //     return {
-  //       status: '실패',
-  //       message: '보상 금액이 일치하지 않습니다.',
-  //     };
-  //   }
+  // //보상 금액 유효성 검증
+  // const isVaildMoneyIncrement = currentWaveLv.id * isExistMonster.reward === incrementMoney;
+  // if (!isVaildMoneyIncrement) {
+  //   return {
+  //     status: '실패',
+  //     message: '보상 금액이 일치하지 않습니다.',
+  //   };
+  // }
 
-  //   //회득 점수 유효성 검증
-  //   const isVaildScoreIncrement = currentWaveLv * isExistMonster.score === incrementScore;
-  //   if (!isVaildScoreIncrement) {
-  //     return {
-  //       status: '실패',
-  //       message: '회득 점수가 일치하지 않습니다.',
-  //     };
-  //   }
+  // //회득 점수 유효성 검증
+  // const isVaildScoreIncrement = currentWaveLv * isExistMonster.score === incrementScore;
+  // if (!isVaildScoreIncrement) {
+  //   return {
+  //     status: '실패',
+  //     message: '회득 점수가 일치하지 않습니다.',
+  //   };
+  // }
 
-  //   await setMonster(userId, { monsterId, currentWaveLv });
+  await setMonster(userId, { monsterId, waveLevelData });
+
+  await updateScore(userId, incrementScore);
+  await updateUserGold(userId, incrementMoney);
+  const score = await getScore(userId);
+  const userGold = await getUserGold(userId);
 
   return {
-    status: '성공',
-    message: `몬스터를 처치했습니다. 점수가 ${incrementScore}만큼 상승, 
-          소지금이 ${incrementMoney}만큼 상승합니다.`,
+    status: 'success',
+    type: 'killMonster',
+    result: { score, userGold },
   };
 };

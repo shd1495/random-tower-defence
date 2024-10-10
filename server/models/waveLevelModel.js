@@ -7,7 +7,7 @@ const WAVE_LEVEL = 'waveLevel';
  * 웨이브 레벨 목록 초기화
  * @param {String} uuid
  */
-export const clearWaveLv = async (uuid) => {
+export const clearWaveLevel = async (uuid) => {
   try {
     redisClient.del(WAVE_LEVEL + uuid);
   } catch (error) {
