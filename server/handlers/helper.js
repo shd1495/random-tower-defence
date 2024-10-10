@@ -1,4 +1,4 @@
-import { removeUser } from '../models/account.model.js';
+import { removeUser } from '../models/accountModel.js';
 import { CLIENT_VERSION } from '../utils/constans.js';
 import handlerMappings from './handlerMapping.js';
 
