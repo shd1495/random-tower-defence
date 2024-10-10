@@ -1,4 +1,7 @@
+import { clearGameData } from '../models/gameModel.js';
+import { clearMonsters } from '../models/monsterModel.js';
 import { getUsers, removeUser } from '../models/userModel.js';
+import { clearWaveLevel } from '../models/waveLevelModel.js';
 import { CLIENT_VERSION } from '../utils/constants.js';
 import handlerMappings from './handlerMapping.js';
 
@@ -8,7 +11,10 @@ import handlerMappings from './handlerMapping.js';
  * @param {String} uuid
  */
 export const handleDisconnect = async (socket, uuid) => {
-  await removeUser(uuid);
+  removeUser(uuid);
+  clearWaveLevel(uuid);
+  clearMonsters(uuid);
+  clearGameData(uuid);
   console.log(`${uuid} 유저가 연결을 해제했습니다`);
   console.log('현재 접속 중인 유저들: ', await getUsers());
 };
