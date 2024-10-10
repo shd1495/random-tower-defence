@@ -3,6 +3,9 @@ import { Monster } from './monster.js';
 import { Tower } from './tower.js';
 import { CLIENT_VERSION } from './constants.js';
 import { MONSTERS, WAVE_LEVEL } from '../utils/constants.js';
+import { getGameAssets } from '../init/assets.js';
+
+const { monsterAssetData, towerAssetData, gameAssetData, waveLevelAssetData } = getGameAssets();
 
 const SERVER_URL = 'http://localhost:3080'; // 실제 서버 주소로 변경하세요.
 
@@ -32,6 +35,7 @@ const towers = [];
 let score = 0; // 게임 점수
 let highScore = 0; // 기존 최고 점수
 let isInitGame = false;
+let isWaveChange = true;
 
 // 이미지 로딩 파트
 const backgroundImage = new Image();
@@ -226,7 +230,8 @@ function gameLoop() {
       /* 몬스터가 죽었을 때 */
 
       if (monster.hp <= 0) {
-        const monsterId = monster.monsterId;
+        const monsterId = monster.monsterId + 1;
+        console.log('monsterId', monsterId);
         const incrementMoney = monster.reward;
         const incrementScore = monster.score;
 
@@ -237,6 +242,25 @@ function gameLoop() {
           incrementMoney,
           incrementScore,
         });
+
+        // 웨이브 레벨업 서버에 요청하기 보내주기
+        if (
+          waveLevelAssetData.data[monsterLevel] &&
+          score >= waveLevelAssetData.data[monsterLevel].score &&
+          isWaveChange
+        ) {
+          sendEvent(31, { score, currentLevel: monsterLevel, nextLevel: monsterLevel + 1 });
+          isWaveChange = false;
+        }
+
+        // 만약 웨이브이전 점수보다 높으면 isWaveChange 다시 초기화
+        if (
+          waveLevelAssetData.data[monsterLevel - 1] &&
+          score >= waveLevelAssetData.data[monsterLevel - 1].score &&
+          !isWaveChange
+        ) {
+          isWaveChange = true;
+        }
       }
 
       monsters.splice(i, 1);
@@ -313,6 +337,9 @@ Promise.all([
     if (data.type === 'gameEnd') {
       console.log(data.message);
     }
+    if (data.type === 'waveLevelIncrease') {
+      console.log(data.message);
+      if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
     if (data.type === 'killMonster') {
       console.log('몬스터 동기화');
       userGold = +data.result.userGold;

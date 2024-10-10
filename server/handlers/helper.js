@@ -1,7 +1,10 @@
+import { clearMonsters } from '../models/monsterModel.js';
+import { getUsers, removeUser } from '../models/userModel.js';
+import { clearWaveLv } from '../models/waveLevelModel.js';
 import { clearGameData } from '../models/gameModel.js';
 import { clearMonsters } from '../models/monsterModel.js';
 import { getUsers, removeUser } from '../models/userModel.js';
-import { clearWaveLevel } from '../models/waveLevelModel.js';
+import { clearWaveLevel, clearWaveLv } from '../models/waveLevelModel.js';
 import { CLIENT_VERSION } from '../utils/constants.js';
 import handlerMappings from './handlerMapping.js';
 
@@ -17,6 +20,9 @@ export const handleDisconnect = async (socket, uuid) => {
   clearGameData(uuid);
   console.log(`${uuid} 유저가 연결을 해제했습니다`);
   console.log('현재 접속 중인 유저들: ', await getUsers());
+
+  clearWaveLv(uuid);
+  clearMonsters(uuid);
 };
 
 /**
@@ -51,6 +57,7 @@ export const handleEvent = async (io, socket, data) => {
 
   //핸들러 체크
   const handler = handlerMappings[data.handlerId];
+
   if (!handler) {
     socket.emit('response', { status: '실패', message: '핸들러를 찾을 수 없습니다.' });
     return;
