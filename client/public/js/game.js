@@ -328,6 +328,7 @@ Promise.all([
   sendEvent = (handlerId, payload) => {
     serverSocket.emit('event', {
       clientVersion: CLIENT_VERSION,
+      userId,
       handlerId,
       payload,
     });
