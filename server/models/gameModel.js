@@ -23,7 +23,7 @@ export const initialGameData = async (uuid, game) => {
   const gameData = {
     userGold: userGold,
     baseHp: baseHp,
-    towerCost: towerCost,
+    //towerPrice: towerPrice,
     score: score,
     numOfInitialTowers: numOfInitialTowers,
     monsterLevel: monsterLevel,
