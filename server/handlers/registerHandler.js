@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { handleConnection, handleEvent, handleDisconnect } from './helper.js';
+import { addUser } from '../models/userModel.js';
 
 const registerHandler = (io) => {
   // 유저 접속시 (대기하는 함수)
