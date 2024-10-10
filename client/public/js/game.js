@@ -275,6 +275,7 @@ Promise.all([
   serverSocket = io(SERVER_URL, {
     query: {
       clientVersion: CLIENT_VERSION,
+      token: localStorage.getItem('jwt'),
     },
   });
 

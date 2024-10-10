@@ -8,8 +8,8 @@ const USER_SET = 'user';
  */
 export const addUser = async (user) => {
   try {
-    await redisClient.set(user.uuid, JSON.stringify(user));
-    await redisClient.sadd(USER_SET, user.uuid);
+    await redisClient.set(user.userId, JSON.stringify(user));
+    await redisClient.sadd(USER_SET, user.userId);
   } catch (error) {
     throw new Error('유저 정보를 저장하는 중 오류가 발생했습니다.' + error.message);
   }
@@ -19,11 +19,11 @@ export const addUser = async (user) => {
  * 접속 중인 유저 목록에서 제거
  * @param {String} uuid
  */
-export const removeUser = (uuid) => {
+export const removeUser = async (uuid) => {
   try {
-    redisClient.del(uuid);
+    await redisClient.del(uuid);
     // 유저 UUID를 세트에서 제거
-    redisClient.srem(USER_SET, uuid);
+    await redisClient.srem(USER_SET, uuid);
   } catch (error) {
     throw new Error('유저 정보를 삭제하는 중 에러가 발생했습니다.' + error.message);
   }

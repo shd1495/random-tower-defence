@@ -50,7 +50,6 @@ export const attackedByMonster = async (userId, payload) => {
 export const killMonster = async (userId, payload) => {
   const { waveLevel, monsters } = getGameAssets();
   const { monsterId, incrementScore, incrementMoney } = payload;
-  console.log(payload);
 
   // 몬스터 아이디 유효성 검증
   const isExistMonster = monsters.data.find((monster) => monster.id === monsterId);
