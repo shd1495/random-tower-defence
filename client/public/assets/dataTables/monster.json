@@ -1,9 +1,30 @@
 {
-  "name": "monster",
-  "version": "1.0.0",
-  "data": [
-    { "id": 1, "speed": 1, "power": 1, "score": 1, "reward": 1 },
-    { "id": 2, "speed": 1, "power": 1, "score": 1, "reward": 1 },
-    { "id": 3, "speed": 1, "power": 1, "score": 1, "reward": 1 }
-  ]
+     "name": "monster",
+     "version": "1.0.0",
+     "data": [
+          {
+               "id": 1,
+               "speed": 10,
+               "power": 10,
+               "score": 5,
+               "hp": 10,
+               "reward": 1
+          },
+          {
+               "id": 2,
+               "speed": 20,
+               "power": 20,
+               "score": 10,
+               "hp": 20,
+               "reward": 2
+          },
+          {
+               "id": 3,
+               "speed": 30,
+               "power": 30,
+               "score": 15,
+               "hp": 30,
+               "reward": 3
+          }
+     ]
 }

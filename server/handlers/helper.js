@@ -1,5 +1,5 @@
 import { removeUser } from '../models/accountModel.js';
-import { CLIENT_VERSION } from '../utils/constans.js';
+import { CLIENT_VERSION } from '../utils/constants.js';
 import handlerMappings from './handlerMapping.js';
 
 /**
@@ -19,10 +19,10 @@ export const handleDisconnect = async (socket, uuid) => {
  * @param {String} uuid
  */
 export const handleConnection = async (socket, uuid) => {
-  console.log('새로운 유저가 연결되었습니다.');
+  console.log('새로운 유저가 연결되었습니다.', uuid);
   console.log('현재 접속 중인 유저들:');
 
-  socket.emit('connection', { uuid });
+  socket.emit('connected', { uuid }); // 'connected' 이벤트로 변경
 };
 
 /**
@@ -36,18 +36,21 @@ export const handleEvent = async (io, socket, data) => {
   // 클라언트 버전 체크
   //if (!data.CLIENT_VERSION) throw new Error('클라이언트 버전이 존재하지 않습니다.');
   if (!CLIENT_VERSION.includes(data.clientVersion)) {
-    socket.emit('response', { status: '실패', message: '클라이언트 버전이 맞지 않습니다.' });
+    socket.emit('response', {
+      status: '실패',
+      message: '클라이언트 버전이 맞지 않습니다.',
+    });
     return;
   }
 
-  // 핸들러 체크
+  //핸들러 체크
   const handler = handlerMappings[data.handlerId];
   if (!handler) {
     socket.emit('response', { status: '실패', message: '핸들러를 찾을 수 없습니다.' });
     return;
   }
 
-  const response = await handler(data.userId, data.payload, io);
+  const response = await handler(data.userId, data.payload, socket, io);
 
   // 한 유저에게 보낼시
   socket.emit('response', response);

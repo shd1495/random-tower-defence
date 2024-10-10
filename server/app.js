@@ -1,9 +1,10 @@
-import express from "express";
-import initSocket from "./init/socket.js";
-import dotenv from "dotenv";
-import { createServer } from "http";
 import accountRouter from "./routes/accountRouter.js";
-import { loadGameAssets } from "./init/assets.js";
+import express from 'express';
+import initSocket from './init/socket.js';
+import dotenv from 'dotenv';
+import { createServer } from 'http';
+import { loadGameAssets } from './init/assets.js';
+
 
 dotenv.config();
 

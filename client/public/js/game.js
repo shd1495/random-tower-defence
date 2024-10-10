@@ -1,6 +1,8 @@
 import { Base } from './base.js';
 import { Monster } from './monster.js';
 import { Tower } from './tower.js';
+import { CLIENT_VERSION } from './constants.js';
+import { MONSTERS, WAVE_LEVEL } from '../utils/constants.js';
 
 const SERVER_URL = 'http://localhost:3080'; // 실제 서버 주소로 변경하세요.
 
@@ -9,18 +11,21 @@ const SERVER_URL = 'http://localhost:3080'; // 실제 서버 주소로 변경하
 */
 
 let serverSocket; // 서버 웹소켓 객체
+let sendEvent;
+export let sendMonsterEvent;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const NUM_OF_MONSTERS = 5; // 몬스터 개수
 
-let userGold = 100; // 유저 골드
+let userGold = 0; // 유저 골드
 let base; // 기지 객체
 let baseHp = 0; // 기지 체력
-let towerCost = 100; // 타워 구입 비용
-let numOfInitialTowers = 1; // 초기 타워 개수
-let monsterLevel = 1; // 몬스터 레벨
-let monsterSpawnInterval = 2000; // 몬스터 생성 주기
+let towerCost = 0; // 타워 구입 비용
+let numOfInitialTowers = 0; // 초기 타워 개수
+let monsterLevel = 0; // 몬스터 레벨
+let monsterSpawnInterval = 0; // 몬스터 생성 주기
+
 const monsters = [];
 const towers = [];
 
@@ -171,7 +176,8 @@ function placeBase() {
 }
 
 function spawnMonster() {
-  monsters.push(new Monster(monsterPath, monsterImages, monsterLevel));
+  monsters.push(new Monster(monsterPath, monsterImages, MONSTERS, monsterLevel));
+  //  console.log("MONSTERS", MONSTERS);
 }
 
 function gameLoop() {
@@ -218,6 +224,21 @@ function gameLoop() {
       monster.draw(ctx);
     } else {
       /* 몬스터가 죽었을 때 */
+
+      if (monster.hp <= 0) {
+        const monsterId = monster.monsterId;
+        const incrementMoney = monster.reward;
+        const incrementScore = monster.score;
+
+        userGold += incrementMoney;
+        score += incrementScore;
+        sendMonsterEvent(11, {
+          monsterId,
+          incrementMoney,
+          incrementScore,
+        });
+      }
+
       monsters.splice(i, 1);
     }
   }
@@ -250,16 +271,46 @@ Promise.all([
 ]).then(() => {
   /* 서버 접속 코드 (여기도 완성해주세요!) */
   let somewhere;
-  serverSocket = io(SERVER_URL, {});
+  serverSocket = io(SERVER_URL, {
+    query: {
+      clientVersion: CLIENT_VERSION,
+    },
+  });
 
   serverSocket.on('connect', () => {
     console.log('서버에 연결되었습니다.');
+  });
+
+  let userId = null;
+  serverSocket.on('connected', async (data) => {
+    console.log('서버에서 연결 정보를 받았습니다.', data);
+    userId = data.uuid;
+    console.log('연결');
+    sendEvent(2);
   });
 
   /* 서버 연결 오류 시 */
   serverSocket.on('connect_error', (err) => {
     console.error('서버 연결 오류:', err.message);
     alert('서버에 연결할 수 없습니다. 다시 시도해주세요.');
+  });
+
+  serverSocket.on('response', (data) => {
+    if (data.type == 'gameStart') {
+      userGold = data.data.userGold;
+      baseHp = data.data.baseHp;
+      towerCost = data.data.towerCost;
+      numOfInitialTowers = data.data.numOfInitialTowers;
+      monsterLevel = data.data.monsterLevel;
+      monsterSpawnInterval = data.data.monsterSpawnInterval;
+
+      if (!isInitGame) {
+        initGame();
+      }
+    }
+    if (data.type === 'gameEnd') {
+      console.log(data.message);
+    }
   });
 
   /* 
@@ -270,8 +321,25 @@ Promise.all([
       initGame();
     }
   */
-  initGame();
+
+  sendEvent = (handlerId, payload) => {
+    serverSocket.emit('event', {
+      clientVersion: CLIENT_VERSION,
+      handlerId,
+      payload,
+    });
+  };
+
+  sendMonsterEvent = (handlerId, payload) => {
+    serverSocket.emit('monsterEvent', {
+      clientVersion: CLIENT_VERSION,
+      handlerId,
+      payload,
+    });
+  };
 });
+
+export { sendEvent };
 
 const buyTowerButton = document.createElement('button');
 buyTowerButton.textContent = '타워 구입';
