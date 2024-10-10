@@ -1,4 +1,5 @@
 import { getUsers } from '../models/userModel.js';
+import { getTowers, clearTowers } from '../models/towerModel.js';
 import { CLIENT_VERSION } from '../utils/constants.js';
 import handlerMappings from './handlerMapping.js';
 
@@ -8,8 +9,13 @@ import handlerMappings from './handlerMapping.js';
  * @param {String} uuid
  */
 export const handleDisconnect = async (socket, uuid) => {
-  console.log(`${uuid} 유저가 연결을 해제했습니다`);
-  console.log(`현재 접속 중인 유저들: ${await getUsers()}`);
+  // 접속 해제시 타워 초기화
+  clearTowers(uuid);
+  console.log(`${uuid} 유저의 모든 타워를 삭제하였습니다`, getTowers(uuid));
+
+  // 접속 해제시 연결 초기화
+  console.log(`${uuid} 유저가 연결을 해제했습니다`);  
+  console.log(`현재 접속 중인 유저들: ${await getUsers()}`);  
 };
 
 /**

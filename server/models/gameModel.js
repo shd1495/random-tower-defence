@@ -8,14 +8,13 @@ const GAME_SET = 'game';
  * @param {Object} game 유저의 게임 데이터
  */
 export const initialGameData = async (uuid, game) => {
-  const { userGold, baseHp, towerCost, numOfInitialTowers, monsterLevel, monsterSpawnInterval } =
-    game.data;
+  const { userGold, baseHp, /*towerPrice,*/ numOfInitialTowers, monsterLevel, monsterSpawnInterval } = game.data;
   const key = `user:${uuid}:${GAME_SET}`;
 
   const gameData = {
     userGold: userGold,
     baseHp: baseHp,
-    towerCost: towerCost,
+    //towerPrice: towerPrice,
     numOfInitialTowers: numOfInitialTowers,
     monsterLevel: monsterLevel,
     monsterSpawnInterval: monsterSpawnInterval,

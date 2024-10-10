@@ -18,11 +18,12 @@ const ctx = canvas.getContext('2d');
 
 const NUM_OF_MONSTERS = 5; // 몬스터 개수
 
-let userGold = 0; // 유저 골드
+let userGold = 1000; // 유저 골드
 let base; // 기지 객체
 let baseHp = 0; // 기지 체력
-let towerCost = 0; // 타워 구입 비용
-let numOfInitialTowers = 0; // 초기 타워 개수
+// let lastSetTowerImage = new Image();
+// lastSetTowerImage.src = '../assets/images/tower.png'; // 마지막에 설치한 타워 이미지
+let numOfInitialTowers = 1; // 초기 타워 개수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
 
@@ -152,9 +153,15 @@ function placeInitialTowers() {
   */
   for (let i = 0; i < numOfInitialTowers; i++) {
     const { x, y } = getRandomPositionNearPath(200);
-    const tower = new Tower(x, y, towerCost);
-    towers.push(tower);
-    tower.draw(ctx, towerImage);
+    const newTower = new Tower(x, y, 100) // 타워 여러 종류면 수정 필요
+    
+    sendEvent(21, {
+      userGold: userGold,
+      towerCount: towers.length,
+      towerId: 1,// Tower 클래스로 넣어야할것 같습니다.
+      towerType: 0,// 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.
+      tower: newTower,// 생성할 타워 보내기(타워 종류 생기면 수정)
+    });
   }
 }
 
@@ -163,10 +170,21 @@ function placeNewTower() {
     타워를 구입할 수 있는 자원이 있을 때 타워 구입 후 랜덤 배치하면 됩니다.
     빠진 코드들을 채워넣어주세요! 
   */
+  // 서버로 타워 구매 정보 전송
   const { x, y } = getRandomPositionNearPath(200);
-  const tower = new Tower(x, y);
-  towers.push(tower);
-  tower.draw(ctx, towerImage);
+  const newTower = new Tower(x, y, 100) // 타워 여러 종류면 수정 필요
+
+  sendEvent(21, {
+    userGold: userGold,
+    towerCount: towers.length,
+    towerId: 1,// Tower 클래스로 넣어야할것 같습니다.
+    towerType: 0,// 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.
+    tower: newTower,// 생성할 타워 보내기(타워 종류 생기면 수정)
+  });
+
+  // 추후 기획 수정시 price 를 서버에서 받아오도록 코드 수정
+  userGold -= newTower.price;
+  console.log("userGold: ", userGold);
 }
 
 function placeBase() {
@@ -250,7 +268,7 @@ function initGame() {
   if (isInitGame) {
     return;
   }
-
+  
   monsterPath = generateRandomMonsterPath(); // 몬스터 경로 생성
   initMap(); // 맵 초기화 (배경, 몬스터 경로 그리기)
   placeInitialTowers(); // 설정된 초기 타워 개수만큼 사전에 타워 배치
@@ -297,10 +315,10 @@ Promise.all([
 
   serverSocket.on('response', (data) => {
     if (data.type == 'gameStart') {
-      userGold = +data.data.userGold;
+      //userGold = +data.data.userGold; 테스트를 위해 잠시 껐습니다.
       baseHp = +data.data.baseHp;
-      towerCost = +data.data.towerCost;
-      numOfInitialTowers = +data.data.numOfInitialTowers;
+      //towerPrice = +data.data.towerPrice;
+      //numOfInitialTowers = +data.data.numOfInitialTowers; // 테스트를 위해 잠시 껐습니다.
       monsterLevel = +data.data.monsterLevel;
       monsterSpawnInterval = +data.data.monsterSpawnInterval;
 
@@ -310,6 +328,14 @@ Promise.all([
     }
     if (data.type === 'gameEnd') {
       console.log(data.message);
+    }
+
+    if(data.type === 'setTower') {      
+      const TOWER = new Tower(data.result.tower.x, data.result.tower.y, data.result.tower.price);
+      console.log("setTower: ", data.result);
+      //console.log("data.result.towerCount: ", data.result.towerCount);
+      towers.push(TOWER);
+      TOWER.draw(ctx, towerImage);
     }
   });
 
@@ -322,6 +348,7 @@ Promise.all([
     }
   */
 
+  // 이벤트 send
   sendEvent = (handlerId, payload) => {
     serverSocket.emit('event', {
       clientVersion: CLIENT_VERSION,
@@ -330,8 +357,18 @@ Promise.all([
     });
   };
 
+  // 몬스터 이벤트 send
   sendMonsterEvent = (handlerId, payload) => {
     serverSocket.emit('monsterEvent', {
+      clientVersion: CLIENT_VERSION,
+      handlerId,
+      payload,
+    });
+  };
+
+  // 타워 이벤트 send
+  sendMonsterEvent = (handlerId, payload) => {
+    serverSocket.emit('towerEvent', {
       clientVersion: CLIENT_VERSION,
       handlerId,
       payload,
