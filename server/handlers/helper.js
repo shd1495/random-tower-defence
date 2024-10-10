@@ -43,6 +43,7 @@ export const handleEvent = async (io, socket, data) => {
 
   //핸들러 체크
   const handler = handlerMappings[data.handlerId];
+
   if (!handler) {
     socket.emit('response', { status: '실패', message: '핸들러를 찾을 수 없습니다.' });
     return;
