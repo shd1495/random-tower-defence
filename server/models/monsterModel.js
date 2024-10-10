@@ -33,7 +33,7 @@ export const setMonster = async (uuid, monsters) => {
  * @param {String} uuid
  * @returns {Object}
  */
-export const getMonster = async (uuid) => {
+export const getMonsters = async (uuid) => {
   try {
     const monsters = await redisClient.lrange(MONSTER_SET + uuid, 0, -1);
     const result = monsters.map((monster) => JSON.parse(monster));
