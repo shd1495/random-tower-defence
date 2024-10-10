@@ -1,9 +1,10 @@
+import accountRouter from "./routes/accountRouter.js";
 import express from 'express';
 import initSocket from './init/socket.js';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { loadGameAssets } from './init/assets.js';
-// import accountRouter from './routes/accountRouter.js';
+
 
 dotenv.config();
 
@@ -14,8 +15,9 @@ const server = createServer(app);
 
 // body-parser
 app.use(express.json());
+app.use("/api", accountRouter);
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static('client/public'));
+app.use(express.static("client/public"));
 // 소켓 초기화
 initSocket(server);
 
@@ -23,12 +25,12 @@ initSocket(server);
 // app.use(errorHandleMiddleware);
 
 server.listen(PORT, async () => {
-  console.log(`${PORT} 포트로 서버가 열렸습니다.`);
+     console.log(`${PORT} 포트로 서버가 열렸습니다.`);
 
-  try {
-    const assets = await loadGameAssets();
-    console.log('assets 파일이 정상적으로 로드되었습니다.');
-  } catch (error) {
-    console.error('assets 파일을 불러오는 데 실패했습니다.', error);
-  }
+     try {
+          const assets = await loadGameAssets();
+          console.log("assets 파일이 정상적으로 로드되었습니다.");
+     } catch (error) {
+          console.error("assets 파일을 불러오는 데 실패했습니다.", error);
+     }
 });

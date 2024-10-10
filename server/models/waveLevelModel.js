@@ -22,7 +22,7 @@ export const clearWaveLv = async (uuid) => {
  */
 export const setWaveLevel = async (uuid, waveLevel) => {
   try {
-    await redisClient.hset(WAVE_LEVEL + uuid, JSON.stringify(waveLevel));
+    await redisClient.set(WAVE_LEVEL + uuid, JSON.stringify(waveLevel));
   } catch (error) {
     throw new Error('웨이브 레벨 업데이트 시 문제가 발생했습니다.' + error.message);
   }

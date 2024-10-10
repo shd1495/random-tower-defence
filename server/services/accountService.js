@@ -1,4 +1,4 @@
-// import { prisma } from '../utils/prisma/index.js';
+import { prisma } from '../utils/prisma/index.js';
 
 class Account {
   static instance = null;
@@ -11,9 +11,19 @@ class Account {
     Account.instance = this;
   }
 
-  async createAccount(id, hashedPassword, uuid) {
+  async createAccount(accountId, password, uuid) {
     const account = await prisma.accounts.create({
-      data: { id: id, password: hashedPassword, uuid: uuid },
+      data: {
+        accountId: accountId,
+        password: password,
+        uuid: uuid,
+      },
+    });
+
+    const scoreData = await prisma.score.create({
+      data: {
+        accountId: accountId,
+      },
     });
     return account;
   }
@@ -22,9 +32,10 @@ class Account {
     const account = await prisma.accounts.findUnique({
       where: { accountId },
     });
+
     return account;
   }
 }
 
-// const account = new Account(prisma);
-// export default account;
+const account = new Account(prisma);
+export default account;

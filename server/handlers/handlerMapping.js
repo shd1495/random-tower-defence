@@ -8,4 +8,5 @@ const handlerMappings = {
   12: attackedByMonster,
   31: waveLevelIncrease,
 };
+
 export default handlerMappings;
