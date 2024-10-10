@@ -8,8 +8,8 @@ const USER_SET = 'user';
  */
 export const addUser = async (user) => {
   try {
-    await redisClient.set(user.uuid, JSON.stringify(user));
-    await redisClient.sadd(USER_SET, user.uuid);
+    await redisClient.set(user.userId, JSON.stringify(user));
+    await redisClient.sadd(USER_SET, user.userId);
   } catch (error) {
     throw new Error('유저 정보를 저장하는 중 오류가 발생했습니다.' + error.message);
   }
