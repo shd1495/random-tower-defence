@@ -14,7 +14,7 @@ import handlerMappings from './handlerMapping.js';
 export const handleDisconnect = async (socket, uuid) => {
   // 접속 해제시 타워 초기화
   clearTowers(uuid);
-  console.log(`${uuid} 유저의 모든 타워를 삭제하였습니다`, getTowers(uuid));
+  console.log(`${uuid} 유저의 모든 타워를 삭제하였습니다`, await getTowers(uuid));
 
   // 접속 해제시 연결 초기화
   removeUser(uuid);

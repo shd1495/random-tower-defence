@@ -6,7 +6,7 @@
     "userGold": 3000,
     "baseHp": 500,
     "score": 0,
-    "numOfInitialTowers": 3,
+    "numOfInitialTowers": 1,
     "monsterLevel": 1,
     "monsterSpawnInterval": 1000
   }

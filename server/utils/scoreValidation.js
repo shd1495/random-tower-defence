@@ -16,8 +16,8 @@ export const scoreValidation = async (uuid, payload) => {
   const userMonsters = await getMonsters(uuid);
   let totalScore = 0;
 
-  console.log(uuid);
-  console.log('----userMonsters----', userMonsters);
+  // console.log(uuid);
+  // console.log('----userMonsters----', userMonsters);
 
   // 획득한 아이템 점수를 더해 주기
   for (let i = 0; i < userMonsters.length; i++) {
