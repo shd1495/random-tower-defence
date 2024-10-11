@@ -63,7 +63,7 @@ let monsterPath;
 function generateRandomMonsterPath() {
   const path = [];
   let currentX = 0;
-  let currentY = Math.floor(Math.random() * 21) + 500; // 500 ~ 520 범위의 y 시작 (캔버스 y축 중간쯤에서 시작할 수 있도록 유도)
+  let currentY = 500; // 500 ~ 520 범위의 y 시작 (캔버스 y축 중간쯤에서 시작할 수 있도록 유도)
 
   path.push({ x: currentX, y: currentY });
 
@@ -208,8 +208,8 @@ function sellTower(index) {
   sendTowerEvent(22, { tower: towers[index] });
 }
 function placeBase() {
-  const lastPoint = monsterPath[monsterPath.length - 1];
-  base = new Base(lastPoint.x, lastPoint.y, baseHp);
+  const lastPoint = monsterPath[0];
+  base = new Base(lastPoint.x + 200, lastPoint.y - 150, baseHp);
   base.draw(ctx, baseImage);
 }
 
@@ -256,8 +256,10 @@ function gameLoop() {
       const isDestroyed = monster.move(base);
       if (isDestroyed) {
         /* 게임 오버 */
-        alert('게임 오버. 스파르타 본부를 지키지 못했다...ㅠㅠ');
-        location.reload();
+        sendEvent(3, { timestamp: Date.now(), score });
+        if (score > highScore) {
+          alert('축하드립니다! 최고 점수를 달성하셨습니다!');
+        }
       }
       monster.draw(ctx);
     } else {
@@ -340,7 +342,6 @@ Promise.all([
   serverSocket.on('connected', async (data) => {
     console.log('서버에서 연결 정보를 받았습니다.', data);
     userId = data.uuid;
-    console.log('연결');
     sendEvent(2);
   });
 
@@ -351,37 +352,50 @@ Promise.all([
   });
 
   serverSocket.on('response', (data) => {
-    if (data.type == 'gameStart') {
+    if (data.type === 'gameStart') {
       userGold = +data.result.userGold;
       baseHp = +data.result.baseHp;
       score = +data.result.score;
       numOfInitialTowers = +data.result.numOfInitialTowers;
       monsterLevel = +data.result.monsterLevel;
       monsterSpawnInterval = +data.result.monsterSpawnInterval;
+      highScore = +data.highScore;
 
       if (!isInitGame) {
         initGame();
       }
     }
+
     if (data.type === 'gameEnd') {
       console.log(data.message);
+      alert('게임 오버. 스파르타 본부를 지키지 못했다...ㅠㅠ');
+      location.reload();
     }
 
-    if (data.type === 'setTower') responseSetTower(data);
-    else if (data.type === 'sellTower') responseSellTower(data);
+    if (data.type === 'setTower') {
+      responseSetTower(data);
+      if (data.result.userGold) {
+        userGold = +data.result.userGold;
+      }
+    }
+
+    if (data.type === 'sellTower') {
+      responseSellTower(data);
+      userGold = +data.result.userGold;
+    }
 
     if (data.type === 'waveLevelIncrease') {
       console.log(data.message);
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
     }
+
     if (data.type === 'killMonster') {
-      console.log('몬스터 동기화');
       userGold = +data.result.userGold;
       score = +data.result.score;
       changeWave();
     }
+
     if (data.type === 'attackedByMonster') {
-      console.log('기지 동기화');
       baseHp = +data.result.attackPower;
     }
   });
@@ -426,11 +440,6 @@ export { sendEvent, sendMonsterEvent, sendTowerEvent };
  * @param {Object} data
  */
 function responseSetTower(data) {
-  // 데이터 확인용 로그
-  // console.log('setTower data: ', data);
-  // console.log('setTower data.result: ', data.result);
-  // console.log('setTower data.result: ', data.result.tower);
-
   // 클라이언트에 타워 객체 생성
   const TOWER = new Tower(
     data.result.uniqueId,
@@ -439,19 +448,6 @@ function responseSetTower(data) {
     data.result.posY,
   );
   towers.push(TOWER);
-
-  // 타워 생성 정보 출력(너무 빨리 구매 누르면 출력 정보는 누락 되지만 데이터는 정상)
-  console.log('생성한 타워 정보 - by Server: ', data.result.tower);
-  console.log('생성한 타워 정보 - by Client: ', TOWER);
-
-  console.log('서버 타워 리스트: ', data.result.redisTowers);
-  console.log('클라이언트 타워 리스트: ', towers);
-
-  // 골드 출력
-  console.log(`기존 골드: `, userGold);
-  userGold -= TOWER.price;
-  console.log(`구매 골드: `, TOWER.price);
-  console.log(`현재 골드: `, userGold);
 }
 
 /**
@@ -459,34 +455,14 @@ function responseSetTower(data) {
  * @param {Object} data
  */
 function responseSellTower(data) {
-  // 데이터 확인용 로그
-  // console.log("sellTower data: ", data);
-  // console.log("sellTower data.result: ", data.result);
-  // console.log("sellTower data.result.tower: ", data.result.tower);
-
   // 클라이언트에서 판매할 타워 탐색
   const sellTower = data.result.tower;
   const index = towers.findIndex((tower) => tower.uniqueId === sellTower.uniqueId);
 
   // 탐색 결과를 기반으로 판매
   if (index !== -1) {
-    // 타워 판매 정보 출력(너무 빨리 판매 누르면 출력 정보는 누락 되지만 데이터는 정상)
-    console.log(`${index + 1}번째 타워 판매됨`);
-    console.log('삭제한 타워 정보: ', data.result.tower);
-    console.log('서버 타워 리스트: ', data.result.redisTowers);
-
-    // 판매시 타워 가격의 절반만 회수(기획 수정되면 값 수정 가능)
-    const sellGold = towers[index].price / 2;
-
     // 판매할 타워 클라이언트에서 제거
     towers.splice(index, 1);
-    console.log('클라이언트 타워 리스트: ', towers);
-
-    // 골드 출력
-    console.log(`기존 골드: `, userGold);
-    userGold += sellGold;
-    console.log(`판매 골드: `, sellGold);
-    console.log(`현재 골드: `, userGold);
   } else {
     console.log('판매할 타워를 찾지 못했습니다.');
   }

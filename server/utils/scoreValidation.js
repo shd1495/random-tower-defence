@@ -50,7 +50,7 @@ export const totalScore = async (uuid) => {
   // 획득한 아이템 점수를 더해 주기
   for (let i = 0; i < userMonsters.length; i++) {
     const monsterId = userMonsters[i].monsterId;
-    const monsterWaveLevel = userMonsters[i].currentWaveLv;
+    const monsterWaveLevel = userMonsters[i].waveLevelData;
 
     // 게임 에셋에 있는 몬스터 정보를 가져오기
     const monsterInfo = monsters.data.find((monster) => monster.id === monsterId);

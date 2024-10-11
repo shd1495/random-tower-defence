@@ -14,7 +14,7 @@ export const getTowers = async (uuid) => {
     const towers = await redisClient.lrange(TOWER_SET + uuid, 0, -1);
 
     // Redis에서 가져온 타워 데이터를 JSON 문자열에서 자바스크립트 객체로 변환
-    const result = await towers.map((tower) => JSON.parse(tower));
+    const result = towers.map((tower) => JSON.parse(tower));
 
     // 변환 값 return
     return result;
@@ -35,7 +35,7 @@ export const getTower = async (uuid, uniqueId) => {
     const towers = await redisClient.lrange(TOWER_SET + uuid, 0, -1);
 
     // 특정 타워 찾기
-    const tower = await towers.find((tower) => JSON.parse(tower).uniqueId === uniqueId);
+    const tower = towers.find((tower) => JSON.parse(tower).uniqueId === uniqueId);
 
     // 타워가 존재하면 반환, 그렇지 않으면 null 반환
     return tower ? JSON.parse(tower) : null;
@@ -86,9 +86,7 @@ export const removeTower = async (uuid, uniqueId) => {
     const towers = await redisClient.lrange(TOWER_SET + uuid, 0, -1);
 
     // 삭제할 타워 찾기
-    const indexToRemove = await towers.findIndex(
-      (tower) => JSON.parse(tower).uniqueId === uniqueId,
-    );
+    const indexToRemove = towers.findIndex((tower) => JSON.parse(tower).uniqueId === uniqueId);
 
     // 해당 타워 삭제
     if (indexToRemove !== -1) await redisClient.lrem(TOWER_SET + uuid, 1, towers[indexToRemove]);
