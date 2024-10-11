@@ -1,11 +1,12 @@
 //import { getUserTowers, addTower } from '../models/towerModel.js';
 import { getGameAssets } from '../init/assets.js';
+import { getUserGold, updateUserGold } from '../models/gameModel.js';
 import { getTowers, getTower, setTower, removeTower } from '../models/towerModel.js';
 
 // 타워 생성 초기화(하드 코딩이라 추후 코드 수정 필요)
 export const towerCreateInit = async (uuid, payload) => {
   // 타워 json 파일 불러오기
-  const { towers } = await getGameAssets();
+  const { towers } = getGameAssets();
   // 데이터베이스에 저장된 타워들
   let redisTowers = await getTowers(uuid);
   // 클라에서 받은 데이터들
@@ -37,7 +38,7 @@ export const towerCreateInit = async (uuid, payload) => {
 // 타워 구매
 export const towerCreate = async (uuid, payload) => {
   // 타워 json 파일 불러오기
-  const { towers } = await getGameAssets();
+  const { towers } = getGameAssets();
   // 데이터베이스에 저장된 타워들
   let redisTowers = await getTowers(uuid);
   // 클라에서 받은 데이터들
@@ -54,6 +55,8 @@ export const towerCreate = async (uuid, payload) => {
     return { type: 'setTower', status: 'fail', message: 'User tower count mismatch' };
 
   // 검증 모두 성공하면 타워 생성(타워 종류 생기면 코드 수정 필요)
+  await updateUserGold(uuid, -towers.data[towerType].price);
+  const userGoldData = await getUserGold(uuid);
   await setTower(uuid, uniqueId, towerId, towers.data[towerType], posX, posY);
 
   return {
@@ -69,6 +72,7 @@ export const towerCreate = async (uuid, payload) => {
       tower: towers.data[towerType],
       posX: posX,
       posY: posY,
+      userGold: userGoldData,
     },
   };
 };
@@ -87,6 +91,8 @@ export const towerSell = async (uuid, payload) => {
     return { type: 'sellTower', status: 'fail', message: 'User tower price mismatch' };
 
   // 검증 모두 성공하면 타워 제거(타워 종류 생기면 코드 수정 필요)
+  await updateUserGold(uuid, tower.price / 2);
+  const userGold = await getUserGold(uuid);
   await removeTower(uuid, uniqueId);
 
   // 데이터베이스에 저장된 타워들
@@ -100,6 +106,7 @@ export const towerSell = async (uuid, payload) => {
       towerCount: redisTowers.length + 1,
       redisTowers,
       tower,
+      userGold,
       //towerImage: towers[towerType].image
     },
   };

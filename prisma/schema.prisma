@@ -24,6 +24,7 @@ model Accounts {
   scores  Score[]
 
   @@map("accounts")
+  @@index([uuid])
 }
 
 model Score {
