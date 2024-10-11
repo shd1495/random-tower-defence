@@ -144,12 +144,12 @@ function getRandomPositionNearPath(maxDistance) {
   const offsetX = (Math.random() - 0.5) * 2 * maxDistance;
   const offsetY = (Math.random() - 0.5) * 4 * maxDistance;
 
-  // 타워 스폰 X 좌표값 제한
+  // 타워 스폰 X 좌표값 제한(랜덤 좌표용 조건문 - 현재는 초기 타워 스폰 좌표 초기화용)
   let sumX = posX + offsetX;
   if (sumX > 1750) sumX = 1700;
   else if (sumX < 10) sumX = 80;
 
-  // 타워 스폰 Y 좌표값 제한
+  // 타워 스폰 Y 좌표값 제한(랜덤 좌표용 조건문 - 현재는 초기 타워 스폰 좌표 초기화용)
   let sumY = posY + offsetY;
   if (sumY > 900) sumY = 800;
   else if (sumY < 100) sumY = 200;
@@ -184,23 +184,22 @@ function placeInitialTowers() {
   }
 }
 
-function placeNewTower() {
+function placeNewTower(towerPosX, towerPosY) {
   /* 
     타워를 구입할 수 있는 자원이 있을 때 타워 구입 후 랜덤 배치하면 됩니다.
     빠진 코드들을 채워넣어주세요! 
   */
 
   // 서버로 타워 구매 정보 전송
-  const { x, y } = getRandomPositionNearPath(200);
-
+  //const { x, y } = getRandomPositionNearPath(200); // 구버전 - 랜덤 좌표
   sendTowerEvent(21, {
     userGold: userGold,
     uniqueId: towerUniqueId++,
     towerCount: towers.length,
     towerId: towerId,
     towerType: towerType,
-    posX: x,
-    posY: y,
+    posX: towerPosX,
+    posY: towerPosY,
   });
 }
 
@@ -470,6 +469,7 @@ function responseSellTower(data) {
 
 //----------------------------------------------------- 여기서부터 아래는 버튼
 
+// 타워 구입 버튼 생성
 const buyTowerButton = document.createElement('button');
 buyTowerButton.textContent = '타워 구입';
 buyTowerButton.style.position = 'absolute';
@@ -478,10 +478,8 @@ buyTowerButton.style.right = '10px';
 buyTowerButton.style.padding = '10px 20px';
 buyTowerButton.style.fontSize = '16px';
 buyTowerButton.style.cursor = 'pointer';
-
-buyTowerButton.addEventListener('click', placeNewTower);
-
-document.body.appendChild(buyTowerButton);
+buyTowerButton.style.display = 'none'; // 초기에는 버튼을 숨긴 상태
+buyTowerButton.disabled = true; // 초기에는 비활성화 상태
 
 // 타워 판매 버튼 생성
 const sellTowerButton = document.createElement('button');
@@ -507,7 +505,7 @@ upgradeTowerButton.style.cursor = 'pointer';
 upgradeTowerButton.style.display = 'none'; // 초기에는 버튼을 숨긴 상태
 upgradeTowerButton.disabled = true; // 초기에는 비활성화 상태
 
-// addEventListener 함수에서 sellTowerButton.disabled과 upgradeTowerButton.disabled 값이
+// addEventListener 함수에서 버튼의 disabled과 값이
 // 변경되는 부분들은 사실 없어도 되는 코드이다
 // 하지만 확실하게 비활성화 시키기 위해 함수 내에서 변경시키고있다.
 
@@ -516,16 +514,20 @@ upgradeTowerButton.disabled = true; // 초기에는 비활성화 상태
 // 타워 클릭 이벤트 핸들러
 let selectedTowerIndex = null; // 현재 선택된 타워의 인덱스 저장
 
-// 타워 판매 버튼 클릭 이벤트
+// 타워 스폰 위치 변수
+let towerPosX = 0;
+let towerPosY = 0;
+
+// 버튼 클릭 이벤트
 canvas.addEventListener('click', (event) => {
   const rect = canvas.getBoundingClientRect();
   const mouseX = event.clientX - rect.left;
   const mouseY = event.clientY - rect.top;
   let towerFoundState = false;
 
-  // 타워 목록을 순회하여 클릭한 타워가 있는지 확인
+  // 타워 목록을 순회하여 클릭한 위치에 타워가 있는지 확인
   towers.forEach((tower, index) => {
-    // 사각형 타워 내부에서 클릭했는지 확인
+    // 타워 그림(사각형) 내부에서 클릭했는지 확인
     if (
       mouseX >= tower.x &&
       mouseX <= tower.x + tower.width &&
@@ -538,29 +540,61 @@ canvas.addEventListener('click', (event) => {
       // 타워 레벨(Id)과 종류(Type) 을 설정(스테이지에 따라 레벨과 종류가 바뀐다면 추후 수정 필요)
       towerId = 1;
       towerType = 0;
-      // 타워 판매 버튼 위치 설정 (타워 머리 위로 표시, 버튼 추가되면 계산식 수정)
+      // 버튼 위치 설정(기획이 변경되면 계산식 수정)
+      // 판매 및 업그레이드 버튼 - 타워 머리 위로 표시
       sellTowerButton.style.right = `${rect.right - tower.x - 95}px`;
       sellTowerButton.style.top = `${rect.top + tower.y - 100}px`;
       upgradeTowerButton.style.right = `${rect.right - tower.x - 101}px`;
       upgradeTowerButton.style.top = `${rect.top + tower.y - 50}px`;
-      // 타워가 선택되면 판매 및 업그레이드 버튼 활성화
+      // 타워가 선택되면
+      // 판매 및 업그레이드 버튼 활성화
       sellTowerButton.style.display = 'block';
       sellTowerButton.disabled = false;
       upgradeTowerButton.style.display = 'block';
       upgradeTowerButton.disabled = false;
+      // 구매 버튼 비활성화
+      buyTowerButton.style.display = 'none';
+      buyTowerButton.disabled = true;
+
       towerFoundState = true;
     }
   });
 
-  // 타워를 클릭하지 않았을 경우 판매 버튼 비활성화
+  // 타워를 클릭하지 않았을 경우
   if (!towerFoundState) {
+    // 타워 생성 버튼 - 마우스 클릭 위치에 표시
+    towerPosX = event.clientX - 40;
+    towerPosY = rect.top + event.clientY + 25;
+    buyTowerButton.style.right = `${rect.right - towerPosX - 95}px`;
+    buyTowerButton.style.top = `${towerPosY}px`;
     // 선택된 타워가 없으면 판매 및 업그레이드 버튼 비활성화
     sellTowerButton.style.display = 'none';
     sellTowerButton.disabled = true;
     upgradeTowerButton.style.display = 'none';
     upgradeTowerButton.disabled = true;
+    buyTowerButton.style.display = 'block';
+    buyTowerButton.disabled = false;
+    // 선택된 인덱스 초기화
+    selectedTowerIndex = null;
   }
 });
+
+// 타워 생성 버튼 이벤트
+buyTowerButton.addEventListener('click', () => {
+  // 타워가 선택된 상태가 아닐 경우
+  if (selectedTowerIndex === null) {
+    // 타워 생성 함수 호출
+    placeNewTower(towerPosX, towerPosY);
+    // 타워를 생성한 후
+    // 타워 생성 버튼 비활성화
+    buyTowerButton.style.display = 'none';
+    buyTowerButton.disabled = true;
+    // 타워 생성 스폰 좌표 초기화
+    towerPosX = 0;
+    towerPosY = 0;
+  }
+});
+document.body.appendChild(buyTowerButton);
 
 // 타워 판매 버튼 이벤트
 sellTowerButton.addEventListener('click', () => {
