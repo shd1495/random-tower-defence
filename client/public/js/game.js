@@ -19,7 +19,7 @@ let sendTowerEvent;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const NUM_OF_MONSTERS = 5; // 몬스터 개수
+const NUM_OF_MONSTERS = 6; // 몬스터 개수
 
 let userGold = 0; // 유저 골드
 let base; // 기지 객체
@@ -208,6 +208,13 @@ function spawnMonster() {
   //  console.log("MONSTERS", MONSTERS);
 }
 
+// 서버에서 받은 monsterId를 통해 황금 고블린 생성하는 함수입니다.
+function spawnGoldMonster(monsterId) {
+  monsters.push(
+    new Monster(monsterPath, monsterImages, monsterAssetData.data, monsterLevel, monsterId),
+  );
+}
+
 function gameLoop() {
   // 렌더링 시에는 항상 배경 이미지부터 그려야 합니다! 그래야 다른 이미지들이 배경 이미지 위에 그려져요!
   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // 배경 이미지 다시 그리기
@@ -386,10 +393,17 @@ Promise.all([
       userGold = +data.result.userGold;
       score = +data.result.score;
       changeWave();
+      sendEvent(13);
     }
 
     if (data.type === 'attackedByMonster') {
       baseHp = +data.result.attackPower;
+    }
+    
+    if (data.type === 'createGoldMonster') {
+      if (data.result.goldMonsterId) {
+        spawnGoldMonster(data.result.goldMonsterId); // 황금 고블린 생성
+      }
     }
   });
 
