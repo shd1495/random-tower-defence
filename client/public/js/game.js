@@ -18,7 +18,7 @@ let sendMonsterEvent;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const NUM_OF_MONSTERS = 5; // 몬스터 개수
+const NUM_OF_MONSTERS = 6; // 몬스터 개수
 
 let userGold = 0; // 유저 골드
 let base; // 기지 객체
@@ -208,6 +208,13 @@ function placeBase() {
 function spawnMonster() {
   monsters.push(new Monster(monsterPath, monsterImages, monsterAssetData.data, monsterLevel));
   //  console.log("MONSTERS", MONSTERS);
+}
+
+// 서버에서 받은 monsterId를 통해 황금 고블린 생성하는 함수입니다.
+function spawnGoldMonster(monsterId) {
+  monsters.push(
+    new Monster(monsterPath, monsterImages, monsterAssetData.data, monsterLevel, monsterId),
+  );
 }
 
 function gameLoop() {
@@ -423,10 +430,20 @@ Promise.all([
       userGold = +data.result.userGold;
       score = +data.result.score;
       changeWave();
+      sendEvent(13);
     }
     if (data.type === 'attackedByMonster') {
       console.log('기지 동기화');
       baseHp = +data.result.attackPower;
+    }
+
+    if (data.type === 'createGoldMonster') {
+      if (data.result.goldMonsterId) {
+        console.log(data.message);
+        // 황금 고블린 생성
+        console.log('황금 고블린 생성');
+        spawnGoldMonster(data.result.goldMonsterId);
+      }
     }
   });
 
