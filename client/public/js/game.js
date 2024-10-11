@@ -23,6 +23,7 @@ const NUM_OF_MONSTERS = 5; // 몬스터 개수
 let userGold = 0; // 유저 골드
 let base; // 기지 객체
 let baseHp = 0; // 기지 체력
+let towerUniqueId = 1; // 타워 고유 아이디
 // let lastSetTowerImage = new Image();
 // lastSetTowerImage.src = '../assets/images/tower.png'; // 마지막에 설치한 타워 이미지
 let numOfInitialTowers = 0; // 초기 타워 개수
@@ -157,9 +158,10 @@ function placeInitialTowers() {
 
   for (let i = 0; i < numOfInitialTowers; i++) {
     const { x, y } = getRandomPositionNearPath(200);
-    const newTower = new Tower(x, y, 100) // 타워 여러 종류면 수정 필요
+    const newTower = new Tower(towerUniqueId, x, y, 100) // 타워 여러 종류면 수정 필요
 
     sendEvent(20, {
+      uniqueId: towerUniqueId++,
       towerId: 1,// Tower 클래스로 넣어야할것 같습니다.
       towerCount: i + 1,
       //towerType: 0,// 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.(타워 종류 생기면 추가)
@@ -176,10 +178,11 @@ function placeNewTower() {
 
   // 서버로 타워 구매 정보 전송
   const { x, y } = getRandomPositionNearPath(200);
-  const newTower = new Tower(x, y, 100); // 타워 여러 종류면 수정 필요
+  const newTower = new Tower(towerUniqueId, x, y, 100); // 타워 여러 종류면 수정 필요
 
   sendEvent(21, {
     userGold: userGold,
+    uniqueId: towerUniqueId++,
     towerCount: towers.length,
     towerId: 1, // Tower 클래스로 넣어야할것 같습니다.
     towerType: 0, // 생성할 타워의 종류, Tower 클래스로 넣어야할것 같습니다.
@@ -187,13 +190,15 @@ function placeNewTower() {
   });
 
   // 추후 기획 수정시 price 를 서버에서 받아오도록 코드 수정
-  userGold -= newTower.price;
-  console.log('userGold: ', userGold);
+  console.log(`기존 골드: `, userGold);
+  userGold -= newTower.price;       
+  console.log(`구매 골드: `, newTower.price);
+  console.log(`현재 골드: `, userGold);
 }
 
-// function sellTower(index) {
-//   sendEvent(22, { tower: towers[index] });
-// }
+function sellTower(index) {
+  sendEvent(22, { tower: towers[index] });
+}
 
 function placeBase() {
   const lastPoint = monsterPath[monsterPath.length - 1];
@@ -355,15 +360,59 @@ Promise.all([
     if (data.type === 'gameEnd') {
       console.log(data.message);
     }
-    if (data.type === 'setTower') {      
-      const TOWER = new Tower(data.result.tower.x, data.result.tower.y, data.result.tower.price);
+    if (data.type === 'setTower') {     
+      // 데이터 확인용 로그
+      // console.log("setTower data: ", data);
+      // console.log("setTower data.result: ", data.result);
+
+      // 클라이언트에 타워 객체 생성
+      const TOWER = new Tower(data.result.uniqueId, data.result.tower.x, data.result.tower.y, data.result.tower.price);
       //console.log("data.result.towerCount: ", data.result.towerCount);
       towers.push(TOWER);
       TOWER.draw(ctx, towerImage);
+
+      // 타워 생성 정보 출력(너무 빨리 구매 누르면 출력 정보는 누락 되지만 데이터는 정상)
+      console.log("생성한 타워 정보 - by Server: ", data.result.tower);
+      console.log("생성한 타워 정보 - by Client: ", TOWER);
+
+      console.log("서버 타워 리스트: ", data.result.redisTowers);      
+      console.log("클라이언트 타워 리스트: ", towers);
     }
-    // else if(data.type === 'sellTower') {
-    //   console.log("data: ", data);
-    // }
+    else if (data.type === 'sellTower') {
+      // 데이터 확인용 로그
+      // console.log("sellTower data: ", data);
+      // console.log("sellTower data.result: ", data.result);
+      // console.log("sellTower data.result.tower: ", data.result.tower);
+
+      // 클라이언트에서 판매할 타워 탐색
+      const sellTower = data.result.tower;
+      const index = towers.findIndex(tower => tower.uniqueId === sellTower.uniqueId); 
+      
+      // 탐색 결과를 기반으로 판매
+      if (index !== -1) {
+        // 타워 판매 정보 출력(너무 빨리 판매 누르면 출력 정보는 누락 되지만 데이터는 정상)
+        console.log(`${index + 1}번째 타워 판매됨`);
+        console.log("삭제한 타워 정보: ", data.result.tower);
+        console.log("서버 타워 리스트: ", data.result.redisTowers);
+
+        // 판매시 타워 가격의 절반만 회수(기획 수정되면 값 수정 가능)
+        const sellGold = towers[index].price / 2;
+
+        // 판매할 타워 클라이언트에서 제거
+        towers.splice(index, 1); 
+        console.log("클라이언트 타워 리스트: ", towers);
+        
+        // 골드 출력
+        console.log(`기존 골드: `, userGold);
+        userGold += sellGold;     
+        console.log(`판매 골드: `, sellGold);
+        console.log(`현재 골드: `, userGold);
+      }
+      else {
+        console.log('판매할 타워를 찾지 못했습니다.');
+      }
+    }
+    
     if (data.type === 'waveLevelIncrease') {
       console.log(data.message);
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
@@ -424,3 +473,56 @@ buyTowerButton.style.cursor = 'pointer';
 buyTowerButton.addEventListener('click', placeNewTower);
 
 document.body.appendChild(buyTowerButton);
+
+// 타워 판매 버튼 생성
+const sellTowerButton = document.createElement('button');
+sellTowerButton.textContent = '타워 판매';
+sellTowerButton.style.position = 'absolute';
+sellTowerButton.style.top = '70px';
+sellTowerButton.style.right = '10px';
+sellTowerButton.style.padding = '10px 20px';
+sellTowerButton.style.fontSize = '16px';
+sellTowerButton.style.cursor = 'pointer';
+sellTowerButton.disabled = true; // 초기에는 비활성화 상태
+
+// 타워 클릭 이벤트 핸들러
+let selectedTowerIndex = null; // 현재 선택된 타워의 인덱스 저장
+
+// 타워 판매 버튼 클릭 이벤트
+canvas.addEventListener('click', (event) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+
+  // 타워 목록을 순회하여 클릭한 타워가 있는지 확인
+  towers.forEach((tower, index) => {
+    // 사각형 타워 내부에서 클릭했는지 확인
+    if (mouseX >= tower.x && mouseX <= tower.x + tower.width &&
+        mouseY >= tower.y && mouseY <= tower.y + tower.height)
+        selectedTowerIndex = index;
+  });
+
+  // 버튼 활성 및 비활성 로직
+  if (selectedTowerIndex !== null) {
+    console.log(`${selectedTowerIndex + 1}번째 타워 선택됨`);
+    sellTowerButton.disabled = false; // 타워가 선택되면 판매 버튼 활성화
+  } else {
+    sellTowerButton.disabled = true; // 선택된 타워가 없으면 판매 버튼 비활성화
+  }
+});
+
+
+// 타워 판매 버튼 이벤트
+sellTowerButton.addEventListener('click', () => {
+  if (selectedTowerIndex !== null) {
+    sellTower(selectedTowerIndex);
+    
+    // 선택된 인덱스 초기화
+    selectedTowerIndex = null;
+    
+    // 타워를 판매한 후 버튼 비활성화
+    sellTowerButton.disabled = true;
+  }
+});
+
+document.body.appendChild(sellTowerButton);
