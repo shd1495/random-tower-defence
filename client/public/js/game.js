@@ -244,8 +244,10 @@ function gameLoop() {
       const isDestroyed = monster.move(base);
       if (isDestroyed) {
         /* 게임 오버 */
-        alert('게임 오버. 스파르타 본부를 지키지 못했다...ㅠㅠ');
-        location.reload();
+        sendEvent(3, { timestamp: Date.now(), score });
+        if (score > highScore) {
+          alert('축하드립니다! 최고 점수를 달성하셨습니다!');
+        }
       }
       monster.draw(ctx);
     } else {
@@ -346,6 +348,7 @@ Promise.all([
       numOfInitialTowers = +data.result.numOfInitialTowers;
       monsterLevel = +data.result.monsterLevel;
       monsterSpawnInterval = +data.result.monsterSpawnInterval;
+      highScore = +data.highScore;
 
       if (!isInitGame) {
         initGame();
@@ -353,6 +356,8 @@ Promise.all([
     }
     if (data.type === 'gameEnd') {
       console.log(data.message);
+      alert('게임 오버. 스파르타 본부를 지키지 못했다...ㅠㅠ');
+      location.reload();
     }
 
     if (data.type === 'setTower') responseSetTower(data);
