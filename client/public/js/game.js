@@ -40,7 +40,7 @@ let isWaveChange = true;
 
 // 이미지 로딩 파트
 const backgroundImage = new Image();
-backgroundImage.src = '../assets/images/bg.webp';
+backgroundImage.src = '../assets/images/bg.png';
 
 const baseImage = new Image();
 baseImage.src = '../assets/images/base.png';
@@ -59,15 +59,15 @@ let monsterPath = [];
 
 function generateMonsterPath() {
   const path = [];
-  const centerX = 1920 / 2; // 캔버스 중앙 X
-  const centerY = 1080 / 2 - 100; // 캔버스 중앙 Y
+  const centerX = 1600 / 2; // 캔버스 중앙 X
+  const centerY = 950 / 2 - 100; // 캔버스 중앙 Y
   const spiral = 0.1;
   const numSegments = 100;
 
   // 나선형 경로
   for (let i = 0; i < numSegments; i++) {
     const angle = i * spiral;
-    const radius = (numSegments - i) * 6.5;
+    const radius = (numSegments - i) * 6;
 
     const x = centerX + radius * Math.cos(angle);
     const y = centerY + radius * Math.sin(angle);
@@ -399,7 +399,7 @@ Promise.all([
     if (data.type === 'attackedByMonster') {
       baseHp = +data.result.attackPower;
     }
-
+    
     if (data.type === 'createGoldMonster') {
       if (data.result.goldMonsterId) {
         spawnGoldMonster(data.result.goldMonsterId); // 황금 고블린 생성
