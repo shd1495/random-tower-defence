@@ -19,7 +19,7 @@ let sendTowerEvent;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const NUM_OF_MONSTERS = 5; // 몬스터 개수
+const NUM_OF_MONSTERS = 6; // 몬스터 개수
 
 let userGold = 0; // 유저 골드
 let base; // 기지 객체
@@ -55,32 +55,24 @@ for (let i = 1; i <= NUM_OF_MONSTERS; i++) {
   monsterImages.push(img);
 }
 
-let monsterPath;
+let monsterPath = [];
 
-function generateRandomMonsterPath() {
+function generateMonsterPath() {
   const path = [];
-  let currentX = 0;
-  let currentY = 500; // 500 ~ 520 범위의 y 시작 (캔버스 y축 중간쯤에서 시작할 수 있도록 유도)
+  const centerX = 1920 / 2; // 캔버스 중앙 X
+  const centerY = 1080 / 2 - 100; // 캔버스 중앙 Y
+  const spiral = 0.1;
+  const numSegments = 100;
 
-  path.push({ x: currentX, y: currentY });
+  // 나선형 경로
+  for (let i = 0; i < numSegments; i++) {
+    const angle = i * spiral;
+    const radius = (numSegments - i) * 6.5;
 
-  while (currentX < canvas.width) {
-    currentX += Math.floor(Math.random() * 100) + 50; // 50 ~ 150 범위의 x 증가
-    // x 좌표에 대한 clamp 처리
-    if (currentX > canvas.width) {
-      currentX = canvas.width;
-    }
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
 
-    currentY += Math.floor(Math.random() * 200) - 100; // -100 ~ 100 범위의 y 변경
-    // y 좌표에 대한 clamp 처리
-    if (currentY < 0) {
-      currentY = 0;
-    }
-    if (currentY > canvas.height) {
-      currentY = canvas.height;
-    }
-
-    path.push({ x: currentX, y: currentY });
+    path.push({ x, y });
   }
 
   return path;
@@ -88,7 +80,8 @@ function generateRandomMonsterPath() {
 
 function initMap() {
   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // 배경 이미지 그리기
-  drawPath();
+  monsterPath = generateMonsterPath(); // 몬스터 경로 생성
+  drawPath(); // 경로 그리기
 }
 
 function drawPath() {
@@ -105,14 +98,12 @@ function drawPath() {
 
     const deltaX = endX - startX;
     const deltaY = endY - startY;
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); // 피타고라스 정리로 두 점 사이의 거리를 구함 (유클리드 거리)
-    const angle = Math.atan2(deltaY, deltaX); // 두 점 사이의 각도는 tan-1(y/x)로 구해야 함 (자세한 것은 역삼각함수 참고): 삼각함수는 변의 비율! 역삼각함수는 각도를 구하는 것!
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); // 거리 계산
+    const angle = Math.atan2(deltaY, deltaX); // 각도 계산
 
     for (let j = gap; j < distance - gap; j += segmentLength) {
-      // 사실 이거는 삼각함수에 대한 기본적인 이해도가 있으면 충분히 이해하실 수 있습니다.
-      // 자세한 것은 https://thirdspacelearning.com/gcse-maths/geometry-and-measure/sin-cos-tan-graphs/ 참고 부탁해요!
-      const x = startX + Math.cos(angle) * j; // 다음 이미지 x좌표 계산(각도의 코사인 값은 x축 방향의 단위 벡터 * j를 곱하여 경로를 따라 이동한 x축 좌표를 구함)
-      const y = startY + Math.sin(angle) * j; // 다음 이미지 y좌표 계산(각도의 사인 값은 y축 방향의 단위 벡터 * j를 곱하여 경로를 따라 이동한 y축 좌표를 구함)
+      const x = startX + Math.cos(angle) * j; // x좌표 계산
+      const y = startY + Math.sin(angle) * j; // y좌표 계산
       drawRotatedImage(pathImage, x, y, imageWidth, imageHeight, angle);
     }
   }
@@ -207,14 +198,21 @@ function sellTower(index) {
   sendTowerEvent(22, { tower: towers[index] });
 }
 function placeBase() {
-  const lastPoint = monsterPath[0];
-  base = new Base(lastPoint.x + 200, lastPoint.y - 150, baseHp);
+  const lastPoint = monsterPath[monsterPath.length - 1];
+  base = new Base(lastPoint.x, lastPoint.y, baseHp);
   base.draw(ctx, baseImage);
 }
 
 function spawnMonster() {
   monsters.push(new Monster(monsterPath, monsterImages, monsterAssetData.data, monsterLevel));
   //  console.log("MONSTERS", MONSTERS);
+}
+
+// 서버에서 받은 monsterId를 통해 황금 고블린 생성하는 함수입니다.
+function spawnGoldMonster(monsterId) {
+  monsters.push(
+    new Monster(monsterPath, monsterImages, monsterAssetData.data, monsterLevel, monsterId),
+  );
 }
 
 function gameLoop() {
@@ -288,7 +286,11 @@ function changeWave() {
     score >= waveLevelAssetData.data[monsterLevel].score &&
     isWaveChange
   ) {
-    sendEvent(31, { score, currentLevel: monsterLevel, nextLevel: monsterLevel + 1 });
+    sendEvent(31, {
+      score,
+      currentLevel: monsterLevel,
+      nextLevel: monsterLevel + 1,
+    });
     isWaveChange = false;
   }
   // 만약 웨이브이전 점수보다 높으면 isWaveChange 다시 초기화
@@ -306,7 +308,7 @@ function initGame() {
     return;
   }
 
-  monsterPath = generateRandomMonsterPath(); // 몬스터 경로 생성
+  monsterPath = generateMonsterPath(); // 몬스터 경로 생성
   initMap(); // 맵 초기화 (배경, 몬스터 경로 그리기)
   placeInitialTowers(); // 설정된 초기 타워 개수만큼 사전에 타워 배치
   placeBase(); // 기지 배치
@@ -359,10 +361,9 @@ Promise.all([
       monsterLevel = +data.result.monsterLevel;
       monsterSpawnInterval = +data.result.monsterSpawnInterval;
       highScore = +data.highScore;
-
-      if (!isInitGame) {
-        initGame();
-      }
+    }
+    if (!isInitGame) {
+      initGame();
     }
 
     if (data.type === 'gameEnd') {
@@ -392,10 +393,17 @@ Promise.all([
       userGold = +data.result.userGold;
       score = +data.result.score;
       changeWave();
+      sendEvent(13);
     }
 
     if (data.type === 'attackedByMonster') {
       baseHp = +data.result.attackPower;
+    }
+
+    if (data.type === 'createGoldMonster') {
+      if (data.result.goldMonsterId) {
+        spawnGoldMonster(data.result.goldMonsterId); // 황금 고블린 생성
+      }
     }
   });
 
