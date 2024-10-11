@@ -590,9 +590,13 @@ sellTowerButton.addEventListener('click', () => {
   if (selectedTowerIndex !== null) {
     // 판매 함수 호출
     sellTower(selectedTowerIndex);
-    // 타워를 판매한 후 버튼 비활성화
+    // 타워를 판매한 후
+    // 타워 판매 버튼 비활성화
     sellTowerButton.style.display = 'none';
     sellTowerButton.disabled = true;
+    // 타워 업그레이드 버튼 비활성화
+    upgradeTowerButton.style.display = 'none';
+    upgradeTowerButton.disabled = true;
     // 선택된 인덱스 초기화
     selectedTowerIndex = null;
   }
