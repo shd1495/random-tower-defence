@@ -16,7 +16,6 @@ export const gameStart = async (uuid, payload, socket) => {
   await setWaveLevel(uuid, waveLevel.data[0].id);
 
   const gameData = await getGameData(uuid);
-  setWaveLevel(uuid, waveLevel.data[0].id);
 
   return {
     status: 'success',
@@ -31,7 +30,8 @@ export const gameEnd = async (uuid, payload, socket) => {
 
   clearWaveLevel(uuid);
   clearMonsters(uuid);
-  await getMonsters();
+  clearGameData(uuid);
+  clearTowers(uuid);
 
   return { status: 'success', type: 'gameEnd', message: 'game over' };
 };
