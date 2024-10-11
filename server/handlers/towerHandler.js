@@ -1,7 +1,7 @@
 //import { getUserTowers, addTower } from '../models/towerModel.js';
 import { getGameAssets } from '../init/assets.js';
 import { getUserGold, updateUserGold } from '../models/gameModel.js';
-import { getTowers, getTower, setTower, removeTower } from '../models/towerModel.js';
+import { getTowers, getTower, setTower, removeTower, upgradeTower } from '../models/towerModel.js';
 
 // 타워 생성 초기화(하드 코딩이라 추후 코드 수정 필요)
 export const towerCreateInit = async (uuid, payload) => {
@@ -113,15 +113,28 @@ export const towerSell = async (uuid, payload) => {
 };
 
 // 타워 업그레이드
-export const handleUpgradeTower = (userId, payload) => {
+export const towerUpgrade = async (uuid, payload) => {
   const { towers } = getGameAssets;
-  const { towerId, money } = payload;
-  // 타워 정보 조회
-  const tower = towers.data.find((tower) => tower.id === towerId);
-  if (!tower) {
-    return { status: 'fail', message: '존재하지 않는 타워ID' };
-  }
+  const { tower, userGold, posX, posY } = payload;
 
-  // 보유 골드 검증
+  // 타워id 검증
+  const isExistTower = towers.data.find((t) => tower.id === t.id);
+  if (!isExistTower) return { type: 'upgradeTower', status: 'fail', message: 'Invalid tower ID' };
+
+  // 골드 검증
+  if (userGold < isExistTower.upgradePrice)
+    return { type: 'upgradeTower', status: 'fail', message: `be short on one's gold` };
+
+  // 강화 단계 검증
+  const isExistNextGrade = isExistTower.nextGradeId;
+  if (isExistNextGrade === -1)
+    return { type: '', status: 'fail', message: 'tower is already max grade' };
+  // 검증 모두 성공하면 
+  const nextGradeTower = towers.data.find((t) => t.id === nextGradeId);
+  if (!nextGradeTower) return { type: 'upgradeTower', status: 'fail', message: 'Invalid next grade tower ID' };
+  await updateUserGold(uuid, -tower.upgradePrice);
+  const userGoldData = await getUserGold(uuid);
+  //await upgradeTower(uuid, nextGradeTower, posX, posY);
+
   return { status: 'success', message: 'tower was upgraded successfully', handlerId: 23 };
 };

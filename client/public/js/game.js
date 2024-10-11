@@ -206,6 +206,11 @@ function placeNewTower(towerPosX, towerPosY) {
 function sellTower(index) {
   sendTowerEvent(22, { tower: towers[index] });
 }
+
+function upgradeTower(index) {
+  sendTowerEvent(23, { tower: towers[index] });
+}
+
 function placeBase() {
   const lastPoint = monsterPath[0];
   base = new Base(lastPoint.x + 200, lastPoint.y - 150, baseHp);
@@ -621,6 +626,15 @@ upgradeTowerButton.addEventListener('click', () => {
   if (selectedTowerIndex !== null) {
     // 내용 미구현
     console.log('업그레이드(미구현)');
+
+    // 타워 판매 버튼 비활성화
+    sellTowerButton.style.display = 'none';
+    sellTowerButton.disabled = true;
+    // 타워 업그레이드 버튼 비활성화
+    upgradeTowerButton.style.display = 'none';
+    upgradeTowerButton.disabled = true;
+    // 선택된 인덱스 초기화
+    selectedTowerIndex = null;
   }
 });
 document.body.appendChild(upgradeTowerButton);

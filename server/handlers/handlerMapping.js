@@ -1,6 +1,6 @@
 import { gameEnd, gameStart } from './gameHandler.js';
 import { attackedByMonster, killMonster } from './monsterHandler.js';
-import { towerCreateInit, towerCreate, towerSell } from './towerHandler.js';
+import { towerCreateInit, towerCreate, towerSell, towerUpgrade } from './towerHandler.js';
 import { waveLevelIncrease } from './waveHandler.js';
 
 const handlerMappings = {
@@ -11,6 +11,7 @@ const handlerMappings = {
   20: towerCreateInit,
   21: towerCreate,
   22: towerSell,
+  23: towerUpgrade,
   31: waveLevelIncrease,
 };
 
