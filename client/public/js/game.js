@@ -156,6 +156,7 @@ function placeInitialTowers() {
     무언가 빠진 코드가 있는 것 같지 않나요? 
   */
 
+
   // 서버로 타워 초기화 정보 전송
   for (let i = 0; i < numOfInitialTowers; i++) {
     const { x, y } = getRandomPositionNearPath(200);
@@ -251,45 +252,40 @@ function gameLoop() {
       /* 몬스터가 죽었을 때 */
 
       if (monster.hp <= 0) {
-        // const monsterId = monster.monsterId + 1;
+        // const monsterId = monster.monsterId;
         // const incrementMoney = monster.reward;
         // const incrementScore = monster.score;
-
         // sendMonsterEvent(11, {
         //   monsterId,
         //   incrementMoney,
         //   incrementScore,
         // });
-
         // 웨이브 레벨업 서버에 요청하기 보내주기
-        if (
-          waveLevelAssetData.data[monsterLevel] &&
-          score >= waveLevelAssetData.data[monsterLevel].score &&
-          isWaveChange
-        ) {
-          sendEvent(31, {
-            score,
-            currentLevel: monsterLevel,
-            nextLevel: monsterLevel + 1,
-          });
-          isWaveChange = false;
-        }
-
-        // 만약 웨이브이전 점수보다 높으면 isWaveChange 다시 초기화
-        if (
-          waveLevelAssetData.data[monsterLevel - 1] &&
-          score >= waveLevelAssetData.data[monsterLevel - 1].score &&
-          !isWaveChange
-        ) {
-          isWaveChange = true;
-        }
       }
-
       monsters.splice(i, 1);
     }
   }
 
   requestAnimationFrame(gameLoop); // 지속적으로 다음 프레임에 gameLoop 함수 호출할 수 있도록 함
+}
+
+function changeWave() {
+  if (
+    waveLevelAssetData.data[monsterLevel] &&
+    score >= waveLevelAssetData.data[monsterLevel].score &&
+    isWaveChange
+  ) {
+    sendEvent(31, { score, currentLevel: monsterLevel, nextLevel: monsterLevel + 1 });
+    isWaveChange = false;
+  }
+  // 만약 웨이브이전 점수보다 높으면 isWaveChange 다시 초기화
+  if (
+    waveLevelAssetData.data[monsterLevel - 1] &&
+    score >= waveLevelAssetData.data[monsterLevel - 1].score &&
+    !isWaveChange
+  ) {
+    isWaveChange = true;
+  }
 }
 
 function initGame() {
@@ -370,6 +366,7 @@ Promise.all([
       console.log('몬스터 동기화');
       userGold = +data.result.userGold;
       score = +data.result.score;
+      changeWave();
     }
     if (data.type === 'attackedByMonster') {
       console.log('기지 동기화');
