@@ -4,6 +4,10 @@
   "data": [
     { "id": 1, "score": 0 },
     { "id": 2, "score": 50 },
-    { "id": 3, "score": 300 }
+    { "id": 3, "score": 300 },
+    { "id": 4, "score": 500 },
+    { "id": 5, "score": 1000 },
+    { "id": 6, "score": 2000 },
+    { "id": 7, "score": 5000 }
   ]
 }
