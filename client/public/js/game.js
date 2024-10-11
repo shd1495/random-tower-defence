@@ -25,10 +25,7 @@ let userGold = 0; // 유저 골드
 let base; // 기지 객체
 let baseHp = 0; // 기지 체력
 let towerUniqueId = 1; // 타워 고유 아이디
-let towerId = 1; // 타워 레벨로 사용하는 아이디
 let towerType = 0; // 타워 종류
-// let lastSetTowerImage = new Image();
-// lastSetTowerImage.src = '../assets/images/tower.png'; // 마지막에 설치한 타워 이미지
 let numOfInitialTowers = 0; // 초기 타워 개수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
@@ -165,10 +162,11 @@ function placeInitialTowers() {
     const { x, y } = getRandomPositionNearPath(200);
 
     sendTowerEvent(20, {
+      // towers DB 와 검증할 데이터들
       uniqueId: towerUniqueId++,
-      towerId: towerId,
-      towerType: towerType,
       towerCount: i + 1,
+      clientTowers: towers,
+      towerType: towerType,
       posX: x,
       posY: y,
     });
@@ -184,10 +182,12 @@ function placeNewTower(towerPosX, towerPosY) {
   // 서버로 타워 구매 정보 전송
   //const { x, y } = getRandomPositionNearPath(200); // 구버전 - 랜덤 좌표
   sendTowerEvent(21, {
+    // getUserGold 와 검증할 데이터
     userGold: userGold,
+    // towers DB 와 검증할 데이터들
     uniqueId: towerUniqueId++,
     towerCount: towers.length,
-    towerId: towerId,
+    clientTowers: towers,
     towerType: towerType,
     posX: towerPosX,
     posY: towerPosY,
@@ -477,17 +477,41 @@ function responseSellTower(data) {
 
 //----------------------------------------------------- 여기서부터 아래는 버튼
 
-// 타워 구입 버튼 생성
-const buyTowerButton = document.createElement('button');
-buyTowerButton.textContent = '타워 구입';
-buyTowerButton.style.position = 'absolute';
-buyTowerButton.style.top = '10px';
-buyTowerButton.style.right = '10px';
-buyTowerButton.style.padding = '10px 20px';
-buyTowerButton.style.fontSize = '16px';
-buyTowerButton.style.cursor = 'pointer';
-buyTowerButton.style.display = 'none'; // 초기에는 버튼을 숨긴 상태
-buyTowerButton.disabled = true; // 초기에는 비활성화 상태
+// 타워1 구입 버튼 생성
+const buyTowerButton1 = document.createElement('button');
+buyTowerButton1.textContent = '타워1 구입';
+buyTowerButton1.style.position = 'absolute';
+buyTowerButton1.style.top = '10px';
+buyTowerButton1.style.right = '10px';
+buyTowerButton1.style.padding = '10px 20px';
+buyTowerButton1.style.fontSize = '16px';
+buyTowerButton1.style.cursor = 'pointer';
+buyTowerButton1.style.display = 'none'; // 초기에는 버튼을 숨긴 상태
+buyTowerButton1.disabled = true; // 초기에는 비활성화 상태
+
+// 일반 타워2 구입 버튼 생성
+const buyTowerButton2 = document.createElement('button');
+buyTowerButton2.textContent = '타워2 구입';
+buyTowerButton2.style.position = 'absolute';
+buyTowerButton2.style.top = '10px';
+buyTowerButton2.style.right = '10px';
+buyTowerButton2.style.padding = '10px 20px';
+buyTowerButton2.style.fontSize = '16px';
+buyTowerButton2.style.cursor = 'pointer';
+buyTowerButton2.style.display = 'none'; // 초기에는 버튼을 숨긴 상태
+buyTowerButton2.disabled = true; // 초기에는 비활성화 상태
+
+// 일반 타워2 구입 버튼 생성
+const buyTowerButton3 = document.createElement('button');
+buyTowerButton3.textContent = '타워3 구입';
+buyTowerButton3.style.position = 'absolute';
+buyTowerButton3.style.top = '10px';
+buyTowerButton3.style.right = '10px';
+buyTowerButton3.style.padding = '10px 20px';
+buyTowerButton3.style.fontSize = '16px';
+buyTowerButton3.style.cursor = 'pointer';
+buyTowerButton3.style.display = 'none'; // 초기에는 버튼을 숨긴 상태
+buyTowerButton3.disabled = true; // 초기에는 비활성화 상태
 
 // 타워 판매 버튼 생성
 const sellTowerButton = document.createElement('button');
@@ -545,9 +569,6 @@ canvas.addEventListener('click', (event) => {
       // 선택 타워 출력 로그
       selectedTowerIndex = index;
       console.log(`${selectedTowerIndex + 1}번째 타워 선택됨`);
-      // 타워 레벨(Id)과 종류(Type) 을 설정(스테이지에 따라 레벨과 종류가 바뀐다면 추후 수정 필요)
-      towerId = 1;
-      towerType = 0;
       // 버튼 위치 설정(기획이 변경되면 계산식 수정)
       // 판매 및 업그레이드 버튼 - 타워 머리 위로 표시
       sellTowerButton.style.right = `${rect.right - tower.x - 95}px`;
@@ -561,8 +582,12 @@ canvas.addEventListener('click', (event) => {
       upgradeTowerButton.style.display = 'block';
       upgradeTowerButton.disabled = false;
       // 구매 버튼 비활성화
-      buyTowerButton.style.display = 'none';
-      buyTowerButton.disabled = true;
+      buyTowerButton1.style.display = 'none';
+      buyTowerButton1.disabled = true;
+      buyTowerButton2.style.display = 'none';
+      buyTowerButton2.disabled = true;
+      buyTowerButton3.style.display = 'none';
+      buyTowerButton3.disabled = true;
 
       towerFoundState = true;
     }
@@ -571,38 +596,73 @@ canvas.addEventListener('click', (event) => {
   // 타워를 클릭하지 않았을 경우
   if (!towerFoundState) {
     // 타워 생성 버튼 - 마우스 클릭 위치에 표시
-    towerPosX = event.clientX - 125;
-    towerPosY = rect.top + event.clientY;
-    buyTowerButton.style.right = `${rect.right - towerPosX - 95}px`;
-    buyTowerButton.style.top = `${towerPosY}px`;
+    towerPosX = event.clientX - 40;
+    towerPosY = rect.top + event.clientY + 25;
+    buyTowerButton1.style.right = `${rect.right - towerPosX - 90}px`;
+    buyTowerButton1.style.top = `${towerPosY - 50}px`;
+    buyTowerButton2.style.right = `${rect.right - towerPosX - 175}px`;
+    buyTowerButton2.style.top = `${towerPosY + 50}px`;
+    buyTowerButton3.style.right = `${rect.right - towerPosX - 5}px`;
+    buyTowerButton3.style.top = `${towerPosY + 50}px`;
     // 선택된 타워가 없으면 판매 및 업그레이드 버튼 비활성화
     sellTowerButton.style.display = 'none';
     sellTowerButton.disabled = true;
     upgradeTowerButton.style.display = 'none';
     upgradeTowerButton.disabled = true;
-    buyTowerButton.style.display = 'block';
-    buyTowerButton.disabled = false;
+    buyTowerButton1.style.display = 'block';
+    buyTowerButton1.disabled = false;
+    buyTowerButton2.style.display = 'block';
+    buyTowerButton2.disabled = false;
+    buyTowerButton3.style.display = 'block';
+    buyTowerButton3.disabled = false;
     // 선택된 인덱스 초기화
     selectedTowerIndex = null;
   }
 });
 
-// 타워 생성 버튼 이벤트
-buyTowerButton.addEventListener('click', () => {
+// 타워1 생성 버튼 이벤트
+buyTowerButton1.addEventListener('click', () => {
+  // 타워 종류(Type)를 설정(스테이지에 따라 레벨과 종류가 바뀐다면 추후 수정 필요)
+  towerType = 0;
+  buyTowerButton();
+});
+document.body.appendChild(buyTowerButton1);
+
+// 타워2 생성 버튼 이벤트
+buyTowerButton2.addEventListener('click', () => {
+  // 타워 종류(Type)를 설정(스테이지에 따라 레벨과 종류가 바뀐다면 추후 수정 필요)
+  towerType = 3;
+  buyTowerButton();
+});
+document.body.appendChild(buyTowerButton2);
+
+// 타워3 생성 버튼 이벤트
+buyTowerButton3.addEventListener('click', () => {
+  // 타워 종류(Type)를 설정(스테이지에 따라 레벨과 종류가 바뀐다면 추후 수정 필요)
+  towerType = 6;
+  buyTowerButton();
+});
+document.body.appendChild(buyTowerButton3);
+
+// 타워 생성 버튼 이벤트 로직
+function buyTowerButton() {
   // 타워가 선택된 상태가 아닐 경우
   if (selectedTowerIndex === null) {
     // 타워 생성 함수 호출
     placeNewTower(towerPosX, towerPosY);
     // 타워를 생성한 후
     // 타워 생성 버튼 비활성화
-    buyTowerButton.style.display = 'none';
-    buyTowerButton.disabled = true;
+    buyTowerButton1.style.display = 'none';
+    buyTowerButton1.disabled = true;
+    buyTowerButton2.style.display = 'none';
+    buyTowerButton2.disabled = true;
+    buyTowerButton3.style.display = 'none';
+    buyTowerButton3.disabled = true;
     // 타워 생성 스폰 좌표 초기화
     towerPosX = 0;
     towerPosY = 0;
   }
-});
-document.body.appendChild(buyTowerButton);
+}
 
 // 타워 판매 버튼 이벤트
 sellTowerButton.addEventListener('click', () => {
