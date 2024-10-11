@@ -60,7 +60,7 @@
       "width": 78,
       "height": 150,
       "beamColor": "red",
-      "image": "../assets/images/towerleveltest3.png"
+      "image": "../assets/images/tower_1.png"
     },
     {
       "id": 5,
@@ -75,7 +75,7 @@
       "width": 78,
       "height": 150,
       "beamColor": "red",
-      "image": "../assets/images/towerleveltest3.png"
+      "image": "../assets/images/towerleveltest2_1.png"
     },
     {
       "id": 6,
@@ -90,7 +90,52 @@
       "width": 78,
       "height": 150,
       "beamColor": "red",
-      "image": "../assets/images/towerleveltest3.png"
+      "image": "../assets/images/towerleveltest3_1.png"
+    },
+    {
+      "id": 7,
+      "speed": 60,
+      "price": 350,
+      "attackPower": 40,
+      "range": 350,
+      "beamDuration": 15,
+      "coolDown": 150,
+      "nextGradeId": -1,
+      "upgradePrice": 0,
+      "width": 78,
+      "height": 150,
+      "beamColor": "red",
+      "image": "../assets/images/tower_2.png"
+    },
+    {
+      "id": 8,
+      "speed": 60,
+      "price": 350,
+      "attackPower": 40,
+      "range": 350,
+      "beamDuration": 15,
+      "coolDown": 150,
+      "nextGradeId": -1,
+      "upgradePrice": 0,
+      "width": 78,
+      "height": 150,
+      "beamColor": "red",
+      "image": "../assets/images/towerleveltest2_2.png"
+    },
+    {
+      "id": 9,
+      "speed": 60,
+      "price": 350,
+      "attackPower": 40,
+      "range": 350,
+      "beamDuration": 15,
+      "coolDown": 150,
+      "nextGradeId": -1,
+      "upgradePrice": 0,
+      "width": 78,
+      "height": 150,
+      "beamColor": "red",
+      "image": "../assets/images/towerleveltest3_2.png"
     }
   ]
 }
