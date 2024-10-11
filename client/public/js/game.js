@@ -25,10 +25,7 @@ let userGold = 0; // 유저 골드
 let base; // 기지 객체
 let baseHp = 0; // 기지 체력
 let towerUniqueId = 1; // 타워 고유 아이디
-let towerId = 1; // 타워 레벨로 사용하는 아이디
 let towerType = 0; // 타워 종류
-// let lastSetTowerImage = new Image();
-// lastSetTowerImage.src = '../assets/images/tower.png'; // 마지막에 설치한 타워 이미지
 let numOfInitialTowers = 0; // 초기 타워 개수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
@@ -174,10 +171,11 @@ function placeInitialTowers() {
     const { x, y } = getRandomPositionNearPath(200);
 
     sendTowerEvent(20, {
+      // towers DB 와 검증할 데이터들
       uniqueId: towerUniqueId++,
-      towerId: towerId,
-      towerType: towerType,
       towerCount: i + 1,
+      clientTowers: towers,
+      towerType: towerType,
       posX: x,
       posY: y,
     });
@@ -193,10 +191,12 @@ function placeNewTower(towerPosX, towerPosY) {
   // 서버로 타워 구매 정보 전송
   //const { x, y } = getRandomPositionNearPath(200); // 구버전 - 랜덤 좌표
   sendTowerEvent(21, {
+    // getUserGold 와 검증할 데이터
     userGold: userGold,
+    // towers DB 와 검증할 데이터들
     uniqueId: towerUniqueId++,
     towerCount: towers.length,
-    towerId: towerId,
+    clientTowers: towers,
     towerType: towerType,
     posX: towerPosX,
     posY: towerPosY,
@@ -469,17 +469,29 @@ function responseSellTower(data) {
 
 //----------------------------------------------------- 여기서부터 아래는 버튼
 
-// 타워 구입 버튼 생성
-const buyTowerButton = document.createElement('button');
-buyTowerButton.textContent = '타워 구입';
-buyTowerButton.style.position = 'absolute';
-buyTowerButton.style.top = '10px';
-buyTowerButton.style.right = '10px';
-buyTowerButton.style.padding = '10px 20px';
-buyTowerButton.style.fontSize = '16px';
-buyTowerButton.style.cursor = 'pointer';
-buyTowerButton.style.display = 'none'; // 초기에는 버튼을 숨긴 상태
-buyTowerButton.disabled = true; // 초기에는 비활성화 상태
+// 일반 타워 구입 버튼 생성
+const buyNormalTowerButton = document.createElement('button');
+buyNormalTowerButton.textContent = '일반 타워 구입';
+buyNormalTowerButton.style.position = 'absolute';
+buyNormalTowerButton.style.top = '10px';
+buyNormalTowerButton.style.right = '10px';
+buyNormalTowerButton.style.padding = '10px 20px';
+buyNormalTowerButton.style.fontSize = '16px';
+buyNormalTowerButton.style.cursor = 'pointer';
+buyNormalTowerButton.style.display = 'none'; // 초기에는 버튼을 숨긴 상태
+buyNormalTowerButton.disabled = true; // 초기에는 비활성화 상태
+
+// 슬로우 타워 구입 버튼 생성
+const buySlowTowerButton = document.createElement('button');
+buySlowTowerButton.textContent = '슬로우 타워 구입';
+buySlowTowerButton.style.position = 'absolute';
+buySlowTowerButton.style.top = '10px';
+buySlowTowerButton.style.right = '10px';
+buySlowTowerButton.style.padding = '10px 20px';
+buySlowTowerButton.style.fontSize = '16px';
+buySlowTowerButton.style.cursor = 'pointer';
+buySlowTowerButton.style.display = 'none'; // 초기에는 버튼을 숨긴 상태
+buySlowTowerButton.disabled = true; // 초기에는 비활성화 상태
 
 // 타워 판매 버튼 생성
 const sellTowerButton = document.createElement('button');

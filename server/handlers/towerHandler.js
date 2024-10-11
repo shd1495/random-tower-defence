@@ -10,13 +10,14 @@ export const towerCreateInit = async (uuid, payload) => {
   // 데이터베이스에 저장된 타워들
   let redisTowers = await getTowers(uuid);
   // 클라에서 받은 데이터들
-  let { uniqueId, towerId, towerType, towerCount, posX, posY } = payload;
+  let { uniqueId, towerCount, clientTowers, towerType, posX, posY } = payload;
 
-  if (towerId !== 1)
-    return { type: 'setTower', status: 'fail', message: 'Tower init towerId mismatch' };
+  // Towers DB 검증
+  if (clientTowers === undefined && redisTowers === undefined)
+    return { type: 'setTower', status: 'fail', message: 'Tower init Towers DB mismatch' };
 
   // 검증 모두 성공하면 타워 생성(타워 종류 생기면 코드 수정 필요)
-  await setTower(uuid, uniqueId, towerId, towers.data[towerType], posX, posY);
+  await setTower(uuid, uniqueId, towerType + 1, towers.data[towerType], posX, posY);
 
   return {
     type: 'setTower',
@@ -42,12 +43,16 @@ export const towerCreate = async (uuid, payload) => {
   // 데이터베이스에 저장된 타워들
   let redisTowers = await getTowers(uuid);
   // 클라에서 받은 데이터들
-  let { userGold, uniqueId, towerCount, towerId, towerType, posX, posY } = payload;
+  let { userGold, uniqueId, towerCount, clientTowers, towerType, posX, posY } = payload;
 
   // 유저 보유 금액이 타워 값 보다 많은지 비교(데이터 베이스가 들어오거나 기획이 바뀌면 수정 필요)
   // 유저 보유 금액이 데이터베이스에 저장된 타워의 값보다 적을 경우를 방지
   if (userGold < towers.data[towerType].price)
     return { type: 'setTower', status: 'fail', message: `be short on one's gold` };
+
+  // Towers DB 검증
+  if (clientTowers === undefined && redisTowers === undefined)
+    return { type: 'setTower', status: 'fail', message: 'Tower init Towers DB mismatch' };
 
   // 유저 보유 타워수 비교(기획이 바뀌면 수정 필요)
   // 한번 살때 복수 구매 방지
@@ -57,7 +62,7 @@ export const towerCreate = async (uuid, payload) => {
   // 검증 모두 성공하면 타워 생성(타워 종류 생기면 코드 수정 필요)
   await updateUserGold(uuid, -towers.data[towerType].price);
   const userGoldData = await getUserGold(uuid);
-  await setTower(uuid, uniqueId, towerId, towers.data[towerType], posX, posY);
+  await setTower(uuid, uniqueId, towerType + 1, towers.data[towerType], posX, posY);
 
   return {
     type: 'setTower',
@@ -107,7 +112,6 @@ export const towerSell = async (uuid, payload) => {
       redisTowers,
       tower,
       userGold,
-      //towerImage: towers[towerType].image
     },
   };
 };
