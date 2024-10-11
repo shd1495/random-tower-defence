@@ -35,7 +35,6 @@ export const gameStart = async (uuid, payload, socket) => {
 
 export const gameEnd = async (uuid, payload, socket) => {
   const { timestamp, score } = payload;
-  console.log('gameEnd 호출');
 
   // 최고 점수
   try {
@@ -47,13 +46,9 @@ export const gameEnd = async (uuid, payload, socket) => {
       throw new Error('unmatched score');
     }
 
-    console.log(score);
-    console.log(+highScore);
-    console.log(score > +highScore);
     // 최고 점수 갱신
     if (score > highScore) {
       await scoreService.updateHighScore(uuid, score, timestamp);
-      console.log('최고 점수 갱신');
     }
 
     return { status: 'success', type: 'gameEnd', message: 'game over' };
