@@ -52,12 +52,9 @@ export class Tower {
                if (monster.hp <= 0) {
                     monster.hp = 0;
                     const monsterId = monster.monsterId;
-                    const incrementMoney = monster.reward;
-                    const incrementScore = monster.score;
+
                     sendMonsterEvent(11, {
                          monsterId,
-                         incrementMoney,
-                         incrementScore,
                     });
                }
 
