@@ -16,6 +16,7 @@ export class Tower {
     this.cool = data.coolDown; // 공격 쿨타임 (계산, 갱신용)
     this.beamDuration = data.beamDuration; // 타워 광선 지속 시간
     this.beamDu = data.beamDuration;//타워 광선 지속 시간 (계산, 갱신용)
+    this.beamColor = data.beamColor
     this.lv = data.lv // 레벨 수치 가시화용 변수
     // this.nextGradeId = data.nextGradeId; // 다음 단계 타워 id
     this.target = null; // 타워 광선의 목표
@@ -30,7 +31,7 @@ export class Tower {
       ctx.beginPath();
       ctx.moveTo(this.x + this.width / 2, this.y + this.height / 2);
       ctx.lineTo(this.target.x + this.target.width / 2, this.target.y + this.target.height / 2);
-      ctx.strokeStyle = 'skyblue';
+      ctx.strokeStyle = `${this.beamColor}`;
       ctx.lineWidth = 10;
       ctx.stroke();
       ctx.closePath();

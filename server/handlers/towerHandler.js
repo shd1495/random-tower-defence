@@ -132,19 +132,19 @@ export const towerUpgrade = async (uuid, payload) => {
   // 검증 모두 성공하면 
   const nextGradeTower = towers.data.find((t) => t.id === isExistNextGrade.id);
   if (!nextGradeTower) return { type: 'upgradeTower', status: 'fail', message: 'Invalid next grade tower ID' };
-
-  await updateUserGold(uuid, -tower.upgradePrice);
+  await updateUserGold(uuid, -isExistTower.upgradePrice);
   const userGoldData = await getUserGold(uuid);
-  await upgradeTower(uuid, afterUniqueId, nextGradeTower, posX, posY);
+  console.log('업글타워id' + afterUniqueId);
+  await upgradeTower(uuid, beforeUniqueId, afterUniqueId, nextGradeTower, posX, posY);
 
   return {
     type: 'upgradeTower',
     status: 'success',
     message: 'Upgrade Tower successfully',
     result: {
+      beforeUniqueId: beforeUniqueId, // 삭제할 이전 타워 클라 고유값      
       // redis 와 같은 key-value의 result 값
-      beforeUniqueId: beforeUniqueId, // 삭제할 이전 타워 클라 고유값
-      afterUniqueId: afterUniqueId, // 새로 배치할 타워 클라 고유값
+      uniqueId: afterUniqueId, // 새로 배치할 타워 클라 고유값
       tower: nextGradeTower,  //업그레이드 된 타워 오브잭트 정보
       posX: posX, // xy 좌표
       posY: posY,

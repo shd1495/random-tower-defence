@@ -511,7 +511,7 @@ function responseUpgradeTower(data) {
   }
   // 클라이언트에 타워 객체 생성
   const TOWER = new Tower(
-    data.result.afterUniqueId,
+    data.result.uniqueId,
     data.result.tower,
     data.result.posX,
     data.result.posY,
