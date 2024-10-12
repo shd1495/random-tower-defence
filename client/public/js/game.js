@@ -301,7 +301,7 @@ function gameLoop() {
                     //   incrementMoney,
                     //   incrementScore,
                     // });
-                    // 웨이브 레벨업 서버에 요청하기 보내주기
+                    // 웨이브 레벨업  요청하기 보내주기
                }
                monsters.splice(i, 1);
           }
