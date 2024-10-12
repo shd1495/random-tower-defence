@@ -115,7 +115,7 @@ export const towerSell = async (uuid, payload) => {
 // 타워 업그레이드
 export const towerUpgrade = async (uuid, payload) => {
   const { towers } = getGameAssets();
-  const { tower, uniqueId, userGold, posX, posY } = payload;
+  const { tower, beforeUniqueId, afterUniqueId, userGold, posX, posY } = payload;
 
   // 타워id 검증
   const isExistTower = towers.data.find((t) => tower.id === t.id);
@@ -125,28 +125,30 @@ export const towerUpgrade = async (uuid, payload) => {
   if (userGold < isExistTower.upgradePrice)
     return { type: 'upgradeTower', status: 'fail', message: `be short on one's gold` };
 
-  // 강화 단계 검증
-  const isExistNextGrade = towers.data.find((t) => tower.nextGradeId === t.id);
-
+  // 강화 단계 검증    
+  const isExistNextGrade = towers.data.find((t) => isExistTower.nextGradeId === t.id);
   if (isExistNextGrade === -1 || !isExistNextGrade)
-    return { type: '', status: 'fail', message: 'tower is already max grade' };
+    return { type: '', status: 'fail', message: 'tower is already max grade or Invalid next grade' };
   // 검증 모두 성공하면 
-  const nextGradeTower = towers.data.find((t) => t.id === nextGradeId);
+  const nextGradeTower = towers.data.find((t) => t.id === isExistNextGrade.id);
   if (!nextGradeTower) return { type: 'upgradeTower', status: 'fail', message: 'Invalid next grade tower ID' };
+
   await updateUserGold(uuid, -tower.upgradePrice);
   const userGoldData = await getUserGold(uuid);
-  await upgradeTower(uuid, uniqueId, nextGradeTower, posX, posY);
+  await upgradeTower(uuid, afterUniqueId, nextGradeTower, posX, posY);
+
   return {
     type: 'upgradeTower',
     status: 'success',
     message: 'Upgrade Tower successfully',
     result: {
       // redis 와 같은 key-value의 result 값
-      uniqueId: uniqueId,
-      tower: nextGradeTower,
-      posX: posX,
+      beforeUniqueId: beforeUniqueId, // 삭제할 이전 타워 클라 고유값
+      afterUniqueId: afterUniqueId, // 새로 배치할 타워 클라 고유값
+      tower: nextGradeTower,  //업그레이드 된 타워 오브잭트 정보
+      posX: posX, // xy 좌표
       posY: posY,
-      userGold: userGoldData,
+      userGold: userGoldData, // 골드 동기화
     },
   };
 };
