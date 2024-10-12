@@ -197,6 +197,21 @@ function placeNewTower(towerPosX, towerPosY) {
 function sellTower(index) {
   sendTowerEvent(22, { tower: towers[index] });
 }
+/**
+ * 타워 업그레이드
+ * @param {int} index 선택된 타워index
+ */
+function upgradeTower(index) {
+  sendTowerEvent(23, {
+    tower: towers[index],
+    beforeUniqueId: towers[index].uniqueId,
+    afterUniqueId: towerUniqueId++,
+    userGold: userGold,
+    posX: towers[index].x,
+    posY: towers[index].y,
+  });
+}
+
 function placeBase() {
   const lastPoint = monsterPath[monsterPath.length - 1];
   base = new Base(lastPoint.x, lastPoint.y, baseHp);
@@ -384,6 +399,11 @@ Promise.all([
       userGold = +data.result.userGold;
     }
 
+    if (data.type === 'upgradeTower') {
+      responseUpgradeTower(data);
+      userGold = +data.result.userGold;
+    }
+
     if (data.type === 'waveLevelIncrease') {
       console.log(data.message);
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
@@ -399,7 +419,7 @@ Promise.all([
     if (data.type === 'attackedByMonster') {
       baseHp = +data.result.attackPower;
     }
-    
+
     if (data.type === 'createGoldMonster') {
       if (data.result.goldMonsterId) {
         spawnGoldMonster(data.result.goldMonsterId); // 황금 고블린 생성
@@ -474,6 +494,31 @@ function responseSellTower(data) {
     console.log('판매할 타워를 찾지 못했습니다.');
   }
 }
+
+/**
+ * response 받을때 불러오는 upradeTower 함수
+ * @param {Object} data
+ */
+function responseUpgradeTower(data) {
+  // 클라이언트에서 삭제 타워 탐색   
+  const index = towers.findIndex((tower) => tower.uniqueId === data.result.beforeUniqueId);
+  // 탐색 결과를 기반으로 삭제
+  if (index !== -1) {
+    // 삭제할 타워 클라이언트에서 제거
+    towers.splice(index, 1);
+  } else {
+    console.log('삭제할 타워를 찾지 못했습니다.');
+  }
+  // 클라이언트에 타워 객체 생성
+  const TOWER = new Tower(
+    data.result.uniqueId,
+    data.result.tower,
+    data.result.posX,
+    data.result.posY,
+  );
+  towers.push(TOWER);
+}
+
 
 //----------------------------------------------------- 여기서부터 아래는 버튼
 
@@ -628,7 +673,16 @@ upgradeTowerButton.addEventListener('click', () => {
   // 타워가 선택된 상태일 경우
   if (selectedTowerIndex !== null) {
     // 내용 미구현
-    console.log('업그레이드(미구현)');
+    upgradeTower(selectedTowerIndex);
+
+    // 타워 판매 버튼 비활성화
+    sellTowerButton.style.display = 'none';
+    sellTowerButton.disabled = true;
+    // 타워 업그레이드 버튼 비활성화
+    upgradeTowerButton.style.display = 'none';
+    upgradeTowerButton.disabled = true;
+    // 선택된 인덱스 초기화
+    selectedTowerIndex = null;
   }
 });
 document.body.appendChild(upgradeTowerButton);
