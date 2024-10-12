@@ -4,6 +4,7 @@ import initSocket from "./init/socket.js";
 import dotenv from "dotenv";
 import { createServer } from "http";
 import { loadGameAssets } from "./init/assets.js";
+import errorHandleMiddleware from "./middlewares/errorHandleMiddleware.js";
 
 dotenv.config();
 
@@ -14,14 +15,13 @@ const server = createServer(app);
 
 // body-parser
 app.use(express.json());
-app.use("/api", accountRouter);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("client/public"));
+
+app.use("/api", accountRouter);
 // 소켓 초기화
 initSocket(server);
-
-// app.use('/api', );
-// app.use(errorHandleMiddleware);
+app.use(errorHandleMiddleware);
 
 server.listen(PORT, async () => {
      console.log(`${PORT} 포트로 서버가 열렸습니다.`);

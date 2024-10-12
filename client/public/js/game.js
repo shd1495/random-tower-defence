@@ -387,6 +387,23 @@ Promise.all([
           alert("서버에 연결할 수 없습니다. 다시 시도해주세요.");
      });
 
+     /* 토큰 유효하지 않을 시 */
+     // 토큰 만료 시
+     serverSocket.on("tokenExpired", (data) => {
+          console.log(data.message);
+          alert("세션이 만료되었습니다. 다시 로그인해 주세요.");
+
+          window.location.href = "index.html";
+     });
+
+     // 토큰 조작 시
+     serverSocket.on("unauthorized", (data) => {
+          console.log(data.message);
+          alert("유효하지 않은 토큰입니다.");
+
+          window.location.href = "index.html";
+     });
+
      serverSocket.on("response", (data) => {
           if (data.type === "gameStart") {
                userGold = +data.result.userGold;
