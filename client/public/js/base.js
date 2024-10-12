@@ -19,13 +19,21 @@ export class Base {
                this.height
           );
 
-          ctx.font = "16px Arial";
+          ctx.font = '20px "bitbit"';
           ctx.fillStyle = "white";
-          ctx.fillText(
-               `HP: ${this.hp}/${this.maxHp}`,
-               this.x - this.width / 2,
-               this.y - this.height / 2
-          );
+          if (this.hp > 0) {
+               ctx.fillText(
+                    `HP: ${this.hp}/${this.maxHp}`,
+                    this.x - this.width / 2,
+                    this.y - this.height / 2
+               );
+          } else {
+               ctx.fillText(
+                    `HP: 0/${this.maxHp}`,
+                    this.x - this.width / 2,
+                    this.y - this.height / 2
+               );
+          }
      }
 
      takeDamage(monsterId, attackPower) {
@@ -33,6 +41,12 @@ export class Base {
           // 몬스터가 기지의 HP를 감소시키고, HP가 0 이하가 되면 게임 오버 처리를 해요!
           sendMonsterEvent(12, { monsterId, attackPower });
           this.hp -= attackPower;
-          return this.hp <= 0; // 기지의 HP가 0 이하이면 true, 아니면 false
+
+          if (this.hp <= 0) {
+               this.hp = 0;
+               return true;
+          }
+
+          return false;
      }
 }

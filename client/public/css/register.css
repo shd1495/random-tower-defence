@@ -5,7 +5,11 @@
      font-weight: normal;
      font-style: normal;
 }
-
+@font-face {
+     font-family: "bitbit";
+     src: url("//cdn.df.nexon.com/img/common/font/DNFBitBit-Regular.woff"),
+          url("//cdn.df.nexon.com/img/common/font/DNFBitBit-Regular.woff2");
+}
 body {
      display: flex;
      justify-content: center;
@@ -14,7 +18,7 @@ body {
      margin: 0;
      background-color: #2d2d2d;
      color: white;
-     font-family: Arial, sans-serif;
+     font-family: "bitbit";
 }
 #title {
      color: white;
@@ -46,7 +50,7 @@ body {
      font-size: 20px;
      cursor: pointer;
      font-family: "DOSMyungjo";
-     margin: 10px 10ㅔㅌ;
+     margin: 10px 10px;
      border-radius: 10px;
 }
 
