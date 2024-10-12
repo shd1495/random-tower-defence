@@ -399,7 +399,7 @@ Promise.all([
     if (data.type === 'attackedByMonster') {
       baseHp = +data.result.attackPower;
     }
-    
+
     if (data.type === 'createGoldMonster') {
       if (data.result.goldMonsterId) {
         spawnGoldMonster(data.result.goldMonsterId); // 황금 고블린 생성
