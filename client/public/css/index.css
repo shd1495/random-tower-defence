@@ -1,24 +1,53 @@
+@font-face {
+     font-family: "DOSMyungjo";
+     src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/DOSMyungjo.woff")
+          format("woff");
+     font-weight: normal;
+     font-style: normal;
+}
+
 body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  background-color: #2d2d2d;
-  flex-direction: column;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     height: 100vh;
+     margin: 0;
+     background-color: #2d2d2d;
+     flex-direction: column;
 }
+
 #gameCanvas {
-  border: 2px solid #000;
-  display: none;
+     border: 2px solid #000;
+     display: none;
 }
+
+#gameTitle {
+     color: white;
+     font-size: 75px;
+     font-family: "DOSMyungjo";
+     position: relative;
+}
+
+#separatorImage {
+     width: 200px;
+     height: 200px;
+     margin-bottom: 20px;
+}
+
 .button-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     padding: 20px;
+     width: 150px;
 }
+
 .button-container button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
+     width: 150px;
+     padding: 10px;
+     font-size: 20px;
+     font-family: "DOSMyungjo";
+     cursor: pointer;
+     margin: 10px;
+     border-radius: 10px;
 }
