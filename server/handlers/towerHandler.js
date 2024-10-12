@@ -114,8 +114,8 @@ export const towerSell = async (uuid, payload) => {
 
 // 타워 업그레이드
 export const towerUpgrade = async (uuid, payload) => {
-  const { towers } = getGameAssets;
-  const { tower, userGold, posX, posY } = payload;
+  const { towers } = getGameAssets();
+  const { tower, uniqueId, userGold, posX, posY } = payload;
 
   // 타워id 검증
   const isExistTower = towers.data.find((t) => tower.id === t.id);
@@ -126,15 +126,27 @@ export const towerUpgrade = async (uuid, payload) => {
     return { type: 'upgradeTower', status: 'fail', message: `be short on one's gold` };
 
   // 강화 단계 검증
-  const isExistNextGrade = isExistTower.nextGradeId;
-  if (isExistNextGrade === -1)
+  const isExistNextGrade = towers.data.find((t) => tower.nextGradeId === t.id);
+
+  if (isExistNextGrade === -1 || !isExistNextGrade)
     return { type: '', status: 'fail', message: 'tower is already max grade' };
   // 검증 모두 성공하면 
   const nextGradeTower = towers.data.find((t) => t.id === nextGradeId);
   if (!nextGradeTower) return { type: 'upgradeTower', status: 'fail', message: 'Invalid next grade tower ID' };
   await updateUserGold(uuid, -tower.upgradePrice);
   const userGoldData = await getUserGold(uuid);
-  //await upgradeTower(uuid, nextGradeTower, posX, posY);
-
-  return { status: 'success', message: 'tower was upgraded successfully', handlerId: 23 };
+  await upgradeTower(uuid, uniqueId, nextGradeTower, posX, posY);
+  return {
+    type: 'upgradeTower',
+    status: 'success',
+    message: 'Upgrade Tower successfully',
+    result: {
+      // redis 와 같은 key-value의 result 값
+      uniqueId: uniqueId,
+      tower: nextGradeTower,
+      posX: posX,
+      posY: posY,
+      userGold: userGoldData,
+    },
+  };
 };

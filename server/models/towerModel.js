@@ -99,9 +99,12 @@ export const removeTower = async (uuid, uniqueId) => {
 /**
  * 타워 업그레이드
  * @param {String} uuid
+ * @param {Object} nextGradeTower
  * @param {int} uniqueId
+ * @param {int} posX
+ * @param {int} posY
  */
-export const upgradeTower = async (uuid, uniqueId) => {
+export const upgradeTower = async (uuid, uniqueId, nextGradeTower, posX, posY) => {
     try {
         // redisClient.del(uuid) : uuid라는 키 삭제용
         // redisClient.srem(TOWER_SET, uuid) : SET 에서 uuid 멤버 제거용
@@ -114,6 +117,13 @@ export const upgradeTower = async (uuid, uniqueId) => {
 
         // 타워 교체
         if (indexToRemove !== -1) await redisClient.lrem(TOWER_SET + uuid, 1, towers[indexToRemove]);
+        const newTower = {
+            uniqueId: uniqueId,
+            ...nextGradeTower,
+            posX: posX,
+            posY: posY,
+        };
+        await redisClient.rpush(TOWER_SET + uuid, JSON.stringify(newTower));
 
     } catch (error) {
         throw new Error('[타워 업그레이드]에러가 발생했습니다.' + error.message);

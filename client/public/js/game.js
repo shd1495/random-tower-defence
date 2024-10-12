@@ -199,7 +199,13 @@ function sellTower(index) {
 }
 
 function upgradeTower(index) {
-  sendTowerEvent(23, { tower: towers[index] });
+  sendTowerEvent(23, {
+    tower: towers[index],
+    uniqueId: towers[index].uniqueId,
+    userGold: userGold,
+    posX: towers[index].x,
+    posY: towers[index].y,
+  });
 }
 
 function placeBase() {
@@ -404,7 +410,7 @@ Promise.all([
     if (data.type === 'attackedByMonster') {
       baseHp = +data.result.attackPower;
     }
-    
+
     if (data.type === 'createGoldMonster') {
       if (data.result.goldMonsterId) {
         spawnGoldMonster(data.result.goldMonsterId); // 황금 고블린 생성
@@ -633,7 +639,7 @@ upgradeTowerButton.addEventListener('click', () => {
   // 타워가 선택된 상태일 경우
   if (selectedTowerIndex !== null) {
     // 내용 미구현
-    console.log('업그레이드(미구현)');
+    upgradeTower(selectedTowerIndex);
 
     // 타워 판매 버튼 비활성화
     sellTowerButton.style.display = 'none';
