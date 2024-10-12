@@ -112,7 +112,7 @@ export async function signin(req, res, next) {
                { accountId: existingAccount.id },
                process.env.SESSION_SECRET_KEY,
                {
-                    expiresIn: "1m",
+                    expiresIn: "1h",
                }
           );
 

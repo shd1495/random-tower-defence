@@ -42,7 +42,7 @@ export default async function (req, res, next) {
                error.name === "TokenExpiredError" ||
                error.name === "JsonWebTokenError"
           )
-               next(throwError("토큰이 유효하지 않습니다."));
+               next(throwError("토큰이 유효하지 않습니다.", 401));
           next(error);
      }
 }
