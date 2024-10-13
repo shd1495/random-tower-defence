@@ -16,7 +16,7 @@
       "width": 100,
       "height": 100,
       "beamColor": "skyblue",
-      "image": "../assets/images/tower.png"
+      "image": "../assets/images/tower1.png"
     },
     {
       "id": 2,
@@ -29,10 +29,10 @@
       "nextGradeId": 3,
       "upgradePrice": 175,
       "lv": 2,
-      "width": 78,
-      "height": 150,
-      "beamColor": "blue",
-      "image": "../assets/images/towerleveltest2.png"
+      "width": 100,
+      "height": 100,
+      "beamColor": "white",
+      "image": "../assets/images/tower1-2.png"
     },
     {
       "id": 3,
@@ -45,10 +45,10 @@
       "nextGradeId": -1,
       "upgradePrice": 0,
       "lv": 3,
-      "width": 78,
-      "height": 150,
-      "beamColor": "orange",
-      "image": "../assets/images/towerleveltest3.png"
+      "width": 100,
+      "height": 100,
+      "beamColor": "yellow",
+      "image": "../assets/images/tower1-3.png"
     }
   ]
 }
