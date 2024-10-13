@@ -5,7 +5,7 @@
  * @returns { Error }
  */
 export function throwError(message, status) {
-     const err = new Error(message);
-     err.status = status;
-     return err;
+  const err = new Error(message);
+  err.status = status;
+  return err;
 }
