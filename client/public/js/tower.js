@@ -1,85 +1,99 @@
-import { sendMonsterEvent } from "./game.js";
+import { sendMonsterEvent } from './game.js';
 
 export class Tower {
-     constructor(uniqueId, data, posX, posY) {
-          // 생성자 안에서 타워들의 속성을 정의한다고 생각하시면 됩니다!
-          this.uniqueId = uniqueId;
-          this.x = posX; // 타워 이미지 x 좌표
-          this.y = posY; // 타워 이미지 y 좌표
-          this.width = 65; // 타워 이미지 가로 길이
-          this.height = 120; // 타워 이미지 세로 길이
-          this.attackPower = data.attackPower; // 타워 공격력
-          this.range = 300; // 타워 사거리
-          this.price = data.price; // 타워 구입 비용
-          this.cooldown = data.coolDown; // 타워 공격 쿨타임
-          this.cool = data.coolDown; // 공격 쿨타임 (계산, 갱신용)
-          this.beamDuration = data.beamDuration; // 타워 광선 지속 시간
-          this.beamDu = data.beamDuration; // 타워 광선 지속 시간 (계산, 갱신용)
-          this.target = null; // 타워 광선의 목표
+  constructor(uniqueId, data, posX, posY) {
+    // 생성자 안에서 타워들의 속성을 정의한다고 생각하시면 됩니다!
+    this.uniqueId = uniqueId; // 타워 ID
+    this.id = data.id; // 타워 json ID
+    this.x = posX - 190; // 타워 이미지 x 좌표
+    this.y = posY - 120; // 타워 이미지 y 좌표
+    this.width = data.width; // 타워 이미지 가로 길이 (이미지 파일 길이에 따라 변경 필요하며 세로 길이와 비율을 맞춰주셔야 합니다!)
+    this.height = data.height; // 타워 이미지 세로 길이
+    this.imgMagnification = data.imgMagnification; // 이미지 배율
+    this.attackPower = data.attackPower; // 타워 공격력
+    this.range = data.range; // 타워 사거리
+    this.price = data.price; // 타워 구입 비용
+    this.cooldown = data.coolDown; // 타워 공격 쿨타임
+    this.cool = data.coolDown; // 공격 쿨타임 (계산, 갱신용)
+    this.beamDuration = data.beamDuration; // 타워 광선 지속 시간
+    this.beamDu = data.beamDuration; //타워 광선 지속 시간 (계산, 갱신용)
+    this.beamColor = data.beamColor;
+    this.lv = data.lv; // 레벨 수치 가시화용 변수
+    this.nextGradeId = data.nextGradeId; // 다음 단계 타워 id
+    this.target = null; // 타워 광선의 목표
 
-          this.beamImage = new Image();
-          this.beamImage.src = "../assets/images/beam2.png";
+    this.towerImage = new Image();
+    this.towerImage.src = data.image;
+  }
 
-          this.towerImage = new Image();
-          this.towerImage.src = data.image; // 타워 이미지 경로
-     }
+  draw(ctx) {
+    ctx.drawImage(
+      this.towerImage,
+      this.x,
+      this.y,
+      this.width * this.imgMagnification,
+      this.height * this.imgMagnification,
+    );
 
-     draw(ctx) {
-          // 타워 이미지 그리기
-          ctx.drawImage(
-               this.towerImage,
-               this.x,
-               this.y,
-               this.width,
-               this.height
-          );
+    // 레벨 텍스트 사각형 그리기
+    const rectWidth = 70; // 사각형의 가로 길이
+    const rectHeight = 40; // 사각형의 세로 길이
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // 반투명 검정색 배경
+    ctx.fillRect(
+      this.x + (this.width * this.imgMagnification) / 2 - rectWidth / 2,
+      this.y - rectHeight - 10,
+      rectWidth,
+      rectHeight,
+    );
 
-          // 빔이 발사 중일 때
-          if (this.beamDu > 0 && this.target) {
-               // 빔의 끝점
-               const beamEndX = this.target.x + this.target.width / 2;
-               const beamEndY = this.target.y + this.target.height / 2;
+    // 레벨 텍스트 그리기
+    ctx.fillStyle = 'white'; // 텍스트 색상
+    ctx.font = '20px Arial'; // 텍스트 폰트 설정
+    ctx.textAlign = 'center'; // 텍스트 정렬 설정
+    ctx.fillText(
+      `레벨 ${this.lv}`, // 레벨 표시 텍스트
+      this.x + (this.width * this.imgMagnification) / 2,
+      this.y - rectHeight / 2 - 3,
+    );
 
-               // 각도 계산
-               const deltaX = beamEndX - (this.x + this.width / 2);
-               const deltaY = beamEndY - (this.y + this.height / 2);
-               const angle = Math.atan2(deltaY, deltaX);
+    if (this.beamDu > 0 && this.target) {
+      ctx.beginPath();
+      ctx.moveTo(
+        this.x + (this.width * this.imgMagnification) / 2,
+        this.y + (this.height * this.imgMagnification) / 2,
+      );
+      ctx.lineTo(this.target.x + this.target.width / 2, this.target.y + this.target.height / 2);
+      ctx.strokeStyle = `${this.beamColor}`;
+      ctx.lineWidth = 10;
+      ctx.stroke();
+      ctx.closePath();
+      this.beamDu--;
+    }
+  }
 
-               // 빔 이미지 그리기
-               ctx.save();
-               ctx.translate(this.x + this.width / 2, this.y);
-               ctx.rotate(angle);
-               ctx.drawImage(this.beamImage, -50, -10, 350, 50);
-               ctx.restore();
+  attack(monster) {
+    // 타워가 타워 사정거리 내에 있는 몬스터를 공격하는 메소드이며 사정거리에 닿는지 여부는 game.js에서 확인합니다.
+    if (this.cool <= 0 && monster.hp > 0) {
+      monster.hp -= this.attackPower;
 
-               // 빔의 지속 시간 감소
-               this.beamDu--;
-          }
-     }
+      if (monster.hp <= 0) {
+        monster.hp = 0;
+        const monsterId = monster.monsterId;
 
-     attack(monster) {
-          // 타워가 타워 사정거리 내에 있는 몬스터를 공격하는 메소드이며 사정거리에 닿는지 여부는 game.js에서 확인합니다.
-          if (this.cool <= 0 && monster.hp > 0) {
-               monster.hp -= this.attackPower;
+        sendMonsterEvent(11, {
+          monsterId,
+        });
+      }
 
-               if (monster.hp <= 0) {
-                    monster.hp = 0;
-                    const monsterId = monster.monsterId;
+      this.cool = this.cooldown; // 3초 쿨타임 (초당 60프레임)
+      this.beamDu = this.beamDuration; // 광선 지속 시간 (0.5초)
+      this.target = monster; // 광선의 목표 설정
+    }
+  }
 
-                    sendMonsterEvent(11, {
-                         monsterId,
-                    });
-               }
-
-               this.cool = this.cooldown; // 3초 쿨타임 (초당 60프레임)
-               this.beamDu = this.beamDuration; // 광선 지속 시간 (0.5초)
-               this.target = monster; // 광선의 목표 설정
-          }
-     }
-
-     updateCooldown() {
-          if (this.cool > 0) {
-               this.cool--;
-          }
-     }
+  updateCooldown() {
+    if (this.cool > 0) {
+      this.cool--;
+    }
+  }
 }
