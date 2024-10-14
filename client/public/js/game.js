@@ -59,16 +59,16 @@ for (let i = 1; i <= NUM_OF_MONSTERS; i++) {
 }
 
 function drawScoreboard(ctx, scoreBoardImage) {
-     const canvasWidth = ctx.canvas.width;
-     const canvasHeight = ctx.canvas.height;
+  const canvasWidth = ctx.canvas.width;
+  const canvasHeight = ctx.canvas.height;
 
-     // 상대적인 위치 및 크기 계산
-     const x = canvasWidth * 0;
-     const y = canvasHeight * 0;
-     const width = canvasWidth * 0.25; //
-     const height = width * 0.6;
+  // 상대적인 위치 및 크기 계산
+  const x = canvasWidth * 0;
+  const y = canvasHeight * 0;
+  const width = canvasWidth * 0.25; //
+  const height = width * 0.6;
 
-     ctx.drawImage(scoreBoardImage, x, y, width, height);
+  ctx.drawImage(scoreBoardImage, x, y, width, height);
 }
 let monsterPath = [];
 
