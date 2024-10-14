@@ -154,10 +154,15 @@ export const towerUpgrade = async (uuid, payload) => {
     // 강화 단계 검증
     const isExistNextGrade = towers.data.find((t) => isExistTower.nextGradeId === t.id);
     if (isExistNextGrade === -1 || !isExistNextGrade)
-      return { type: 'upgradeTower', status: 'fail', message: 'tower is already max grade or Invalid next grade' };
+      return {
+        type: 'upgradeTower',
+        status: 'fail',
+        message: 'tower is already max grade or Invalid next grade',
+      };
 
     const nextGradeTower = towers.data.find((t) => t.id === isExistNextGrade.id);
-    if (!nextGradeTower) return { type: 'upgradeTower', status: 'fail', message: 'Invalid next grade tower ID' };
+    if (!nextGradeTower)
+      return { type: 'upgradeTower', status: 'fail', message: 'Invalid next grade tower ID' };
 
     // 검증 모두 성공하면
     await updateUserGold(uuid, -isExistTower.upgradePrice);
@@ -179,6 +184,7 @@ export const towerUpgrade = async (uuid, payload) => {
       },
     };
   } catch (error) {
-    throw new Error(`타워 업그레이드 에러 ${error.message}`);
+    console.error(error.message);
+    return { type: 'upgradeTower', status: 'fail', message: error.message };
   }
 };
