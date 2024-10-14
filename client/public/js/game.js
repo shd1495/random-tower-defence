@@ -3,7 +3,6 @@ import { Monster } from './monster.js';
 import { Tower } from './tower.js';
 import { CLIENT_VERSION } from './constants.js';
 import { getGameAssets } from '../init/assets.js';
-import { extendAccessToken } from '../utils/extendAccessToken.js';
 
 const { monsterAssetData, towerAssetData, gameAssetData, waveLevelAssetData } = getGameAssets();
 
@@ -12,7 +11,6 @@ const SERVER_URL = 'http://localhost:3080'; // 실제 서버 주소로 변경하
 /* 
   어딘가에 엑세스 토큰이 저장이 안되어 있다면 로그인을 유도하는 코드를 여기에 추가해주세요!
 */
-extendAccessToken();
 
 let serverSocket; // 서버 웹소켓 객체
 let sendEvent;
@@ -23,6 +21,8 @@ const ctx = canvas.getContext('2d');
 
 // 느림 장판 배열
 let slowEffects = [];
+let slowEffectCooldown = 0;
+const SLOW_EFFECT_COOLDOWN = 1000;
 
 const NUM_OF_MONSTERS = 6; // 몬스터 개수
 
@@ -76,19 +76,6 @@ function drawScoreboard(ctx, scoreBoardImage) {
   ctx.drawImage(scoreBoardImage, x, y, width, height);
 }
 let monsterPath = [];
-let bgm = null;
-let bgmInitialized = false;
-
-function initializeBGM() {
-  if (!bgmInitialized) {
-    bgm = new Audio('../assets/sound/bgmSound.mp3');
-    bgm.loop = true;
-    bgm.volume = 0.15;
-    bgm.play();
-    bgmInitialized = true;
-  }
-}
-initializeBGM();
 
 function generateMonsterPath() {
   const path = [];
@@ -151,7 +138,7 @@ function drawRotatedImage(image, x, y, width, height, angle) {
 }
 
 function drawSlowEffects(ctx) {
-  ctx.globalAlpha = 0.5;
+  ctx.globalAlpha = 0.3;
   ctx.fillStyle = 'blue';
   slowEffects.forEach((effect) => {
     ctx.beginPath();
@@ -274,15 +261,9 @@ function spawnGoldMonster(monsterId) {
 
 // 느려짐 효과 생성기(장판 생성 버튼) (createSlowEffect, isClickOnPath, isPointNearLine, updateSlowEffects)
 function createSlowEffect(rightBtnX, rightBtnY) {
-  // const position = getRandomPositionOnPath();
-  // slowEffects.push({
-  //   x: position.posX,
-  //   y: position.posY,
-  //   radius: 50,
-  //   duration: 5000,
-  //   createdAt: Date.now(),
-  // });
-
+  if (slowEffectCooldown > 0) {
+    return;
+  }
   slowEffects.push({
     x: rightBtnX,
     y: rightBtnY,
@@ -290,6 +271,8 @@ function createSlowEffect(rightBtnX, rightBtnY) {
     duration: 5000,
     createdAt: Date.now(),
   });
+
+  slowEffectCooldown = SLOW_EFFECT_COOLDOWN;
 }
 
 // 마우스 포인터로 지정한 위치에 스킬을 쓰게 만드는 것 구현하기
@@ -299,101 +282,99 @@ function updateSlowEffects() {
   slowEffects = slowEffects.filter((effect) => now - effect.createdAt < effect.duration);
 }
 
-let lastTime = 0;
-const fps = 60;
-const interval = 1000 / fps;
+function gameLoop() {
+  // 렌더링 시에는 항상 배경 이미지부터 그려야 합니다! 그래야 다른 이미지들이 배경 이미지 위에 그려져요!
+  ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // 배경 이미지 다시 그리기
+  drawScoreboard(ctx, scoreBoardImage);
+  drawPath(monsterPath); // 경로 다시 그리기
 
-function gameLoop(currentTime) {
-  //   requestAnimationFrame(gameLoop);
-  const delta = currentTime - lastTime;
+  ctx.font = '25px "bitbit"';
+  ctx.fillStyle = 'pink';
+  ctx.fillText(`최고 기록: ${highScore}`, 100, 50); // 최고 기록 표시
+  ctx.fillStyle = 'white';
+  ctx.fillText(`점수: ${score}`, 100, 100); // 현재 스코어 표시
+  ctx.fillStyle = 'yellow';
+  ctx.fillText(`골드: ${userGold}`, 100, 150); // 골드 표시
+  ctx.fillStyle = 'skyblue';
+  ctx.fillText(`현재 레벨: ${monsterLevel}`, 100, 200); // 최고 기록 표시
 
-  if (delta >= interval) {
-    lastTime = currentTime - (delta % interval);
-    // 렌더링 시에는 항상 배경 이미지부터 그려야 합니다! 그래야 다른 이미지들이 배경 이미지 위에 그려져요!
-    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // 배경 이미지 다시 그리기
-    drawScoreboard(ctx, scoreBoardImage);
-    drawPath(monsterPath); // 경로 다시 그리기
+  // 타워 그리기 및 몬스터 공격 처리
+  towers.forEach((tower) => {
+    tower.draw(ctx);
+    tower.updateCooldown();
+    monsters.forEach((monster) => {
+      const distance = Math.sqrt(
+        Math.pow(tower.x - monster.x, 2) + Math.pow(tower.y - monster.y, 2),
+      );
+      if (distance < tower.range) {
+        tower.attack(monster);
+      }
+    });
+  });
 
-    ctx.font = '25px "bitbit"';
-    ctx.fillStyle = 'pink';
-    ctx.fillText(`최고 기록: ${highScore}`, 100, 50); // 최고 기록 표시
-    ctx.fillStyle = 'white';
-    ctx.fillText(`점수: ${score}`, 100, 100); // 현재 스코어 표시
-    ctx.fillStyle = 'yellow';
-    ctx.fillText(`골드: ${userGold}`, 100, 150); // 골드 표시
-    ctx.fillStyle = 'skyblue';
-    ctx.fillText(`현재 레벨: ${monsterLevel}`, 100, 200); // 최고 기록 표시
+  // 느림 장판 설정
+  drawSlowEffects(ctx);
+  updateSlowEffects();
 
-    // 타워 그리기 및 몬스터 공격 처리
-    towers.forEach((tower) => {
-      tower.draw(ctx);
-      tower.updateCooldown();
-      monsters.forEach((monster) => {
-        const distance = Math.sqrt(
-          Math.pow(tower.x - monster.x, 2) + Math.pow(tower.y - monster.y, 2),
-        );
-        if (distance < tower.range) {
-          tower.attack(monster);
+  // 몬스터가 공격을 했을 수 있으므로 기지 다시 그리기
+  base.draw(ctx, baseImage);
+
+  for (let i = monsters.length - 1; i >= 0; i--) {
+    const monster = monsters[i];
+    if (monster.hp > 0) {
+      const isDestroyed = monster.move(base);
+      if (isDestroyed) {
+        /* 게임 오버 */
+        sendEvent(3, { timestamp: Date.now(), score });
+        if (score > highScore) {
+          alert('축하드립니다! 최고 점수를 달성하셨습니다!');
+        }
+      }
+
+      // 몬스터 느려짐 효과 적용
+      let isInSlowEffect = false;
+      slowEffects.forEach((effect) => {
+        const deltaX = monster.x - effect.x + effect.radius / 2;
+        const deltaY = monster.y - effect.y;
+
+        const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+        if (distance < effect.radius) {
+          isInSlowEffect = true;
         }
       });
-    });
 
-    // 느림 장판 설정
-    drawSlowEffects(ctx);
-    updateSlowEffects();
-
-    // 몬스터가 공격을 했을 수 있으므로 기지 다시 그리기
-    base.draw(ctx, baseImage);
-
-    for (let i = monsters.length - 1; i >= 0; i--) {
-      const monster = monsters[i];
-      if (monster.hp > 0) {
-        const isDestroyed = monster.move(base);
-        if (isDestroyed) {
-          /* 게임 오버 */
-          sendEvent(3, { timestamp: Date.now(), score });
-          if (score > highScore) {
-            alert('축하드립니다! 최고 점수를 달성하셨습니다!');
-          }
-        }
-
-        // 몬스터 느려짐 효과 적용
-        let isInSlowEffect = false;
-        slowEffects.forEach((effect) => {
-          const deltaX = monster.x - effect.x + effect.radius / 2;
-          const deltaY = monster.y - effect.y;
-
-          const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-          if (distance < effect.radius) {
-            isInSlowEffect = true;
-          }
-        });
-
-        if (isInSlowEffect) {
-          monster.slow();
-        } else {
-          monster.normal();
-        }
-
-        monster.draw(ctx);
+      if (isInSlowEffect) {
+        monster.slow();
       } else {
-        /* 몬스터가 죽었을 때 */
-
-        if (monster.hp <= 0) {
-          // const monsterId = monster.monsterId;
-          // const incrementMoney = monster.reward;
-          // const incrementScore = monster.score;
-          // sendMonsterEvent(11, {
-          //   monsterId,
-          //   incrementMoney,
-          //   incrementScore,
-          // });
-          // 웨이브 레벨업  요청하기 보내주기
-        }
-        monsters.splice(i, 1);
+        monster.normal();
       }
+
+      monster.draw(ctx);
+    } else {
+      /* 몬스터가 죽었을 때 */
+
+      if (monster.hp <= 0) {
+        // const monsterId = monster.monsterId;
+        // const incrementMoney = monster.reward;
+        // const incrementScore = monster.score;
+        // sendMonsterEvent(11, {
+        //   monsterId,
+        //   incrementMoney,
+        //   incrementScore,
+        // });
+        // 웨이브 레벨업  요청하기 보내주기
+      }
+      monsters.splice(i, 1);
     }
   }
+
+  if (slowEffectCooldown > 0) {
+    slowEffectCooldown -= 10;
+    if (slowEffectCooldown < 0) {
+      slowEffectCooldown = 0;
+    }
+  }
+
   requestAnimationFrame(gameLoop); // 지속적으로 다음 프레임에 gameLoop 함수 호출할 수 있도록 함
 }
 
@@ -432,9 +413,6 @@ function initGame() {
   drawScoreboard(ctx, scoreBoardImage);
 
   setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
-
-  // 58분마다 한번씩 토큰연장 현재 토큰 만료시간이 1시간으로 지정해놔서 게임실행 중 58분마다 연장해 주는 걸로 했습니다.
-  setInterval(extendAccessToken, 58 * 60 * 1000);
   gameLoop(); // 게임 루프 최초 실행
   isInitGame = true;
 }
@@ -491,7 +469,7 @@ Promise.all([
   });
 
   serverSocket.on('response', (data) => {
-    if (data.type === 'gameStart' && data.status === 'success') {
+    if (data.type === 'gameStart') {
       userGold = +data.result.userGold;
       baseHp = +data.result.baseHp;
       score = +data.result.score;
@@ -504,55 +482,49 @@ Promise.all([
       initGame();
     }
 
-    if (data.type === 'gameEnd' && data.status === 'success') {
+    if (data.type === 'gameEnd') {
       console.log(data.message);
       alert('게임 오버. 스파르타 본부를 지키지 못했다...ㅠㅠ');
       location.reload();
     }
 
-    if (data.type === 'setTower' && data.status === 'success') {
+    if (data.type === 'setTower') {
       responseSetTower(data);
       if (data.result.userGold) {
         userGold = +data.result.userGold;
       }
     }
 
-    if (data.type === 'sellTower' && data.status === 'success') {
+    if (data.type === 'sellTower') {
       responseSellTower(data);
       userGold = +data.result.userGold;
     }
 
-    if (data.type === 'upgradeTower' && data.status === 'success') {
+    if (data.type === 'upgradeTower') {
       responseUpgradeTower(data);
       userGold = +data.result.userGold;
     }
 
-    if (data.type === 'waveLevelIncrease' && data.status === 'success') {
+    if (data.type === 'waveLevelIncrease') {
       console.log(data.message);
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
-      if (data.monsterSpawnInterval) monsterSpawnInterval = data.monsterSpawnInterval;
-      console.log(monsterSpawnInterval, data.monsterSpawnInterval);
     }
 
-    if (data.type === 'killMonster' && data.status === 'success') {
+    if (data.type === 'killMonster') {
       userGold = +data.result.userGold;
       score = +data.result.score;
       changeWave();
       sendEvent(13);
     }
 
-    if (data.type === 'attackedByMonster' && data.status === 'success') {
+    if (data.type === 'attackedByMonster') {
       baseHp = +data.result.attackPower;
     }
 
-    if (data.type === 'createGoldMonster' && data.status === 'success') {
+    if (data.type === 'createGoldMonster') {
       if (data.result.goldMonsterId) {
         spawnGoldMonster(data.result.goldMonsterId); // 황금 고블린 생성
       }
-    }
-
-    if (data.status === 'fail') {
-      alert(data.message);
     }
   });
 
@@ -897,7 +869,14 @@ canvas.addEventListener('contextmenu', (event) => {
   // client는 페이지 전체 좌표로 클릭한 곳이 canvas 내 어느 위치인지 확인하려면 canvas 내부의 요소의 left, top값을 빼줘야 한다(마우스가 클릭한 위치를 canvas 내부에서 상대적으로 찾는 것)
   const mouseX = event.clientX - rect.left;
   const mouseY = event.clientY - rect.top;
-  if (mouseX >= 0 && mouseX <= canvas.width && mouseY >= 0 && mouseY <= canvas.height) {
+
+  if (
+    mouseX >= 0 &&
+    mouseX <= canvas.width &&
+    mouseY >= 0 &&
+    mouseY <= canvas.height &&
+    slowEffectCooldown === 0
+  ) {
     createSlowEffect(mouseX, mouseY);
   }
 });
