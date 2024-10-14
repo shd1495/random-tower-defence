@@ -1,51 +1,48 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="author" content="Changmin Kang" />
-    <title>내일배움캠프 Node.js 트랙 타워 디펜스 게임</title>
-    <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
-    <link rel="stylesheet" href="./css/login.css" />
-    <style>
-      body,
-      html {
-        height: 100%;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-      }
+     <head>
+          <meta charset="UTF-8" />
+          <meta
+               name="viewport"
+               content="width=device-width, initial-scale=1.0"
+          />
+          <meta name="author" content="Changmin Kang" />
+          <title>내일배움캠프 Node.js 트랙 타워 디펜스 게임</title>
+          <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+          <link rel="stylesheet" href="./css/game.css" />
+          <style></style>
+     </head>
+     <body>
+          <div class="form-container">
+               <h1>RANDOM TOWER DEFENSE</h1>
+               <div class="button-container">
+                    <button id="playButton">PLAY</button>
+               </div>
+          </div>
+          <canvas
+               id="gameCanvas"
+               width="1600"
+               height="950"
+               class="hidden"
+          ></canvas>
 
-      .hidden {
-        display: none;
-      }
+          <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+          <script type="module">
+               document.addEventListener("DOMContentLoaded", () => {
+                    document
+                         .getElementById("playButton")
+                         .addEventListener("click", async () => {
+                              document.querySelector(
+                                   ".button-container"
+                              ).style.display = "none";
 
-      .form-container {
-        text-align: center;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="form-container">
-      <div class="button-container">
-        <h1>RANDOM TOWER DEFENSE</h1>
-        <button id="playButton">PLAY</button>
-      </div>
-    </div>
-    <canvas id="gameCanvas" width="1600" height="950" class="hidden"></canvas>
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <script type="module">
-      document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('playButton').addEventListener('click', async () => {
-          document.querySelector('.button-container').style.display = 'none';
+                              document
+                                   .getElementById("gameCanvas")
+                                   .classList.remove("hidden");
 
-          document.getElementById('gameCanvas').classList.remove('hidden');
-
-          await import('./js/game.js');
-        });
-      });
-    </script>
-  </body>
+                              await import("./js/game.js");
+                         });
+               });
+          </script>
+     </body>
 </html>

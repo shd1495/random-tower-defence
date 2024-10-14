@@ -5,47 +5,38 @@
      font-weight: normal;
      font-style: normal;
 }
-
 @font-face {
      font-family: "bitbit";
      src: url("//cdn.df.nexon.com/img/common/font/DNFBitBit-Regular.woff"),
           url("//cdn.df.nexon.com/img/common/font/DNFBitBit-Regular.woff2");
 }
 
+html,
 body {
+     height: 100%;
+     margin: 0;
      display: flex;
      justify-content: center;
      align-items: center;
-     height: 100vh;
-     margin: 0;
      background-color: #2d2d2d;
      color: white;
-     font-family: "bitbit";
+     font-family: "DOSMyungjo";
+     text-align: center;
 }
 
-#title {
-     color: white;
+body {
+     flex-direction: column;
+}
+
+h1 {
      font-size: 60px;
-     font-family: "DOSMyungjo";
-     margin: 10px;
-     position: absolute;
-     top: 150px;
+     margin: 10px 0;
 }
 
 .form-container {
      display: flex;
      flex-direction: column;
      align-items: center;
-     border: 5px solid white;
-     border-radius: 10px;
-     padding: 20px;
-}
-
-.form-container input {
-     width: 400px;
-     margin: 15px;
-     padding: 15px;
-     font-size: 16px;
 }
 
 .form-container button {
@@ -53,19 +44,15 @@ body {
      font-size: 20px;
      cursor: pointer;
      font-family: "DOSMyungjo";
-     margin: 10px 10;
+     margin: 10px 0;
      border-radius: 10px;
-}
-
-.form-container h2 {
-     color: white;
-     font-size: 30px;
-     font-family: "DOSMyungjo";
-     margin: 15px;
-     position: relative;
 }
 
 .button-container {
      padding: 15px;
      margin: 10px 0;
+}
+
+.hidden {
+     display: none;
 }

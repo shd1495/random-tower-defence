@@ -19,7 +19,11 @@ export const gameStart = async (uuid, payload, socket) => {
     await setWaveLevel(uuid, waveLevel.data[0].id);
 
     const highScore = await scoreService.getHighScore(uuid);
+    if (!highScore)
+      return { status: 'fail', type: 'gameStart', message: 'can not read highScore.' };
+
     const gameData = await getGameData(uuid);
+    if (!gameData) return { status: 'fail', type: 'gameStart', message: 'can not read gameData.' };
 
     return {
       status: 'success',
@@ -42,14 +46,14 @@ export const gameEnd = async (uuid, payload, socket) => {
 
     // 서버 점수와 클라 점수 검증
     const serverScore = await totalScore(uuid);
-    if (score !== serverScore) {
-      throw new Error('unmatched score');
-    }
+    if (serverScore)
+      return { status: 'fail', type: 'gameEnd', message: 'can not reading serverScore' };
+
+    if (score !== serverScore)
+      return { status: 'fail', type: 'gameEnd', message: 'unmatched score = server' };
 
     // 최고 점수 갱신
-    if (score > highScore) {
-      await scoreService.updateHighScore(uuid, score, timestamp);
-    }
+    if (score > highScore) await scoreService.updateHighScore(uuid, score, timestamp);
 
     return { status: 'success', type: 'gameEnd', message: 'game over' };
   } catch (error) {
