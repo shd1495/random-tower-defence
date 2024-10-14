@@ -9,46 +9,49 @@
       "attackPower": 20,
       "range": 300,
       "beamDuration": 15,
-      "coolDown": 180,
+      "coolDown": 120,
       "nextGradeId": 2,
       "upgradePrice": 75,
       "width": 500,
       "height": 500,
       "imgMagnification": 0.3,
+      "lv": 1,
       "beamColor": "skyblue",
-      "image": "../assets/images/tower.png"
+      "image": "../assets/images/tower1.png"
     },
     {
       "id": 2,
       "speed": 30,
       "price": 175,
-      "attackPower": 30,
+      "attackPower": 20,
       "range": 300,
-      "beamDuration": 15,
-      "coolDown": 170,
+      "beamDuration": 20,
+      "coolDown": 90,
       "nextGradeId": 3,
       "upgradePrice": 175,
       "width": 155,
       "height": 299,
       "imgMagnification": 0.5,
-      "beamColor": "green",
-      "image": "../assets/images/towerleveltest2.png"
+      "lv": 2,
+      "beamColor": "white",
+      "image": "../assets/images/tower1-2.png"
     },
     {
       "id": 3,
       "speed": 60,
       "price": 350,
-      "attackPower": 40,
+      "attackPower": 30,
       "range": 350,
-      "beamDuration": 15,
-      "coolDown": 150,
+      "beamDuration": 25,
+      "coolDown": 60,
       "nextGradeId": -1,
       "upgradePrice": 0,
       "width": 155,
       "height": 299,
       "imgMagnification": 0.5,
-      "beamColor": "red",
-      "image": "../assets/images/towerleveltest3.png"
+      "lv": 3,
+      "beamColor": "yellow",
+      "image": "../assets/images/tower1-3.png"
     },
     {
       "id": 4,
@@ -63,6 +66,7 @@
       "width": 155,
       "height": 299,
       "imgMagnification": 0.5,
+      "lv": 1,
       "beamColor": "red",
       "image": "../assets/images/tower_1.png"
     },
@@ -79,6 +83,7 @@
       "width": 155,
       "height": 299,
       "imgMagnification": 0.5,
+      "lv": 2,
       "beamColor": "red",
       "image": "../assets/images/towerleveltest2_1.png"
     },
@@ -95,6 +100,7 @@
       "width": 155,
       "height": 299,
       "imgMagnification": 0.5,
+      "lv": 3,
       "beamColor": "red",
       "image": "../assets/images/towerleveltest3_1.png"
     },
@@ -111,6 +117,7 @@
       "width": 155,
       "height": 299,
       "imgMagnification": 0.5,
+      "lv": 1,
       "beamColor": "red",
       "image": "../assets/images/tower_2.png"
     },
@@ -127,6 +134,7 @@
       "width": 155,
       "height": 299,
       "imgMagnification": 0.5,
+      "lv": 2,
       "beamColor": "red",
       "image": "../assets/images/towerleveltest2_2.png"
     },
@@ -143,6 +151,7 @@
       "width": 155,
       "height": 299,
       "imgMagnification": 0.5,
+      "lv": 3,
       "beamColor": "red",
       "image": "../assets/images/towerleveltest3_2.png"
     }

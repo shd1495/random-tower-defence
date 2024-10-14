@@ -1,7 +1,7 @@
 //import { getUserTowers, addTower } from '../models/towerModel.js';
 import { getGameAssets } from '../init/assets.js';
 import { getUserGold, updateUserGold } from '../models/gameModel.js';
-import { getTowers, getTower, setTower, removeTower } from '../models/towerModel.js';
+import { getTowers, getTower, setTower, removeTower, upgradeTower } from '../models/towerModel.js';
 
 // 타워 생성 초기화(하드 코딩이라 추후 코드 수정 필요)
 export const towerCreateInit = async (uuid, payload) => {
@@ -117,15 +117,44 @@ export const towerSell = async (uuid, payload) => {
 };
 
 // 타워 업그레이드
-export const handleUpgradeTower = (userId, payload) => {
-  const { towers } = getGameAssets;
-  const { towerId, money } = payload;
-  // 타워 정보 조회
-  const tower = towers.data.find((tower) => tower.id === towerId);
-  if (!tower) {
-    return { status: 'fail', message: '존재하지 않는 타워ID' };
-  }
+export const towerUpgrade = async (uuid, payload) => {
 
-  // 보유 골드 검증
-  return { status: 'success', message: 'tower was upgraded successfully', handlerId: 23 };
+  const { towers } = getGameAssets();
+  const { tower, beforeUniqueId, afterUniqueId, userGold, posX, posY } = payload;
+
+  try {
+    // 타워id 검증
+    const isExistTower = towers.data.find((t) => tower.id === t.id);
+    if (!isExistTower) throw new Error('Invalid tower ID');
+
+    // 골드 검증
+    if (userGold < isExistTower.upgradePrice)
+      throw new Error('be short gold');
+
+    // 강화 단계 검증    
+    const isExistNextGrade = towers.data.find((t) => isExistTower.nextGradeId === t.id);
+    if (isExistNextGrade === -1 || !isExistNextGrade)
+      throw new Error('tower is already max grade or Invalid next grade');
+    const nextGradeTower = towers.data.find((t) => t.id === isExistNextGrade.id);
+    if (!nextGradeTower) throw new Error('Invalid next grade tower ID');
+    // 검증 모두 성공하면
+    await updateUserGold(uuid, -isExistTower.upgradePrice);
+    const userGoldData = await getUserGold(uuid);
+    await upgradeTower(uuid, beforeUniqueId, afterUniqueId, nextGradeTower, posX, posY);
+
+    return {
+      type: 'upgradeTower',
+      status: 'success',
+      message: 'Upgrade Tower successfully',
+      result: {
+        beforeUniqueId: beforeUniqueId, // 삭제할 이전 타워 클라 고유값      
+        // redis 와 같은 key-value의 result 값
+        uniqueId: afterUniqueId, // 새로 배치할 타워 클라 고유값
+        tower: nextGradeTower,  //업그레이드 된 타워 오브잭트 정보
+        posX: posX, // xy 좌표
+        posY: posY,
+        userGold: userGoldData, // 골드 동기화
+      },
+    };
+  } catch (error) { throw new Error(`타워 업그레이드 에러 ${error.message}`) }
 };
