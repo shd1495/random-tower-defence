@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Changmin Kang" />
+    <title>내일배움캠프 Node.js 트랙 타워 디펜스 게임</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+    <link rel="stylesheet" href="./css/register.css" />
+  </head>
+  <body>
+    <h1 id="title">RANDOM TOWER DEFENSE</h1>
+    <div class="form-container">
+      <h2>RANKING</h2>
+      <div id="rankings">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Account ID</th>
+              <th>High Score</th>
+              <th>Play At</th>
+            </tr>
+          </thead>
+          <tbody id="ranking-table-body"></tbody>
+        </table>
+      </div>
+      <div class="button-container">
+        <div id="pagination">
+          <button id="prev-button">PREV</button>
+          <span id="current-page">1</span> / <span id="total-pages">1</span>
+          <button id="next-button">NEXT</button>
+          <button id="back">BACK</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.getElementById('back').addEventListener('click', () => {
+        window.history.back();
+      });
+
+      let currentPage = 1;
+      const limit = 5;
+      let totalPages = 1;
+
+      // 랭킹 데이터를 가져와서 테이블에 표시하는 함수
+      async function fetchRankings(page = 1) {
+        try {
+          const response = await fetch(
+            `http://localhost:3080/api/ranking?page=${page}&limit=${limit}`,
+          );
+
+          if (!response.ok) {
+            throw new Error('네트워크 응답이 정상적이지 않습니다.');
+          }
+
+          const data = await response.json();
+          totalPages = data.totalPages;
+          currentPage = data.currentPage;
+
+          // 현재 페이지와 전체 페이지를 표시
+          document.getElementById('current-page').textContent = currentPage;
+          document.getElementById('total-pages').textContent = totalPages;
+
+          const tableBody = document.getElementById('ranking-table-body');
+          tableBody.innerHTML = ''; // 기존 행 삭제
+
+          data.rankings.forEach((rank) => {
+            const row = document.createElement('tr');
+
+            const rankCell = document.createElement('td');
+            rankCell.textContent = rank.rank;
+            row.appendChild(rankCell);
+
+            const accountIdCell = document.createElement('td');
+            accountIdCell.textContent = rank.accountId;
+            row.appendChild(accountIdCell);
+
+            const highScoreCell = document.createElement('td');
+            highScoreCell.textContent = rank.highScore;
+            row.appendChild(highScoreCell);
+
+            const playAtCell = document.createElement('td');
+            const date = new Date(rank.playAt);
+            playAtCell.textContent = date.toLocaleString();
+            row.appendChild(playAtCell);
+
+            tableBody.appendChild(row);
+          });
+
+          // 버튼 활성화/비활성화 설정
+          document.getElementById('prev-button').disabled = currentPage === 1;
+          document.getElementById('next-button').disabled = currentPage === totalPages;
+        } catch (error) {
+          console.error('랭킹을 가져오는 중 오류 발생:', error.message);
+          alert('랭킹을 불러오는 데 실패했습니다.');
+        }
+      }
+
+      // 이전 버튼 클릭 시
+      document.getElementById('prev-button').addEventListener('click', () => {
+        if (currentPage > 1) {
+          fetchRankings(currentPage - 1);
+        }
+      });
+
+      // 다음 버튼 클릭 시
+      document.getElementById('next-button').addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          fetchRankings(currentPage + 1);
+        }
+      });
+
+      // 페이지 로드 시 첫 번째 페이지의 랭킹을 가져옴
+      window.onload = () => {
+        fetchRankings();
+      };
+    </script>
+  </body>
+</html>
