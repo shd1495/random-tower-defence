@@ -6,22 +6,26 @@ export class Tower {
           this.uniqueId = uniqueId;
           this.x = posX; // 타워 이미지 x 좌표
           this.y = posY; // 타워 이미지 y 좌표
-          this.width = 130; // 타워 이미지 가로 길이 (이미지 파일 길이에 따라 변경 필요하며 세로 길이와 비율을 맞춰주셔야 합니다!)
-          this.height = 130; // 타워 이미지 세로 길이
+          this.width = 65; // 타워 이미지 가로 길이
+          this.height = 120; // 타워 이미지 세로 길이
           this.attackPower = data.attackPower; // 타워 공격력
           this.range = 300; // 타워 사거리
           this.price = data.price; // 타워 구입 비용
           this.cooldown = data.coolDown; // 타워 공격 쿨타임
           this.cool = data.coolDown; // 공격 쿨타임 (계산, 갱신용)
           this.beamDuration = data.beamDuration; // 타워 광선 지속 시간
-          this.beamDu = data.beamDuration; //타워 광선 지속 시간 (계산, 갱신용)
+          this.beamDu = data.beamDuration; // 타워 광선 지속 시간 (계산, 갱신용)
           this.target = null; // 타워 광선의 목표
 
+          this.beamImage = new Image();
+          this.beamImage.src = "../assets/images/beam2.png";
+
           this.towerImage = new Image();
-          this.towerImage.src = data.image;
+          this.towerImage.src = data.image; // 타워 이미지 경로
      }
 
      draw(ctx) {
+          // 타워 이미지 그리기
           ctx.drawImage(
                this.towerImage,
                this.x,
@@ -29,17 +33,26 @@ export class Tower {
                this.width,
                this.height
           );
+
+          // 빔이 발사 중일 때
           if (this.beamDu > 0 && this.target) {
-               ctx.beginPath();
-               ctx.moveTo(this.x + this.width / 2, this.y + this.height / 2);
-               ctx.lineTo(
-                    this.target.x + this.target.width / 2,
-                    this.target.y + this.target.height / 2
-               );
-               ctx.strokeStyle = "skyblue";
-               ctx.lineWidth = 10;
-               ctx.stroke();
-               ctx.closePath();
+               // 빔의 끝점
+               const beamEndX = this.target.x + this.target.width / 2;
+               const beamEndY = this.target.y + this.target.height / 2;
+
+               // 각도 계산
+               const deltaX = beamEndX - (this.x + this.width / 2);
+               const deltaY = beamEndY - (this.y + this.height / 2);
+               const angle = Math.atan2(deltaY, deltaX);
+
+               // 빔 이미지 그리기
+               ctx.save();
+               ctx.translate(this.x + this.width / 2, this.y);
+               ctx.rotate(angle);
+               ctx.drawImage(this.beamImage, -50, -10, 350, 50);
+               ctx.restore();
+
+               // 빔의 지속 시간 감소
                this.beamDu--;
           }
      }
