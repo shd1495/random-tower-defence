@@ -48,7 +48,7 @@ export class Tower {
 
     // 레벨 텍스트 그리기
     ctx.fillStyle = 'white'; // 텍스트 색상
-    ctx.font = '20px Arial'; // 텍스트 폰트 설정
+    ctx.font = '20px bitbit'; // 텍스트 폰트 설정
     ctx.textAlign = 'center'; // 텍스트 정렬 설정
     ctx.fillText(
       `레벨 ${this.lv}`, // 레벨 표시 텍스트
