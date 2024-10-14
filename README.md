@@ -35,5 +35,6 @@
 ## API 명세서
 [![pngwing com](https://github.com/user-attachments/assets/0b16d6ab-5527-4ff3-8201-a86b290ee0ed)](https://frosted-occupation-9b9.notion.site/Pangyo-Night-API-11f6a99984a180ef850cc0f87a7aa626?pvs=25)
 ## ERD
-[![icon](https://github.com/user-attachments/assets/93e32599-fa54-4855-b630-ef5c8c0a3480)](https://frosted-occupation-9b9.notion.site/Pangyo-Night-API-11f6a99984a180ef850cc0f87a7aa626)
+![icon](https://github.com/user-attachments/assets/93e32599-fa54-4855-b630-ef5c8c0a3480)
+![캡처](https://github.com/user-attachments/assets/fcbfc557-8537-4414-9d9c-9969b92649fd)
 ## 게임 기획
