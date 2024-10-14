@@ -76,6 +76,19 @@ function drawScoreboard(ctx, scoreBoardImage) {
   ctx.drawImage(scoreBoardImage, x, y, width, height);
 }
 let monsterPath = [];
+let bgm = null;
+let bgmInitialized = false;
+
+function initializeBGM() {
+  if (!bgmInitialized) {
+    bgm = new Audio('../assets/sound/bgmSound.mp3');
+    bgm.loop = true;
+    bgm.volume = 0.15;
+    bgm.play();
+    bgmInitialized = true;
+  }
+}
+initializeBGM();
 
 function generateMonsterPath() {
   const path = [];
@@ -286,92 +299,101 @@ function updateSlowEffects() {
   slowEffects = slowEffects.filter((effect) => now - effect.createdAt < effect.duration);
 }
 
-function gameLoop() {
-  // 렌더링 시에는 항상 배경 이미지부터 그려야 합니다! 그래야 다른 이미지들이 배경 이미지 위에 그려져요!
-  ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // 배경 이미지 다시 그리기
-  drawScoreboard(ctx, scoreBoardImage);
-  drawPath(monsterPath); // 경로 다시 그리기
+let lastTime = 0;
+const fps = 60;
+const interval = 1000 / fps;
 
-  ctx.font = '25px "bitbit"';
-  ctx.fillStyle = 'pink';
-  ctx.fillText(`최고 기록: ${highScore}`, 100, 50); // 최고 기록 표시
-  ctx.fillStyle = 'white';
-  ctx.fillText(`점수: ${score}`, 100, 100); // 현재 스코어 표시
-  ctx.fillStyle = 'yellow';
-  ctx.fillText(`골드: ${userGold}`, 100, 150); // 골드 표시
-  ctx.fillStyle = 'skyblue';
-  ctx.fillText(`현재 레벨: ${monsterLevel}`, 100, 200); // 최고 기록 표시
+function gameLoop(currentTime) {
+  //   requestAnimationFrame(gameLoop);
+  const delta = currentTime - lastTime;
 
-  // 타워 그리기 및 몬스터 공격 처리
-  towers.forEach((tower) => {
-    tower.draw(ctx);
-    tower.updateCooldown();
-    monsters.forEach((monster) => {
-      const distance = Math.sqrt(
-        Math.pow(tower.x - monster.x, 2) + Math.pow(tower.y - monster.y, 2),
-      );
-      if (distance < tower.range) {
-        tower.attack(monster);
-      }
-    });
-  });
+  if (delta >= interval) {
+    lastTime = currentTime - (delta % interval);
+    // 렌더링 시에는 항상 배경 이미지부터 그려야 합니다! 그래야 다른 이미지들이 배경 이미지 위에 그려져요!
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // 배경 이미지 다시 그리기
+    drawScoreboard(ctx, scoreBoardImage);
+    drawPath(monsterPath); // 경로 다시 그리기
 
-  // 느림 장판 설정
-  drawSlowEffects(ctx);
-  updateSlowEffects();
+    ctx.font = '25px "bitbit"';
+    ctx.fillStyle = 'pink';
+    ctx.fillText(`최고 기록: ${highScore}`, 100, 50); // 최고 기록 표시
+    ctx.fillStyle = 'white';
+    ctx.fillText(`점수: ${score}`, 100, 100); // 현재 스코어 표시
+    ctx.fillStyle = 'yellow';
+    ctx.fillText(`골드: ${userGold}`, 100, 150); // 골드 표시
+    ctx.fillStyle = 'skyblue';
+    ctx.fillText(`현재 레벨: ${monsterLevel}`, 100, 200); // 최고 기록 표시
 
-  // 몬스터가 공격을 했을 수 있으므로 기지 다시 그리기
-  base.draw(ctx, baseImage);
-
-  for (let i = monsters.length - 1; i >= 0; i--) {
-    const monster = monsters[i];
-    if (monster.hp > 0) {
-      const isDestroyed = monster.move(base);
-      if (isDestroyed) {
-        /* 게임 오버 */
-        sendEvent(3, { timestamp: Date.now(), score });
-        if (score > highScore) {
-          alert('축하드립니다! 최고 점수를 달성하셨습니다!');
-        }
-      }
-
-      // 몬스터 느려짐 효과 적용
-      let isInSlowEffect = false;
-      slowEffects.forEach((effect) => {
-        const deltaX = monster.x - effect.x + effect.radius / 2;
-        const deltaY = monster.y - effect.y;
-
-        const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-        if (distance < effect.radius) {
-          isInSlowEffect = true;
+    // 타워 그리기 및 몬스터 공격 처리
+    towers.forEach((tower) => {
+      tower.draw(ctx);
+      tower.updateCooldown();
+      monsters.forEach((monster) => {
+        const distance = Math.sqrt(
+          Math.pow(tower.x - monster.x, 2) + Math.pow(tower.y - monster.y, 2),
+        );
+        if (distance < tower.range) {
+          tower.attack(monster);
         }
       });
+    });
 
-      if (isInSlowEffect) {
-        monster.slow();
+    // 느림 장판 설정
+    drawSlowEffects(ctx);
+    updateSlowEffects();
+
+    // 몬스터가 공격을 했을 수 있으므로 기지 다시 그리기
+    base.draw(ctx, baseImage);
+
+    for (let i = monsters.length - 1; i >= 0; i--) {
+      const monster = monsters[i];
+      if (monster.hp > 0) {
+        const isDestroyed = monster.move(base);
+        if (isDestroyed) {
+          /* 게임 오버 */
+          sendEvent(3, { timestamp: Date.now(), score });
+          if (score > highScore) {
+            alert('축하드립니다! 최고 점수를 달성하셨습니다!');
+          }
+        }
+
+        // 몬스터 느려짐 효과 적용
+        let isInSlowEffect = false;
+        slowEffects.forEach((effect) => {
+          const deltaX = monster.x - effect.x + effect.radius / 2;
+          const deltaY = monster.y - effect.y;
+
+          const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+          if (distance < effect.radius) {
+            isInSlowEffect = true;
+          }
+        });
+
+        if (isInSlowEffect) {
+          monster.slow();
+        } else {
+          monster.normal();
+        }
+
+        monster.draw(ctx);
       } else {
-        monster.normal();
-      }
+        /* 몬스터가 죽었을 때 */
 
-      monster.draw(ctx);
-    } else {
-      /* 몬스터가 죽었을 때 */
-
-      if (monster.hp <= 0) {
-        // const monsterId = monster.monsterId;
-        // const incrementMoney = monster.reward;
-        // const incrementScore = monster.score;
-        // sendMonsterEvent(11, {
-        //   monsterId,
-        //   incrementMoney,
-        //   incrementScore,
-        // });
-        // 웨이브 레벨업  요청하기 보내주기
+        if (monster.hp <= 0) {
+          // const monsterId = monster.monsterId;
+          // const incrementMoney = monster.reward;
+          // const incrementScore = monster.score;
+          // sendMonsterEvent(11, {
+          //   monsterId,
+          //   incrementMoney,
+          //   incrementScore,
+          // });
+          // 웨이브 레벨업  요청하기 보내주기
+        }
+        monsters.splice(i, 1);
       }
-      monsters.splice(i, 1);
     }
   }
-
   requestAnimationFrame(gameLoop); // 지속적으로 다음 프레임에 gameLoop 함수 호출할 수 있도록 함
 }
 
@@ -469,7 +491,7 @@ Promise.all([
   });
 
   serverSocket.on('response', (data) => {
-    if (data.type === 'gameStart') {
+    if (data.type === 'gameStart' && data.status === 'success') {
       userGold = +data.result.userGold;
       baseHp = +data.result.baseHp;
       score = +data.result.score;
@@ -482,49 +504,53 @@ Promise.all([
       initGame();
     }
 
-    if (data.type === 'gameEnd') {
+    if (data.type === 'gameEnd' && data.status === 'success') {
       console.log(data.message);
       alert('게임 오버. 스파르타 본부를 지키지 못했다...ㅠㅠ');
       location.reload();
     }
 
-    if (data.type === 'setTower') {
+    if (data.type === 'setTower' && data.status === 'success') {
       responseSetTower(data);
       if (data.result.userGold) {
         userGold = +data.result.userGold;
       }
     }
 
-    if (data.type === 'sellTower') {
+    if (data.type === 'sellTower' && data.status === 'success') {
       responseSellTower(data);
       userGold = +data.result.userGold;
     }
 
-    if (data.type === 'upgradeTower') {
+    if (data.type === 'upgradeTower' && data.status === 'success') {
       responseUpgradeTower(data);
       userGold = +data.result.userGold;
     }
 
-    if (data.type === 'waveLevelIncrease') {
+    if (data.type === 'waveLevelIncrease' && data.status === 'success') {
       console.log(data.message);
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
     }
 
-    if (data.type === 'killMonster') {
+    if (data.type === 'killMonster' && data.status === 'success') {
       userGold = +data.result.userGold;
       score = +data.result.score;
       changeWave();
       sendEvent(13);
     }
 
-    if (data.type === 'attackedByMonster') {
+    if (data.type === 'attackedByMonster' && data.status === 'success') {
       baseHp = +data.result.attackPower;
     }
 
-    if (data.type === 'createGoldMonster') {
+    if (data.type === 'createGoldMonster' && data.status === 'success') {
       if (data.result.goldMonsterId) {
         spawnGoldMonster(data.result.goldMonsterId); // 황금 고블린 생성
       }
+    }
+
+    if (data.status === 'fail') {
+      alert(data.message);
     }
   });
 
