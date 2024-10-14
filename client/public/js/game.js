@@ -48,11 +48,18 @@ baseImage.src = '../assets/images/base.png';
 const pathImage = new Image();
 pathImage.src = '../assets/images/path.png';
 
+const scoreBoardImage = new Image();
+scoreBoardImage.src = '../assets/images/ScoreBoard3.png';
+
 const monsterImages = [];
 for (let i = 1; i <= NUM_OF_MONSTERS; i++) {
   const img = new Image();
   img.src = `../assets/images/monster${i}.png`;
   monsterImages.push(img);
+}
+
+function drawScoreboard(ctx, scoreBoardImage) {
+  ctx.drawImage(scoreBoardImage, -20, 0, 400, 250);
 }
 
 let monsterPath = [];
@@ -231,9 +238,10 @@ function spawnGoldMonster(monsterId) {
 function gameLoop() {
   // 렌더링 시에는 항상 배경 이미지부터 그려야 합니다! 그래야 다른 이미지들이 배경 이미지 위에 그려져요!
   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // 배경 이미지 다시 그리기
+  drawScoreboard(ctx, scoreBoardImage);
   drawPath(monsterPath); // 경로 다시 그리기
 
-  ctx.font = '25px "DOSMyungjo"';
+  ctx.font = '25px "bitbit"';
   ctx.fillStyle = 'pink';
   ctx.fillText(`최고 기록: ${highScore}`, 100, 50); // 최고 기록 표시
   ctx.fillStyle = 'white';
@@ -284,7 +292,7 @@ function gameLoop() {
         //   incrementMoney,
         //   incrementScore,
         // });
-        // 웨이브 레벨업 서버에 요청하기 보내주기
+        // 웨이브 레벨업  요청하기 보내주기
       }
       monsters.splice(i, 1);
     }
@@ -325,6 +333,7 @@ function initGame() {
   initMap(); // 맵 초기화 (배경, 몬스터 경로 그리기)
   placeBase(); // 기지 배치
   placeInitialTowers(); // 설정된 초기 타워 개수만큼 사전에 타워 배치
+  drawScoreboard(ctx, scoreBoardImage);
 
   setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
   gameLoop(); // 게임 루프 최초 실행
@@ -363,6 +372,23 @@ Promise.all([
   serverSocket.on('connect_error', (err) => {
     console.error('서버 연결 오류:', err.message);
     alert('서버에 연결할 수 없습니다. 다시 시도해주세요.');
+  });
+
+  /* 토큰 유효하지 않을 시 */
+  // 토큰 만료 시
+  serverSocket.on('tokenExpired', (data) => {
+    console.log(data.message);
+    alert('세션이 만료되었습니다. 다시 로그인해 주세요.');
+
+    window.location.href = 'index.html';
+  });
+
+  // 토큰 조작 시
+  serverSocket.on('unauthorized', (data) => {
+    console.log(data.message);
+    alert('유효하지 않은 토큰입니다.');
+
+    window.location.href = 'index.html';
   });
 
   serverSocket.on('response', (data) => {

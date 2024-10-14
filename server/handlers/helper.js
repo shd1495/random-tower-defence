@@ -49,8 +49,8 @@ export const handleEvent = async (io, socket, data) => {
   //if (!data.CLIENT_VERSION) throw new Error('클라이언트 버전이 존재하지 않습니다.');
   if (!CLIENT_VERSION.includes(data.clientVersion)) {
     socket.emit('response', {
-      status: '실패',
-      message: '클라이언트 버전이 맞지 않습니다.',
+      status: 'fail',
+      message: 'Client version does not match',
     });
     return;
   }
@@ -59,7 +59,10 @@ export const handleEvent = async (io, socket, data) => {
   const handler = handlerMappings[data.handlerId];
 
   if (!handler) {
-    socket.emit('response', { status: '실패', message: '핸들러를 찾을 수 없습니다.' });
+    socket.emit('response', {
+      status: 'fail',
+      message: 'handler not found.',
+    });
     return;
   }
 

@@ -17,9 +17,22 @@ const registerHandler = (io) => {
     if (tokenType !== 'Bearer') throw new Error('토큰 타입이 Bearer 형식이 아닙니다.');
 
     // 토큰 검증
-    const decodedToken = jsonwebtoken.verify(token, process.env.SESSION_SECRET_KEY);
-
-    console.log(decodedToken);
+    let decodedToken;
+    try {
+      // 토큰 검증
+      decodedToken = jsonwebtoken.verify(token, process.env.SESSION_SECRET_KEY);
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        socket.emit('tokenExpired', {
+          message: '토큰이 만료되었습니다.',
+        });
+      } else {
+        socket.emit('error', {
+          message: '유효하지 않은 토큰입니다.',
+        });
+      }
+      return socket.disconnect();
+    }
 
     // 이벤트 처리
     const userId = await prisma.accounts.findUnique({

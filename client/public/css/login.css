@@ -6,6 +6,12 @@
      font-style: normal;
 }
 
+@font-face {
+     font-family: "bitbit";
+     src: url("//cdn.df.nexon.com/img/common/font/DNFBitBit-Regular.woff"),
+          url("//cdn.df.nexon.com/img/common/font/DNFBitBit-Regular.woff2");
+}
+
 body {
      display: flex;
      justify-content: center;
@@ -14,7 +20,7 @@ body {
      margin: 0;
      background-color: #2d2d2d;
      color: white;
-     font-family: Arial, sans-serif;
+     font-family: "bitbit";
 }
 
 #title {
