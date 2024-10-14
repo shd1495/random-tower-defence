@@ -29,9 +29,9 @@
       "coolDown": 90,
       "nextGradeId": 3,
       "upgradePrice": 175,
-      "width": 155,
-      "height": 299,
-      "imgMagnification": 0.5,
+      "width": 500,
+      "height": 500,
+      "imgMagnification": 0.3,
       "lv": 2,
       "beamColor": "white",
       "image": "../assets/images/tower1-2.png"
@@ -46,9 +46,9 @@
       "coolDown": 60,
       "nextGradeId": -1,
       "upgradePrice": 0,
-      "width": 155,
-      "height": 299,
-      "imgMagnification": 0.5,
+      "width": 500,
+      "height": 500,
+      "imgMagnification": 0.3,
       "lv": 3,
       "beamColor": "yellow",
       "image": "../assets/images/tower1-3.png"
@@ -61,14 +61,14 @@
       "range": 350,
       "beamDuration": 15,
       "coolDown": 150,
-      "nextGradeId": -1,
+      "nextGradeId": 5,
       "upgradePrice": 0,
-      "width": 155,
-      "height": 299,
-      "imgMagnification": 0.5,
+      "width": 500,
+      "height": 500,
+      "imgMagnification": 0.3,
       "lv": 1,
       "beamColor": "red",
-      "image": "../assets/images/tower_1.png"
+      "image": "../assets/images/tower2.png"
     },
     {
       "id": 5,
@@ -78,14 +78,14 @@
       "range": 350,
       "beamDuration": 15,
       "coolDown": 150,
-      "nextGradeId": -1,
+      "nextGradeId": 6,
       "upgradePrice": 0,
-      "width": 155,
-      "height": 299,
-      "imgMagnification": 0.5,
+      "width": 500,
+      "height": 500,
+      "imgMagnification": 0.3,
       "lv": 2,
       "beamColor": "red",
-      "image": "../assets/images/towerleveltest2_1.png"
+      "image": "../assets/images/tower2-2.png"
     },
     {
       "id": 6,
@@ -97,12 +97,12 @@
       "coolDown": 150,
       "nextGradeId": -1,
       "upgradePrice": 0,
-      "width": 155,
-      "height": 299,
-      "imgMagnification": 0.5,
+      "width": 500,
+      "height": 500,
+      "imgMagnification": 0.3,
       "lv": 3,
       "beamColor": "red",
-      "image": "../assets/images/towerleveltest3_1.png"
+      "image": "../assets/images/tower2-3.png"
     },
     {
       "id": 7,
@@ -112,14 +112,14 @@
       "range": 350,
       "beamDuration": 15,
       "coolDown": 150,
-      "nextGradeId": -1,
+      "nextGradeId": 8,
       "upgradePrice": 0,
-      "width": 155,
-      "height": 299,
-      "imgMagnification": 0.5,
+      "width": 500,
+      "height": 500,
+      "imgMagnification": 0.3,
       "lv": 1,
       "beamColor": "red",
-      "image": "../assets/images/tower_2.png"
+      "image": "../assets/images/tower3.png"
     },
     {
       "id": 8,
@@ -129,14 +129,14 @@
       "range": 350,
       "beamDuration": 15,
       "coolDown": 150,
-      "nextGradeId": -1,
+      "nextGradeId": 9,
       "upgradePrice": 0,
-      "width": 155,
-      "height": 299,
-      "imgMagnification": 0.5,
+      "width": 500,
+      "height": 500,
+      "imgMagnification": 0.3,
       "lv": 2,
       "beamColor": "red",
-      "image": "../assets/images/towerleveltest2_2.png"
+      "image": "../assets/images/tower3-2.png"
     },
     {
       "id": 9,
@@ -148,12 +148,12 @@
       "coolDown": 150,
       "nextGradeId": -1,
       "upgradePrice": 0,
-      "width": 155,
-      "height": 299,
-      "imgMagnification": 0.5,
+      "width": 500,
+      "height": 500,
+      "imgMagnification": 0.3,
       "lv": 3,
       "beamColor": "red",
-      "image": "../assets/images/towerleveltest3_2.png"
+      "image": "../assets/images/tower3-3.png"
     }
   ]
 }

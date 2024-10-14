@@ -194,6 +194,7 @@ function placeNewTower(towerPosX, towerPosY) {
 function sellTower(index) {
   sendTowerEvent(22, { tower: towers[index] });
 }
+
 /**
  * 타워 업그레이드
  * @param {int} index 선택된 타워index
@@ -204,8 +205,8 @@ function upgradeTower(index) {
     beforeUniqueId: towers[index].uniqueId,
     afterUniqueId: towerUniqueId++,
     userGold: userGold,
-    posX: towers[index].x,
-    posY: towers[index].y,
+    posX: towers[index].x + 233,
+    posY: towers[index].y + 130,
   });
 }
 
@@ -322,8 +323,8 @@ function initGame() {
 
   monsterPath = generateMonsterPath(); // 몬스터 경로 생성
   initMap(); // 맵 초기화 (배경, 몬스터 경로 그리기)
-  placeInitialTowers(); // 설정된 초기 타워 개수만큼 사전에 타워 배치
   placeBase(); // 기지 배치
+  placeInitialTowers(); // 설정된 초기 타워 개수만큼 사전에 타워 배치
 
   setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
   gameLoop(); // 게임 루프 최초 실행
@@ -493,11 +494,11 @@ function responseSellTower(data) {
 }
 
 /**
- * response 받을때 불러오는 upradeTower 함수
+ * response 받을때 불러오는 upgradeTower 함수
  * @param {Object} data
  */
 function responseUpgradeTower(data) {
-  // 클라이언트에서 삭제 타워 탐색   
+  // 클라이언트에서 삭제 타워 탐색
   const index = towers.findIndex((tower) => tower.uniqueId === data.result.beforeUniqueId);
   // 탐색 결과를 기반으로 삭제
   if (index !== -1) {
@@ -515,7 +516,6 @@ function responseUpgradeTower(data) {
   );
   towers.push(TOWER);
 }
-
 
 //----------------------------------------------------- 여기서부터 아래는 버튼
 
@@ -739,8 +739,8 @@ document.body.appendChild(sellTowerButton);
 // 타워 업그레이드 버튼 이벤트
 upgradeTowerButton.addEventListener('click', () => {
   // 타워가 선택된 상태일 경우
-  if (selectedTowerIndex !== null) {
-    // 내용 미구현
+  if (selectedTowerIndex !== null && towers[selectedTowerIndex].nextGradeId !== -1) {
+    // 업그레이드 함수 호출
     upgradeTower(selectedTowerIndex);
 
     // 타워 판매 버튼 비활성화
@@ -751,6 +751,7 @@ upgradeTowerButton.addEventListener('click', () => {
     upgradeTowerButton.disabled = true;
     // 선택된 인덱스 초기화
     selectedTowerIndex = null;
-  }
+  } else if (towers[selectedTowerIndex].nextGradeId === -1)
+    console.log('업그레이드 할 타워 레벨이 MAX 입니다.');
 });
 document.body.appendChild(upgradeTowerButton);

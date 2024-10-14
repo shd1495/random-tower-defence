@@ -3,8 +3,8 @@ import { sendMonsterEvent } from './game.js';
 export class Tower {
   constructor(uniqueId, data, posX, posY) {
     // 생성자 안에서 타워들의 속성을 정의한다고 생각하시면 됩니다!
-    this.uniqueId = uniqueId;
-    this.id = data.id; // 타워 ID
+    this.uniqueId = uniqueId; // 타워 ID
+    this.id = data.id; // 타워 json ID
     this.x = posX - 233; // 타워 이미지 x 좌표
     this.y = posY - 130; // 타워 이미지 y 좌표
     this.width = data.width; // 타워 이미지 가로 길이 (이미지 파일 길이에 따라 변경 필요하며 세로 길이와 비율을 맞춰주셔야 합니다!)
@@ -19,7 +19,7 @@ export class Tower {
     this.beamDu = data.beamDuration; //타워 광선 지속 시간 (계산, 갱신용)
     this.beamColor = data.beamColor;
     this.lv = data.lv; // 레벨 수치 가시화용 변수
-    // this.nextGradeId = data.nextGradeId; // 다음 단계 타워 id
+    this.nextGradeId = data.nextGradeId; // 다음 단계 타워 id
     this.target = null; // 타워 광선의 목표
 
     this.towerImage = new Image();

@@ -118,7 +118,6 @@ export const towerSell = async (uuid, payload) => {
 
 // 타워 업그레이드
 export const towerUpgrade = async (uuid, payload) => {
-
   const { towers } = getGameAssets();
   const { tower, beforeUniqueId, afterUniqueId, userGold, posX, posY } = payload;
 
@@ -128,11 +127,12 @@ export const towerUpgrade = async (uuid, payload) => {
     if (!isExistTower) throw new Error('Invalid tower ID');
 
     // 골드 검증
-    if (userGold < isExistTower.upgradePrice)
-      throw new Error('be short gold');
+    if (userGold < isExistTower.upgradePrice) throw new Error('be short gold');
 
-    // 강화 단계 검증    
+    // 강화 단계 검증
+    console.log('isExistTower: ', isExistTower);
     const isExistNextGrade = towers.data.find((t) => isExistTower.nextGradeId === t.id);
+    console.log('isExistNextGrade: ', isExistNextGrade);
     if (isExistNextGrade === -1 || !isExistNextGrade)
       throw new Error('tower is already max grade or Invalid next grade');
     const nextGradeTower = towers.data.find((t) => t.id === isExistNextGrade.id);
@@ -147,14 +147,16 @@ export const towerUpgrade = async (uuid, payload) => {
       status: 'success',
       message: 'Upgrade Tower successfully',
       result: {
-        beforeUniqueId: beforeUniqueId, // 삭제할 이전 타워 클라 고유값      
+        beforeUniqueId: beforeUniqueId, // 삭제할 이전 타워 클라 고유값
         // redis 와 같은 key-value의 result 값
         uniqueId: afterUniqueId, // 새로 배치할 타워 클라 고유값
-        tower: nextGradeTower,  //업그레이드 된 타워 오브잭트 정보
+        tower: nextGradeTower, //업그레이드 된 타워 오브잭트 정보
         posX: posX, // xy 좌표
         posY: posY,
         userGold: userGoldData, // 골드 동기화
       },
     };
-  } catch (error) { throw new Error(`타워 업그레이드 에러 ${error.message}`) }
+  } catch (error) {
+    throw new Error(`타워 업그레이드 에러 ${error.message}`);
+  }
 };
