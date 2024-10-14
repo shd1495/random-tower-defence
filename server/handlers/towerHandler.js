@@ -12,11 +12,15 @@ export const towerCreateInit = async (uuid, payload) => {
   try {
     // 데이터베이스에 저장된 타워들
     const redisTowers = await getTowers(uuid);
-    if (!redisTowers) throw new Error('Towers not found');
+    if (!redisTowers) return { status: 'fail', type: 'setTower', message: 'towers not found' };
 
     // Towers DB 검증
     if (clientTowers === undefined && redisTowers === undefined)
-      throw new Error('Tower init Towers DB mismatch');
+      return {
+        type: 'setTower',
+        status: 'fail',
+        message: 'Tower init Towers DB mismatch',
+      };
 
     // 검증 모두 성공하면 타워 생성(타워 종류 생기면 코드 수정 필요)
     await setTower(uuid, uniqueId, towerType + 1, towers.data[towerType], posX, posY);
@@ -52,25 +56,40 @@ export const towerCreate = async (uuid, payload) => {
   try {
     // 데이터베이스에 저장된 타워들
     const redisTowers = await getTowers(uuid);
-    if (!redisTowers) throw new Error('Towers not found');
+    if (!redisTowers) return { status: 'fail', type: 'setTower', message: 'towers not found' };
 
     // 유저 보유 금액이 타워 값 보다 많은지 비교(데이터 베이스가 들어오거나 기획이 바뀌면 수정 필요)
     // 유저 보유 금액이 데이터베이스에 저장된 타워의 값보다 적을 경우를 방지
-    if (userGold < towers.data[towerType].price) throw new Error(`Be short on one's gold`);
+    if (userGold < towers.data[towerType].price)
+      return {
+        type: 'setTower',
+        status: 'fail',
+        message: `be short on one's gold`,
+      };
 
     // Towers DB 검증
     if (clientTowers === undefined && redisTowers === undefined)
-      throw new Error('Tower init Towers DB mismatch');
+      return {
+        type: 'setTower',
+        status: 'fail',
+        message: 'Tower init Towers DB mismatch',
+      };
 
     // 유저 보유 타워수 비교(기획이 바뀌면 수정 필요)
     // 한번 살때 복수 구매 방지
-    if (towerCount !== redisTowers.length) throw new Error('User tower count mismatch');
+    if (towerCount !== redisTowers.length)
+      return {
+        type: 'setTower',
+        status: 'fail',
+        message: 'User tower count mismatch',
+      };
 
     // 검증 모두 성공하면 타워 생성(타워 종류 생기면 코드 수정 필요)
     await updateUserGold(uuid, -towers.data[towerType].price);
 
     const userGoldData = await getUserGold(uuid);
-    if (!userGoldData) throw new Error('Can not read userGold');
+    if (!userGoldData)
+      return { status: 'fail', type: 'setTower', message: 'can not read userGold' };
 
     await setTower(uuid, uniqueId, towerType + 1, towers.data[towerType], posX, posY);
 
@@ -107,13 +126,18 @@ export const towerSell = async (uuid, payload) => {
     let redisTower = await getTower(uuid, uniqueId);
 
     // 데이터베이스에 저장된 타워와 클라에서 받아온 타워의 가격이 같은지 확인
-    if (tower.price !== redisTower.price) throw new Error('User tower price mismatch');
+    if (tower.price !== redisTower.price)
+      return {
+        type: 'sellTower',
+        status: 'fail',
+        message: 'User tower price mismatch',
+      };
 
     // 검증 모두 성공하면 타워 제거(타워 종류 생기면 코드 수정 필요)
     await updateUserGold(uuid, tower.price / 2);
 
     const userGold = await getUserGold(uuid);
-    if (!userGold) throw new Error('Can not read userGold');
+    if (!userGold) return { status: 'fail', type: 'sellTower', message: 'can not read userGold' };
 
     await removeTower(uuid, uniqueId);
 
