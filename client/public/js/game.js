@@ -213,6 +213,22 @@ function placeNewTower(towerPosX, towerPosY) {
 function sellTower(index) {
   sendTowerEvent(22, { tower: towers[index] });
 }
+
+/**
+ * 타워 업그레이드
+ * @param {int} index 선택된 타워index
+ */
+function upgradeTower(index) {
+  sendTowerEvent(23, {
+    tower: towers[index],
+    beforeUniqueId: towers[index].uniqueId,
+    afterUniqueId: towerUniqueId++,
+    userGold: userGold,
+    posX: towers[index].x + 190,
+    posY: towers[index].y + 120,
+  });
+}
+
 function placeBase() {
   const lastPoint = monsterPath[monsterPath.length - 1];
   base = new Base(lastPoint.x, lastPoint.y, baseHp);
