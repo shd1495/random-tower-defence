@@ -1,0 +1,13 @@
+{
+  "name": "wave_level",
+  "version": "1.0.0",
+  "data": [
+    { "id": 1, "score": 0, "goldMonsterProbability": 0 },
+    { "id": 2, "score": 50, "goldMonsterProbability": 2 },
+    { "id": 3, "score": 300, "goldMonsterProbability": 3 },
+    { "id": 4, "score": 500, "goldMonsterProbability": 7 },
+    { "id": 5, "score": 1000, "goldMonsterProbability": 8 },
+    { "id": 6, "score": 2000, "goldMonsterProbability": 10 },
+    { "id": 7, "score": 5000, "goldMonsterProbability": 10 }
+  ]
+}

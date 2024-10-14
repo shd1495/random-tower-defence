@@ -1,0 +1,58 @@
+@font-face {
+     font-family: "DOSMyungjo";
+     src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/DOSMyungjo.woff")
+          format("woff");
+     font-weight: normal;
+     font-style: normal;
+}
+@font-face {
+     font-family: "bitbit";
+     src: url("//cdn.df.nexon.com/img/common/font/DNFBitBit-Regular.woff"),
+          url("//cdn.df.nexon.com/img/common/font/DNFBitBit-Regular.woff2");
+}
+
+html,
+body {
+     height: 100%;
+     margin: 0;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     background-color: #2d2d2d;
+     color: white;
+     font-family: "DOSMyungjo";
+     text-align: center;
+}
+
+body {
+     flex-direction: column;
+}
+
+h1 {
+     font-size: 60px;
+     margin: 10px 0;
+}
+
+.form-container {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+}
+
+.form-container button {
+     padding: 10px 20px;
+     font-size: 20px;
+     cursor: pointer;
+     font-family: "DOSMyungjo";
+     margin: 10px 0;
+     border-radius: 10px;
+}
+
+.button-container {
+     padding: 15px;
+     margin: 10px 0;
+}
+
+.hidden {
+     display: none;
+}
