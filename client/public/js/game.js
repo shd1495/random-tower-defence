@@ -19,6 +19,9 @@ let sendTowerEvent;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// 느림 장판 배열
+let slowEffects = [];
+
 const NUM_OF_MONSTERS = 6; // 몬스터 개수
 
 let userGold = 0; // 유저 골드
@@ -132,6 +135,17 @@ function drawRotatedImage(image, x, y, width, height, angle) {
   ctx.restore();
 }
 
+function drawSlowEffects(ctx) {
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = 'blue';
+  slowEffects.forEach((effect) => {
+    ctx.beginPath();
+    ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
 function getRandomPositionNearPath(maxDistance) {
   // 타워 배치를 위한 몬스터가 지나가는 경로 상에서 maxDistance 범위 내에서 랜덤한 위치를 반환하는 함수!
   const segmentIndex = Math.floor(Math.random() * (monsterPath.length - 1));
@@ -243,6 +257,33 @@ function spawnGoldMonster(monsterId) {
   );
 }
 
+// 느려짐 효과 생성기(장판 생성 버튼) (createSlowEffect, isClickOnPath, isPointNearLine, updateSlowEffects)
+function createSlowEffect(rightBtnX, rightBtnY) {
+  // const position = getRandomPositionOnPath();
+  // slowEffects.push({
+  //   x: position.posX,
+  //   y: position.posY,
+  //   radius: 50,
+  //   duration: 5000,
+  //   createdAt: Date.now(),
+  // });
+
+  slowEffects.push({
+    x: rightBtnX,
+    y: rightBtnY,
+    radius: 50,
+    duration: 5000,
+    createdAt: Date.now(),
+  });
+}
+
+// 마우스 포인터로 지정한 위치에 스킬을 쓰게 만드는 것 구현하기
+// slowEffect 시간 지나면 사라지도록
+function updateSlowEffects() {
+  const now = Date.now();
+  slowEffects = slowEffects.filter((effect) => now - effect.createdAt < effect.duration);
+}
+
 function gameLoop() {
   // 렌더링 시에는 항상 배경 이미지부터 그려야 합니다! 그래야 다른 이미지들이 배경 이미지 위에 그려져요!
   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // 배경 이미지 다시 그리기
@@ -273,6 +314,10 @@ function gameLoop() {
     });
   });
 
+  // 느림 장판 설정
+  drawSlowEffects(ctx);
+  updateSlowEffects();
+
   // 몬스터가 공격을 했을 수 있으므로 기지 다시 그리기
   base.draw(ctx, baseImage);
 
@@ -287,6 +332,25 @@ function gameLoop() {
           alert('축하드립니다! 최고 점수를 달성하셨습니다!');
         }
       }
+
+      // 몬스터 느려짐 효과 적용
+      let isInSlowEffect = false;
+      slowEffects.forEach((effect) => {
+        const deltaX = monster.x - effect.x + effect.radius / 2;
+        const deltaY = monster.y - effect.y;
+
+        const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+        if (distance < effect.radius) {
+          isInSlowEffect = true;
+        }
+      });
+
+      if (isInSlowEffect) {
+        monster.slow();
+      } else {
+        monster.normal();
+      }
+
       monster.draw(ctx);
     } else {
       /* 몬스터가 죽었을 때 */
@@ -789,3 +853,18 @@ upgradeTowerButton.addEventListener('click', () => {
     console.log('업그레이드 할 타워 레벨이 MAX 입니다.');
 });
 document.body.appendChild(upgradeTowerButton);
+
+// 마우스 오른쪽 버튼 클릭 (느림 장판 만들기)
+canvas.addEventListener('contextmenu', (event) => {
+  event.preventDefault(); // 기본 메뉴 차단 (캔버스 상에서 기본 컨텍스트 메뉴 안나오게 설정)
+  // 캔버스 내부의 모든 요소들의 위치와 크기를 rect 객체로 챙겨와,
+  const rect = canvas.getBoundingClientRect();
+
+  // 마우스 클릭 순간 브라우저 창의 왼쪽 경계부터 마우스 포인터의 x, y좌표
+  // client는 페이지 전체 좌표로 클릭한 곳이 canvas 내 어느 위치인지 확인하려면 canvas 내부의 요소의 left, top값을 빼줘야 한다(마우스가 클릭한 위치를 canvas 내부에서 상대적으로 찾는 것)
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+  if (mouseX >= 0 && mouseX <= canvas.width && mouseY >= 0 && mouseY <= canvas.height) {
+    createSlowEffect(mouseX, mouseY);
+  }
+});
