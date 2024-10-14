@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import Joi from 'joi';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
+import score from '../services/scoreService.js';
 
 /**
 //  * 회원가입
@@ -147,6 +148,22 @@ export async function tokenExtension(req, res, next) {
     res.header('authorization', `Bearer ${token}`);
 
     return res.status(201).json({ message: '액세스 토큰 연장 성공' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getRanking(req, res, next) {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+
+    const rankingData = await score.getRanking(page, limit);
+    if (!rankingData) {
+      throw throwError('랭킹 데이터가 존재하지 않습니다.', 404);
+    }
+
+    return res.status(200).json(rankingData);
   } catch (error) {
     next(error);
   }
