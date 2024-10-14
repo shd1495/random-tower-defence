@@ -46,7 +46,7 @@ export const gameEnd = async (uuid, payload, socket) => {
 
     // 서버 점수와 클라 점수 검증
     const serverScore = await totalScore(uuid);
-    if (serverScore)
+    if (!serverScore && serverScore !== 0)
       return { status: 'fail', type: 'gameEnd', message: 'can not reading serverScore' };
 
     if (score !== serverScore)
