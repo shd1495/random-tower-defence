@@ -96,6 +96,49 @@ export const removeTower = async (uuid, uniqueId) => {
 };
 
 /**
+ * 타워 업그레이드
+ * @param {String} uuid
+ * @param {Object} nextGradeTower
+ * @param {int} beforeUniqueId
+ * @param {int} afterUniqueId
+ * @param {int} posX
+ * @param {int} posY
+ */
+export const upgradeTower = async (
+  uuid,
+  beforeUniqueId,
+  afterUniqueId,
+  nextGradeTower,
+  posX,
+  posY,
+) => {
+  try {
+    // redisClient.del(uuid) : uuid라는 키 삭제용
+    // redisClient.srem(TOWER_SET, uuid) : SET 에서 uuid 멤버 제거용
+
+    // 모든 타워 가져오기
+    const towers = await redisClient.lrange(TOWER_SET + uuid, 0, -1);
+    // 업그레이드 할 타워 인덱스
+    const indexToRemove = towers.findIndex(
+      (tower) => JSON.parse(tower).uniqueId === beforeUniqueId,
+    );
+    // 타워 교체
+    if (indexToRemove !== -1) await redisClient.lrem(TOWER_SET + uuid, 1, towers[indexToRemove]);
+
+    const newTower = {
+      uniqueId: afterUniqueId,
+      ...nextGradeTower,
+      posX: posX,
+      posY: posY,
+    };
+    await redisClient.rpush(TOWER_SET + uuid, JSON.stringify(newTower));
+    //console.log(await getTowers(uuid));
+  } catch (error) {
+    throw new Error('[타워 업그레이드]에러가 발생했습니다.' + error.message);
+  }
+};
+
+/**
  * 유저 타워 목록 초기화
  * @param {String} uuid
  */

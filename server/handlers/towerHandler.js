@@ -175,13 +175,13 @@ export const towerUpgrade = async (uuid, payload) => {
     if (userGold < isExistTower.upgradePrice) throw new Error('be short gold');
 
     // 강화 단계 검증
-    console.log('isExistTower: ', isExistTower);
     const isExistNextGrade = towers.data.find((t) => isExistTower.nextGradeId === t.id);
-    console.log('isExistNextGrade: ', isExistNextGrade);
     if (isExistNextGrade === -1 || !isExistNextGrade)
       throw new Error('tower is already max grade or Invalid next grade');
+
     const nextGradeTower = towers.data.find((t) => t.id === isExistNextGrade.id);
     if (!nextGradeTower) throw new Error('Invalid next grade tower ID');
+
     // 검증 모두 성공하면
     await updateUserGold(uuid, -isExistTower.upgradePrice);
     const userGoldData = await getUserGold(uuid);

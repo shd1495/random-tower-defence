@@ -212,8 +212,8 @@ function upgradeTower(index) {
     beforeUniqueId: towers[index].uniqueId,
     afterUniqueId: towerUniqueId++,
     userGold: userGold,
-    posX: towers[index].x + 233,
-    posY: towers[index].y + 130,
+    posX: towers[index].x + 190,
+    posY: towers[index].y + 120,
   });
 }
 
@@ -331,8 +331,8 @@ function initGame() {
 
   monsterPath = generateMonsterPath(); // 몬스터 경로 생성
   initMap(); // 맵 초기화 (배경, 몬스터 경로 그리기)
-  placeBase(); // 기지 배치
   placeInitialTowers(); // 설정된 초기 타워 개수만큼 사전에 타워 배치
+  placeBase(); // 기지 배치
   drawScoreboard(ctx, scoreBoardImage);
 
   setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
@@ -650,16 +650,16 @@ canvas.addEventListener('click', (event) => {
       console.log(`${selectedTowerIndex + 1}번째 타워 선택됨`);
       // 버튼 위치 설정(기획이 변경되면 계산식 수정)
       // 판매 및 업그레이드 버튼 - 타워 머리 위로 표시
-      sellTowerButton.style.left = `${rect.left + tower.x + (tower.width * tower.imgMagnification) / 2 - 75}px`;
-      sellTowerButton.style.top = `${rect.top + tower.y + (tower.height * tower.imgMagnification) / 2 - 180}px`;
-      upgradeTowerButton.style.left = `${rect.left + tower.x + (tower.width * tower.imgMagnification) / 2 - 75}px`;
-      upgradeTowerButton.style.top = `${rect.top + tower.y + (tower.height * tower.imgMagnification) / 2 - 125}px`;
+      upgradeTowerButton.style.left = `${rect.left + tower.x + (tower.width * tower.imgMagnification) / 2 + 50}px`;
+      upgradeTowerButton.style.top = `${rect.top + tower.y + (tower.height * tower.imgMagnification) / 2 - 50}px`;
+      sellTowerButton.style.left = `${rect.left + tower.x + (tower.width * tower.imgMagnification) / 2 - 200}px`;
+      sellTowerButton.style.top = `${rect.top + tower.y + (tower.height * tower.imgMagnification) / 2 - 50}px`;
       // 타워가 선택되면
       // 판매 및 업그레이드 버튼 활성화
-      sellTowerButton.style.display = 'block';
-      sellTowerButton.disabled = false;
       upgradeTowerButton.style.display = 'block';
       upgradeTowerButton.disabled = false;
+      sellTowerButton.style.display = 'block';
+      sellTowerButton.disabled = false;
       // 구매 버튼 비활성화
       buyTowerButton1.style.display = 'none';
       buyTowerButton1.disabled = true;
@@ -684,10 +684,10 @@ canvas.addEventListener('click', (event) => {
     buyTowerButton3.style.left = `${towerPosX + 25}px`;
     buyTowerButton3.style.top = `${towerPosY + 25}px`;
     // 선택된 타워가 없으면 판매 및 업그레이드 버튼 비활성화
-    sellTowerButton.style.display = 'none';
-    sellTowerButton.disabled = true;
     upgradeTowerButton.style.display = 'none';
     upgradeTowerButton.disabled = true;
+    sellTowerButton.style.display = 'none';
+    sellTowerButton.disabled = true;
     buyTowerButton1.style.display = 'block';
     buyTowerButton1.disabled = false;
     buyTowerButton2.style.display = 'block';
@@ -750,12 +750,12 @@ sellTowerButton.addEventListener('click', () => {
     // 판매 함수 호출
     sellTower(selectedTowerIndex);
     // 타워를 판매한 후
-    // 타워 판매 버튼 비활성화
-    sellTowerButton.style.display = 'none';
-    sellTowerButton.disabled = true;
     // 타워 업그레이드 버튼 비활성화
     upgradeTowerButton.style.display = 'none';
     upgradeTowerButton.disabled = true;
+    // 타워 판매 버튼 비활성화
+    sellTowerButton.style.display = 'none';
+    sellTowerButton.disabled = true;
     // 선택된 인덱스 초기화
     selectedTowerIndex = null;
   }
@@ -769,12 +769,12 @@ upgradeTowerButton.addEventListener('click', () => {
     // 업그레이드 함수 호출
     upgradeTower(selectedTowerIndex);
 
-    // 타워 판매 버튼 비활성화
-    sellTowerButton.style.display = 'none';
-    sellTowerButton.disabled = true;
     // 타워 업그레이드 버튼 비활성화
     upgradeTowerButton.style.display = 'none';
     upgradeTowerButton.disabled = true;
+    // 타워 판매 버튼 비활성화
+    sellTowerButton.style.display = 'none';
+    sellTowerButton.disabled = true;
     // 선택된 인덱스 초기화
     selectedTowerIndex = null;
   } else if (towers[selectedTowerIndex].nextGradeId === -1)

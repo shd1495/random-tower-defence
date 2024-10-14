@@ -5,8 +5,8 @@ export class Tower {
     // 생성자 안에서 타워들의 속성을 정의한다고 생각하시면 됩니다!
     this.uniqueId = uniqueId; // 타워 ID
     this.id = data.id; // 타워 json ID
-    this.x = posX - 233; // 타워 이미지 x 좌표
-    this.y = posY - 130; // 타워 이미지 y 좌표
+    this.x = posX - 190; // 타워 이미지 x 좌표
+    this.y = posY - 120; // 타워 이미지 y 좌표
     this.width = data.width; // 타워 이미지 가로 길이 (이미지 파일 길이에 따라 변경 필요하며 세로 길이와 비율을 맞춰주셔야 합니다!)
     this.height = data.height; // 타워 이미지 세로 길이
     this.imgMagnification = data.imgMagnification; // 이미지 배율
@@ -34,6 +34,28 @@ export class Tower {
       this.width * this.imgMagnification,
       this.height * this.imgMagnification,
     );
+
+    // 레벨 텍스트 사각형 그리기
+    const rectWidth = 70; // 사각형의 가로 길이
+    const rectHeight = 40; // 사각형의 세로 길이
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // 반투명 검정색 배경
+    ctx.fillRect(
+      this.x + (this.width * this.imgMagnification) / 2 - rectWidth / 2,
+      this.y - rectHeight - 10,
+      rectWidth,
+      rectHeight,
+    );
+
+    // 레벨 텍스트 그리기
+    ctx.fillStyle = 'white'; // 텍스트 색상
+    ctx.font = '20px Arial'; // 텍스트 폰트 설정
+    ctx.textAlign = 'center'; // 텍스트 정렬 설정
+    ctx.fillText(
+      `레벨 ${this.lv}`, // 레벨 표시 텍스트
+      this.x + (this.width * this.imgMagnification) / 2,
+      this.y - rectHeight / 2 - 3,
+    );
+
     if (this.beamDu > 0 && this.target) {
       ctx.beginPath();
       ctx.moveTo(
