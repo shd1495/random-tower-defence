@@ -3,6 +3,7 @@ import { Monster } from './monster.js';
 import { Tower } from './tower.js';
 import { CLIENT_VERSION } from './constants.js';
 import { getGameAssets } from '../init/assets.js';
+import { extendAccessToken } from '../utils/extendAccessToken.js';
 
 const { monsterAssetData, towerAssetData, gameAssetData, waveLevelAssetData } = getGameAssets();
 
@@ -11,6 +12,7 @@ const SERVER_URL = 'http://localhost:3080'; // 실제 서버 주소로 변경하
 /* 
   어딘가에 엑세스 토큰이 저장이 안되어 있다면 로그인을 유도하는 코드를 여기에 추가해주세요!
 */
+extendAccessToken();
 
 let serverSocket; // 서버 웹소켓 객체
 let sendEvent;
@@ -408,6 +410,9 @@ function initGame() {
   drawScoreboard(ctx, scoreBoardImage);
 
   setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
+
+  // 58분마다 한번씩 토큰연장 현재 토큰 만료시간이 1시간으로 지정해놔서 게임실행 중 58분마다 연장해 주는 걸로 했습니다.
+  setInterval(extendAccessToken, 58 * 60 * 1000);
   gameLoop(); // 게임 루프 최초 실행
   isInitGame = true;
 }
