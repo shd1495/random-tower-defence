@@ -530,6 +530,8 @@ Promise.all([
     if (data.type === 'waveLevelIncrease' && data.status === 'success') {
       console.log(data.message);
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
+      if (data.monsterSpawnInterval) monsterSpawnInterval = data.monsterSpawnInterval;
+      console.log(monsterSpawnInterval, data.monsterSpawnInterval);
     }
 
     if (data.type === 'killMonster' && data.status === 'success') {

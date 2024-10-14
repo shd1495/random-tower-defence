@@ -1,4 +1,5 @@
 import { getGameAssets } from '../init/assets.js';
+import { updateMonsterSpawnInterval } from '../models/gameModel.js';
 import { setWaveLevel, getWaveLevel } from '../models/waveLevelModel.js';
 import { scoreValidation } from '../utils/scoreValidation.js';
 
@@ -54,12 +55,22 @@ export const waveLevelIncrease = async (uuid, payload) => {
 
     // 다음 웨이브 id 추가
     await setWaveLevel(uuid, payload.nextLevel);
+    const currentWaveData = await getWaveLevel(uuid);
+    if (!currentWaveData)
+      return { status: 'fail', type: 'waveLevelIncrease', message: 'currentWave data not found' };
+
+    const waveData = waveLevel.data.find((wave) => wave.id == currentWaveData);
+    if (!waveData)
+      return { status: 'fail', type: 'waveLevelIncrease', message: 'wave data not found' };
+
+    await updateMonsterSpawnInterval(uuid, waveData.monsterSpawnInterval);
 
     return {
       status: 'success',
       type: 'waveLevelIncrease',
       message: 'wave level is increment successfully',
       waveLevel: payload.nextLevel,
+      monsterSpawnInterval: waveData.monsterSpawnInterval,
       hadlerId: 31,
     };
   } catch (error) {
