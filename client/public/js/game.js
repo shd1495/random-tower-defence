@@ -448,7 +448,7 @@ function initGame() {
   setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
 
   // 58분마다 한번씩 토큰연장 현재 토큰 만료시간이 1시간으로 지정해놔서 게임실행 중 58분마다 연장해 주는 걸로 했습니다.
-  setInterval(extendAccessToken, 58 * 60 * 1000);
+  // setInterval(extendAccessToken, 7 * 60 * 1000);
   gameLoop(); // 게임 루프 최초 실행
   isInitGame = true;
 }
