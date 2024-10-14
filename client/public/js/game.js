@@ -21,6 +21,8 @@ const ctx = canvas.getContext('2d');
 
 // 느림 장판 배열
 let slowEffects = [];
+let slowEffectCooldown = 0;
+const SLOW_EFFECT_COOLDOWN = 1000;
 
 const NUM_OF_MONSTERS = 6; // 몬스터 개수
 
@@ -136,7 +138,7 @@ function drawRotatedImage(image, x, y, width, height, angle) {
 }
 
 function drawSlowEffects(ctx) {
-  ctx.globalAlpha = 0.5;
+  ctx.globalAlpha = 0.3;
   ctx.fillStyle = 'blue';
   slowEffects.forEach((effect) => {
     ctx.beginPath();
@@ -259,15 +261,9 @@ function spawnGoldMonster(monsterId) {
 
 // 느려짐 효과 생성기(장판 생성 버튼) (createSlowEffect, isClickOnPath, isPointNearLine, updateSlowEffects)
 function createSlowEffect(rightBtnX, rightBtnY) {
-  // const position = getRandomPositionOnPath();
-  // slowEffects.push({
-  //   x: position.posX,
-  //   y: position.posY,
-  //   radius: 50,
-  //   duration: 5000,
-  //   createdAt: Date.now(),
-  // });
-
+  if (slowEffectCooldown > 0) {
+    return;
+  }
   slowEffects.push({
     x: rightBtnX,
     y: rightBtnY,
@@ -275,6 +271,8 @@ function createSlowEffect(rightBtnX, rightBtnY) {
     duration: 5000,
     createdAt: Date.now(),
   });
+
+  slowEffectCooldown = SLOW_EFFECT_COOLDOWN;
 }
 
 // 마우스 포인터로 지정한 위치에 스킬을 쓰게 만드는 것 구현하기
@@ -367,6 +365,13 @@ function gameLoop() {
         // 웨이브 레벨업  요청하기 보내주기
       }
       monsters.splice(i, 1);
+    }
+  }
+
+  if (slowEffectCooldown > 0) {
+    slowEffectCooldown -= 10;
+    if (slowEffectCooldown < 0) {
+      slowEffectCooldown = 0;
     }
   }
 
@@ -864,7 +869,14 @@ canvas.addEventListener('contextmenu', (event) => {
   // client는 페이지 전체 좌표로 클릭한 곳이 canvas 내 어느 위치인지 확인하려면 canvas 내부의 요소의 left, top값을 빼줘야 한다(마우스가 클릭한 위치를 canvas 내부에서 상대적으로 찾는 것)
   const mouseX = event.clientX - rect.left;
   const mouseY = event.clientY - rect.top;
-  if (mouseX >= 0 && mouseX <= canvas.width && mouseY >= 0 && mouseY <= canvas.height) {
+
+  if (
+    mouseX >= 0 &&
+    mouseX <= canvas.width &&
+    mouseY >= 0 &&
+    mouseY <= canvas.height &&
+    slowEffectCooldown === 0
+  ) {
     createSlowEffect(mouseX, mouseY);
   }
 });
