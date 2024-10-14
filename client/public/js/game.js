@@ -749,11 +749,21 @@ sellTowerButton.addEventListener("click", () => {
 document.body.appendChild(sellTowerButton);
 
 // 타워 업그레이드 버튼 이벤트
-upgradeTowerButton.addEventListener("click", () => {
-     // 타워가 선택된 상태일 경우
-     if (selectedTowerIndex !== null) {
-          // 내용 미구현
-          console.log("업그레이드(미구현)");
-     }
+upgradeTowerButton.addEventListener('click', () => {
+  // 타워가 선택된 상태일 경우
+  if (selectedTowerIndex !== null && towers[selectedTowerIndex].nextGradeId !== -1) {
+    // 업그레이드 함수 호출
+    upgradeTower(selectedTowerIndex);
+
+    // 타워 업그레이드 버튼 비활성화
+    upgradeTowerButton.style.display = 'none';
+    upgradeTowerButton.disabled = true;
+    // 타워 판매 버튼 비활성화
+    sellTowerButton.style.display = 'none';
+    sellTowerButton.disabled = true;
+    // 선택된 인덱스 초기화
+    selectedTowerIndex = null;
+  } else if (towers[selectedTowerIndex].nextGradeId === -1)
+    console.log('업그레이드 할 타워 레벨이 MAX 입니다.');
 });
 document.body.appendChild(upgradeTowerButton);
