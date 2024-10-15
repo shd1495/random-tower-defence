@@ -5,13 +5,16 @@
 ## 기술 스택
 
 - Node.js - Express
+  
 - AWS RDS(MySQL) - Prisma ORM
+  
 - Redis cloud - ioredis
+  
 - Publish - AWS EC2
+  
 - PackageManager - Yarn
 
 ## 실행 방법
-
 - [게임 플레이](http://shd1495.store:3080/)
 
 ## 필수
@@ -66,11 +69,9 @@
 - 최대한 오래 살아남으면서 벌레를 많이 퇴치하는 것이 목표이다.
 
 ### 아트
-
 #### 몬스터
-
 - 몬스터
-
+  
 ![file (1)](https://github.com/user-attachments/assets/4c1268aa-1563-4c8f-af77-56c72d3d9bd7)
 ![file (2)](https://github.com/user-attachments/assets/8b39dc2d-17a6-4ba6-bb36-49ed76647015)
 ![file (3)](https://github.com/user-attachments/assets/a53ec3f7-b149-43aa-bcc4-6865b042d8eb)
@@ -110,7 +111,6 @@
 <img src="https://github.com/user-attachments/assets/8bbab2ef-017f-4db4-a74f-b6cee03c17f5" width="70" height="150"/>
 
 ## 기능 설명
-
 ### 타워 설치
 
 - 게임 시작 시 몬스터 경로에서 가까운 위치에 랜덤하게 2개의 타워를 생성한다.
@@ -122,7 +122,7 @@
 ### 타워 판매
 
 - 판매하고 싶은 타워를 클릭하면 판매 버튼이 활성화되며 판매 시 타워에 사용한 골드의 50%를 돌려받는다.
-
+  
 ![타워판매](https://github.com/user-attachments/assets/a4678c8b-cf5c-4f22-904d-a513a90fd395)
 
 ### 타워 업그레이드
@@ -130,7 +130,7 @@
 - 업그레이드하고 싶은 타워를 클릭하면 업그레이드 버튼이 활성화되며 업그레이드 시 타워의 레벨이 상승한다.
 
 - 타워의 레벨은 3레벨까지 존재하며 1 -> 2레벨 75골드 / 2 -> 3레벨 175골드를 소모한다.
-
+  
 ![타워업글](https://github.com/user-attachments/assets/ede166c1-229e-4959-b052-d3db9173f144)
 
 ### 슬로우 장판 설치
@@ -138,14 +138,14 @@
 - 슬로우 장판에 닿은 몬스터는 이동속도가 50% 감소한다.
 
 - 슬로우 장판은 일정 재사용 대기시간을 가지고 있으며 사용할 때마다 골드를 소모한다.
-
+  
 ![느려짐 장판](https://github.com/user-attachments/assets/0d96e9a0-315c-42c6-9f1c-4b1e39da9fd9)
 
 ### 황금 고블린
 
 - 몬스터 처치 시 낮은 확률로 황금 고블린을 추가로 생성시킨다.
 
-- 웨이브 별로 황금 고블린의 생성 확률이 변동되며 황금 고블린은 많은 골드를 제공한다. / 레벨 \* 100골드
+- 웨이브 별로 황금 고블린의 생성 확률이 변동되며 황금 고블린은 많은 골드를 제공한다. / 레벨 * 100골드
 
 - 1웨이브 - 0%
 - 2웨이브 - 1%
