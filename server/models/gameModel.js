@@ -100,3 +100,21 @@ export const updateUserGold = async (uuid, amount) => {
     console.error(`error updateUserGold game data for user ${uuid}`);
   }
 };
+
+export const updateMonsterSpawnInterval = async (uuid, amount) => {
+  const key = `user:${uuid}:${GAME_SET}`;
+  try {
+    await redisClient.hset(key, 'monsterSpawnInterval', +amount);
+  } catch (error) {
+    console.error(`error updateMonsterSpawnInterval game data for user ${uuid}`);
+  }
+};
+
+export const updateSlowEffectCount = async (uuid, count) => {
+  const key = `user:${uuid}:${GAME_SET}`;
+  try {
+    await redisClient.hset(key, 'slowEffectCount', count);
+  } catch (error) {
+    console.error(`error updateSlowEffectCount ${uuid}`);
+  }
+};

@@ -3,6 +3,7 @@
 ![판교 나이트](https://github.com/user-attachments/assets/6a0007e8-1be3-4d8c-91a4-562f1e45144e)
 
 ## 기술 스택
+
 - Node.js - Express
   
 - AWS RDS(MySQL) - Prisma ORM
@@ -31,17 +32,26 @@
 - [x] 보물 고블린 몬스터 출현 기능
 
 ## 패킷 구조 및 핸들러 맵핑
+
 [![pngwing com](https://github.com/user-attachments/assets/0b16d6ab-5527-4ff3-8201-a86b290ee0ed)](https://frosted-occupation-9b9.notion.site/Pangyo-Night-11f6a99984a18084a9ecc828bc501ffc)
+
 ## API 명세서
+
 [![pngwing com](https://github.com/user-attachments/assets/0b16d6ab-5527-4ff3-8201-a86b290ee0ed)](https://frosted-occupation-9b9.notion.site/Pangyo-Night-API-11f6a99984a180ef850cc0f87a7aa626?pvs=25)
+
 ## ERD
+
 ![icon](https://github.com/user-attachments/assets/93e32599-fa54-4855-b630-ef5c8c0a3480)
 ![캡처](https://github.com/user-attachments/assets/fcbfc557-8537-4414-9d9c-9969b92649fd)
+
 ## 게임 기획
+
 ### 컨셉
+
 - 판교의 등대로 몰려드는 날벌레들을 퇴치하자!
 
 ### 게임 시스템
+
 - 베이스는 중앙에 고정된 형태
 
 - 몬스터가 지나는 길은 투명 블록으로 나선의 형태로 베이스까지 이어진다.
@@ -69,16 +79,19 @@
 ![file(5)](https://github.com/user-attachments/assets/167d32eb-2885-4f91-b923-afd0d2d93036)
 
 - 황금 고블린
-  
+
 ![monster6](https://github.com/user-attachments/assets/a9a23d2e-e00a-4226-8544-f1b36e8da1c3)
+
 #### 베이스
 
 <img src="https://github.com/user-attachments/assets/7d49b050-b9a5-41ca-a3bb-478707040eeb" width="400" height="400"/>
 
 #### 배경
+
 ![bg](https://github.com/user-attachments/assets/2fef1bd0-942f-43cb-aa4b-78b80933f87a)
 
 #### 타워
+
 - 전기 살충제 - 밸런스 잡힌 기본 타워
 
 <img src="https://github.com/user-attachments/assets/e5f4199a-01c4-4dfe-8eea-3556b20b0fc9" width="70" height="150"/>
@@ -99,6 +112,7 @@
 
 ## 기능 설명
 ### 타워 설치
+
 - 게임 시작 시 몬스터 경로에서 가까운 위치에 랜덤하게 2개의 타워를 생성한다.
 
 - 100골드를 사용해서 원하는 위치에 타워를 생성할 수 있고 타워는 3종류가 존재한다.
@@ -106,11 +120,13 @@
 ![타워생성](https://github.com/user-attachments/assets/f33c5887-a5fd-4226-8fec-7e6ea09df7b2)
 
 ### 타워 판매
+
 - 판매하고 싶은 타워를 클릭하면 판매 버튼이 활성화되며 판매 시 타워에 사용한 골드의 50%를 돌려받는다.
   
 ![타워판매](https://github.com/user-attachments/assets/a4678c8b-cf5c-4f22-904d-a513a90fd395)
 
 ### 타워 업그레이드
+
 - 업그레이드하고 싶은 타워를 클릭하면 업그레이드 버튼이 활성화되며 업그레이드 시 타워의 레벨이 상승한다.
 
 - 타워의 레벨은 3레벨까지 존재하며 1 -> 2레벨 75골드 / 2 -> 3레벨 175골드를 소모한다.
@@ -118,6 +134,7 @@
 ![타워업글](https://github.com/user-attachments/assets/ede166c1-229e-4959-b052-d3db9173f144)
 
 ### 슬로우 장판 설치
+
 - 슬로우 장판에 닿은 몬스터는 이동속도가 50% 감소한다.
 
 - 슬로우 장판은 일정 재사용 대기시간을 가지고 있으며 사용할 때마다 골드를 소모한다.
@@ -125,6 +142,7 @@
 ![느려짐 장판](https://github.com/user-attachments/assets/0d96e9a0-315c-42c6-9f1c-4b1e39da9fd9)
 
 ### 황금 고블린
+
 - 몬스터 처치 시 낮은 확률로 황금 고블린을 추가로 생성시킨다.
 
 - 웨이브 별로 황금 고블린의 생성 확률이 변동되며 황금 고블린은 많은 골드를 제공한다. / 레벨 * 100골드
@@ -136,5 +154,3 @@
 - 5웨이브 - 4%
 - 6웨이브 - 5%
 - 7웨이브 - 5%
-
-

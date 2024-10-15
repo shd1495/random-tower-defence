@@ -90,7 +90,7 @@ export const killMonster = async (userId, payload) => {
     await setMonster(userId, { monsterId: monsterId, waveLevelData });
 
     return {
-      status: '성공',
+      status: 'success',
       type: 'killMonster',
       result: { score, userGold },
     };

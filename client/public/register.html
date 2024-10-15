@@ -1,77 +1,61 @@
 <!doctype html>
 <html lang="ko">
-     <head>
-          <meta charset="UTF-8" />
-          <meta
-               name="viewport"
-               content="width=device-width, initial-scale=1.0"
-          />
-          <meta name="author" content="Changmin Kang" />
-          <title>내일배움캠프 Node.js 트랙 타워 디펜스 게임</title>
-          <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
-          <link rel="stylesheet" href="./css/register.css" />
-     </head>
-     <body>
-          <h1 id="title">RANDOM TOWER DEFENSE</h1>
-          <div class="form-container">
-               <h2>SIGN UP</h2>
-               <input type="text" id="accountId" placeholder="아이디" />
-               <input type="password" id="password" placeholder="비밀번호" />
-               <input
-                    type="password"
-                    id="confirmPassword"
-                    placeholder="확인 비밀번호"
-               />
-               <div class="button-container">
-                    <button id="registerbtn">SIGN UP</button>
-                    <button id="back">BACK</button>
-               </div>
-          </div>
-          <script>
-               document
-                    .getElementById("registerbtn")
-                    .addEventListener("click", () => {
-                         const accountId =
-                              document.getElementById("accountId").value;
-                         const password =
-                              document.getElementById("password").value;
-                         const confirmPassword =
-                              document.getElementById("confirmPassword").value;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Changmin Kang" />
+    <title>Pangyo Night</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+    <link rel="stylesheet" href="./css/register.css" />
+  </head>
+  <body>
+    <h1 id="title">Pangyo Night</h1>
+    <div class="form-container">
+      <h2>SIGN UP</h2>
+      <input type="text" id="accountId" placeholder="아이디" />
+      <input type="password" id="password" placeholder="비밀번호" />
+      <input type="password" id="confirmPassword" placeholder="확인 비밀번호" />
+      <div class="button-container">
+        <button id="registerbtn">SIGN UP</button>
+        <button id="back">BACK</button>
+      </div>
+    </div>
+    <script>
+      document.getElementById('registerbtn').addEventListener('click', () => {
+        const accountId = document.getElementById('accountId').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
-                         /**
+        /**
                        회원가입 API 호출 후 회원가입 성공 시 index.html로 이동시켜주세요!
                      */
-                         fetch("/api/signup", {
-                              method: "POST",
-                              headers: {
-                                   "Content-Type": "application/json",
-                              },
-                              body: JSON.stringify({
-                                   accountId,
-                                   password,
-                                   confirmPassword,
-                              }),
-                         })
-                              .then((response) => {
-                                   if (response.ok) {
-                                        window.location.href = "index.html";
-                                   } else {
-                                        alert(
-                                             "회원가입에 실패했습니다. 다시 시도해 주세요."
-                                        );
-                                   }
-                              })
-                              .catch((error) => {
-                                   console.error("Error:", error);
-                                   alert(
-                                        "서버와의 연결에 문제가 발생했습니다."
-                                   );
-                              });
-                    });
+        fetch('/api/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            accountId,
+            password,
+            confirmPassword,
+          }),
+        })
+          .then((response) => {
+            if (response.ok) {
+              window.location.href = 'index.html';
+            } else {
+              alert('회원가입에 실패했습니다. 다시 시도해 주세요.');
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            alert('서버와의 연결에 문제가 발생했습니다.');
+          });
+      });
 
-               document.getElementById("back").addEventListener("click", () => {
-                    window.location.href = "index.html";
-               });
-          </script>
-     </body>
+      document.getElementById('back').addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+    </script>
+  </body>
 </html>
