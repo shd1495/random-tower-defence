@@ -19,7 +19,7 @@ export const gameStart = async (uuid, payload, socket) => {
     await setWaveLevel(uuid, waveLevel.data[0].id);
 
     const highScore = await scoreService.getHighScore(uuid);
-    if (!highScore)
+    if (!highScore && highScore !== 0)
       return { status: 'fail', type: 'gameStart', message: 'can not read highScore.' };
 
     const gameData = await getGameData(uuid);
