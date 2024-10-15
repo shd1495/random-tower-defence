@@ -132,7 +132,6 @@ export const upgradeTower = async (
       posY: posY,
     };
     await redisClient.rpush(TOWER_SET + uuid, JSON.stringify(newTower));
-    //console.log(await getTowers(uuid));
   } catch (error) {
     throw new Error('[타워 업그레이드]에러가 발생했습니다.' + error.message);
   }
