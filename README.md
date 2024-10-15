@@ -10,7 +10,7 @@
   
 - Redis cloud - ioredis
   
-- Publish - AWS EC2
+- Deployment - AWS EC2
   
 - PackageManager - Yarn
 
