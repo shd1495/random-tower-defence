@@ -1,21 +1,18 @@
-import redisClient from "../init/redis.js";
+import redisClient from '../init/redis.js';
 
 // 현재 유저의 웨이브 레벨을 저장할 키
-const WAVE_LEVEL = "waveLevel";
+const WAVE_LEVEL = 'waveLevel';
 
 /**
  * 웨이브 레벨 목록 초기화
  * @param {String} uuid
  */
 export const clearWaveLevel = async (uuid) => {
-     try {
-          redisClient.del(WAVE_LEVEL + uuid);
-     } catch (error) {
-          throw new Error(
-               "웨이브 레벨 초기화 시 에러가 발생했습니다.",
-               error.message
-          );
-     }
+  try {
+    redisClient.del(WAVE_LEVEL + uuid);
+  } catch (error) {
+    console.error(`error clearWaveLevel for user ${uuid}`);
+  }
 };
 
 /**
@@ -24,13 +21,11 @@ export const clearWaveLevel = async (uuid) => {
  * @param {Object} waveLevel
  */
 export const setWaveLevel = async (uuid, waveLevel) => {
-     try {
-          await redisClient.set(WAVE_LEVEL + uuid, JSON.stringify(waveLevel));
-     } catch (error) {
-          throw new Error(
-               "웨이브 레벨 업데이트 시 문제가 발생했습니다." + error.message
-          );
-     }
+  try {
+    await redisClient.set(WAVE_LEVEL + uuid, JSON.stringify(waveLevel));
+  } catch (error) {
+    console.error(`error setWaveLevel for user ${uuid}`);
+  }
 };
 
 /**
@@ -39,12 +34,10 @@ export const setWaveLevel = async (uuid, waveLevel) => {
  * @returns {Object}
  */
 export const getWaveLevel = async (uuid) => {
-     try {
-          const waveLevel = await redisClient.get(WAVE_LEVEL + uuid);
-          return waveLevel;
-     } catch (error) {
-          throw new Error(
-               "웨이브 레벨 조회 시 에러가 발생했습니다." + error.message
-          );
-     }
+  try {
+    const waveLevel = await redisClient.get(WAVE_LEVEL + uuid);
+    return waveLevel;
+  } catch (error) {
+    console.error(`error getWaveLevel for user ${uuid}`);
+  }
 };

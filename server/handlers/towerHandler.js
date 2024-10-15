@@ -12,11 +12,11 @@ export const towerCreateInit = async (uuid, payload) => {
   try {
     // 데이터베이스에 저장된 타워들
     const redisTowers = await getTowers(uuid);
-    if (!redisTowers) throw new Error('Towers not found');
+    if (!redisTowers) return { status: 'fail', type: 'setTower', message: 'Towers not found' };
 
     // Towers DB 검증
     if (clientTowers === undefined && redisTowers === undefined)
-      throw new Error('Tower init Towers DB mismatch');
+      return { status: 'fail', type: 'setTower', message: 'Tower init Towers DB mismatch' };
 
     // 검증 모두 성공하면 타워 생성(타워 종류 생기면 코드 수정 필요)
     await setTower(uuid, uniqueId, towerType + 1, towers.data[towerType], posX, posY);
@@ -52,6 +52,7 @@ export const towerCreate = async (uuid, payload) => {
   try {
     // 데이터베이스에 저장된 타워들
     const redisTowers = await getTowers(uuid);
+    if (!redisTowers) return { status: 'fail', type: 'setTower', message: 'Towers not found' };
 
     // 유저 보유 금액이 타워 값 보다 많은지 비교(데이터 베이스가 들어오거나 기획이 바뀌면 수정 필요)
     // 유저 보유 금액이 데이터베이스에 저장된 타워의 값보다 적을 경우를 방지
@@ -62,24 +63,26 @@ export const towerCreate = async (uuid, payload) => {
       (clientTowers !== undefined && redisTowers === undefined) ||
       (clientTowers === undefined && redisTowers !== undefined)
     )
-      throw new Error('Towers init DB mismatch');
+      return { status: 'fail', type: 'setTower', message: 'Tower init Towers DB mismatch' };
     else if (typeof clientTowers !== typeof redisTowers)
-      throw new Error('Towers init type mismatch');
+      return { status: 'fail', type: 'setTower', message: 'Towers init type mismatch' };
     // Unique Id 검증
     else if (clientTowers !== undefined && redisTowers !== undefined && uniqueId !== 0) {
       if (uniqueId !== redisTowers[redisTowers.length - 1].uniqueId + 1)
-        throw new Error('Tower init unique Id mismatch');
+        return { status: 'fail', type: 'setTower', message: 'Tower init unique Id mismatch' };
     }
 
     // 유저 보유 타워수 비교(기획이 바뀌면 수정 필요)
     // 한번 살때 복수 구매 방지
-    if (towerCount !== redisTowers.length) throw new Error('User tower count mismatch');
+    if (towerCount !== redisTowers.length)
+      return { status: 'fail', type: 'setTower', message: 'User tower count mismatch' };
 
     // 검증 모두 성공하면 타워 생성(타워 종류 생기면 코드 수정 필요)
     await updateUserGold(uuid, -towers.data[towerType].price);
 
     const userGoldData = await getUserGold(uuid);
-    if (!userGoldData) throw new Error('Can not read userGold');
+    if (!userGoldData)
+      return { status: 'fail', type: 'setTower', message: 'Can not read userGold' };
 
     await setTower(uuid, uniqueId, towerType + 1, towers.data[towerType], posX, posY);
 
@@ -114,24 +117,29 @@ export const towerSell = async (uuid, payload) => {
   try {
     // redis에 저장된 지울 타워
     let redisTower = await getTower(uuid, uniqueId);
+    if (!redisTower) return { status: 'fail', type: 'sellTower', message: 'Towers not found' };
 
     // json에 저장된 타워와 클라에서 받아온 타워의 Id가 같은지 확인
-    if (tower.id !== redisTower.id) throw new Error('User tower id mismatch');
+    if (tower.id !== redisTower.id)
+      return { status: 'fail', type: 'sellTower', message: 'User tower id mismatch' };
     // json에 저장된 타워와 클라에서 받아온 타워의 레벨이 같은지 확인
-    else if (tower.lv !== redisTower.lv) throw new Error('User tower lv mismatch');
+    else if (tower.lv !== redisTower.lv)
+      return { status: 'fail', type: 'sellTower', message: 'User tower lv mismatch' };
     // json에 저장된 타워와 클라에서 받아온 타워의 가격이 같은지 확인
-    else if (tower.price !== redisTower.price) throw new Error('User tower price mismatch');
+    else if (tower.price !== redisTower.price)
+      return { status: 'fail', type: 'sellTower', message: 'User tower price mismatch' };
 
     // 검증 모두 성공하면 타워 제거(타워 종류 생기면 코드 수정 필요)
     await updateUserGold(uuid, tower.price / 2);
 
     const userGold = await getUserGold(uuid);
-    if (!userGold) throw new Error('Can not read userGold');
+    if (!userGold) return { status: 'fail', type: 'sellTower', message: 'Can not read userGold' };
 
     await removeTower(uuid, uniqueId);
 
     // 데이터베이스에 저장된 타워들
     let redisTowers = await getTowers(uuid);
+    if (!redisTowers) return { status: 'fail', type: 'sellTower', message: 'Towers not found' };
 
     return {
       type: 'sellTower',
@@ -180,6 +188,8 @@ export const towerUpgrade = async (uuid, payload) => {
     // 검증 모두 성공하면
     await updateUserGold(uuid, -isExistTower.upgradePrice);
     const userGoldData = await getUserGold(uuid);
+    if (!userGoldData)
+      return { status: 'fail', type: 'setTower', message: 'Can not read userGold' };
     await upgradeTower(uuid, beforeUniqueId, afterUniqueId, nextGradeTower, posX, posY);
 
     return {

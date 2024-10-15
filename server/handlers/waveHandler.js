@@ -1,17 +1,15 @@
 import { getGameAssets } from '../init/assets.js';
 import { updateMonsterSpawnInterval } from '../models/gameModel.js';
 import { setWaveLevel, getWaveLevel } from '../models/waveLevelModel.js';
-import { scoreValidation } from '../utils/scoreValidation.js';
+import { scoreValidation, scoreValidationOverSevenWave } from '../utils/scoreValidation.js';
 
 /**
- *
+ * 웨이브 레벨 상승 함수
  * @param {string} uuid 해당 유저의 uuid
- * @param {JSON} payload 클라이언트에서 받은 데이터
- * @returns
+ * @param {Object} payload 클라이언트에서 받은 데이터
+ * @returns {Object} 상태, 타입, 웨이브레벨, 스폰인터벌
  */
 export const waveLevelIncrease = async (uuid, payload) => {
-  // paload는 : score, currentLevel, nextLevel
-
   try {
     // 유저의 현재 스테이지 정보 불러오기
     const currentWave = await getWaveLevel(uuid);
@@ -45,12 +43,22 @@ export const waveLevelIncrease = async (uuid, payload) => {
     }
 
     // 점수 검증
-    if (!(await scoreValidation(uuid, payload))) {
-      return {
-        status: 'fail',
-        type: 'waveLevelIncrease',
-        message: 'Invalid elapsed time',
-      };
+    if (payload.currentLevel < 7) {
+      if (!(await scoreValidation(uuid, payload))) {
+        return {
+          status: 'fail',
+          type: 'waveLevelIncrease',
+          message: 'Invalid elapsed time',
+        };
+      }
+    } else {
+      if (!(await scoreValidationOverSevenWave(uuid, payload))) {
+        return {
+          status: 'fail',
+          type: 'waveLevelIncrease',
+          message: 'Invalid elapsed time Over Seven Wave',
+        };
+      }
     }
 
     // 다음 웨이브 id 추가
@@ -71,7 +79,6 @@ export const waveLevelIncrease = async (uuid, payload) => {
       message: 'wave level is increment successfully',
       waveLevel: payload.nextLevel,
       monsterSpawnInterval: waveData.monsterSpawnInterval,
-      hadlerId: 31,
     };
   } catch (error) {
     console.error(error.message);

@@ -11,6 +11,11 @@ class Score {
     Score.instance = this;
   }
 
+  /**
+   * 유저의 최고 기록 조회
+   * @param {String} uuid
+   * @returns {Int} highScore
+   */
   async getHighScore(uuid) {
     const accountWithScore = await prisma.accounts.findUnique({
       where: { uuid },
@@ -23,6 +28,12 @@ class Score {
     return score.highScore;
   }
 
+  /**
+   * 유저의 최고 기록 갱신
+   * @param {String} uuid
+   * @param {Int} score
+   * @param {Int} timestamp
+   */
   async updateHighScore(uuid, score, timestamp) {
     const time = timestamp;
     const date = new Date(time);
@@ -39,6 +50,12 @@ class Score {
     });
   }
 
+  /**
+   * 유저들의 최고 기록 조회
+   * @param {Int} page
+   * @param {Int} limit
+   * @returns {Object}
+   */
   async getRanking(page, limit) {
     const skip = (page - 1) * limit;
 

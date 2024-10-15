@@ -19,7 +19,7 @@ export const getTowers = async (uuid) => {
     // 변환 값 return
     return result;
   } catch (error) {
-    throw new Error('[타워 목록 조회]에러가 발생했습니다.' + error.message);
+    console.error(`error getTowers for user ${uuid}`);
   }
 };
 
@@ -40,7 +40,7 @@ export const getTower = async (uuid, uniqueId) => {
     // 타워가 존재하면 반환, 그렇지 않으면 null 반환
     return tower ? JSON.parse(tower) : null;
   } catch (error) {
-    throw new Error('[특정 타워 조회]에러가 발생했습니다.' + error.message);
+    console.error(`error getTower for user ${uuid}`);
   }
 };
 
@@ -53,10 +53,6 @@ export const getTower = async (uuid, uniqueId) => {
  */
 export const setTower = async (uuid, uniqueId, towerId, tower, posX, posY) => {
   try {
-    // const newTower = await new tower.Tower(locationX, locationY)
-    // const newTowerImage = await new Image();
-    // newTowerImage.src = image;
-
     // ...tower를 사용했을 때 에러가 발생을 방지하기 위해 객체 생성
     const newTower = {
       uniqueId: uniqueId,
@@ -68,7 +64,7 @@ export const setTower = async (uuid, uniqueId, towerId, tower, posX, posY) => {
 
     await redisClient.rpush(TOWER_SET + uuid, JSON.stringify(newTower));
   } catch (error) {
-    throw new Error('[타워 설치]에러가 발생했습니다.' + error.message);
+    console.error(`error setTower for user ${uuid}`);
   }
 };
 
@@ -91,7 +87,7 @@ export const removeTower = async (uuid, uniqueId) => {
     // 해당 타워 삭제
     if (indexToRemove !== -1) await redisClient.lrem(TOWER_SET + uuid, 1, towers[indexToRemove]);
   } catch (error) {
-    throw new Error('[타워 제거]에러가 발생했습니다.' + error.message);
+    console.error(`error removeTower for user ${uuid}`);
   }
 };
 
@@ -113,9 +109,6 @@ export const upgradeTower = async (
   posY,
 ) => {
   try {
-    // redisClient.del(uuid) : uuid라는 키 삭제용
-    // redisClient.srem(TOWER_SET, uuid) : SET 에서 uuid 멤버 제거용
-
     // 모든 타워 가져오기
     const towers = await redisClient.lrange(TOWER_SET + uuid, 0, -1);
     // 업그레이드 할 타워 인덱스
@@ -132,9 +125,8 @@ export const upgradeTower = async (
       posY: posY,
     };
     await redisClient.rpush(TOWER_SET + uuid, JSON.stringify(newTower));
-    //console.log(await getTowers(uuid));
   } catch (error) {
-    throw new Error('[타워 업그레이드]에러가 발생했습니다.' + error.message);
+    console.error(`error upgradeTower for user ${uuid}`);
   }
 };
 
@@ -146,6 +138,6 @@ export const clearTowers = async (uuid) => {
   try {
     await redisClient.del(TOWER_SET + uuid);
   } catch (error) {
-    throw new Error('[타워 목록 초기화]에러가 발생했습니다.', error.message);
+    console.error(`error clearTowers for user ${uuid}`);
   }
 };

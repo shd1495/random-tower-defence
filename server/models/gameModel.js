@@ -24,7 +24,6 @@ export const initialGameData = async (uuid, game) => {
 
   try {
     await redisClient.hset(key, gameData);
-    console.log(`game data initialized for user ${uuid}`);
   } catch (error) {
     console.error(`error initializing game data for user ${uuid}`);
   }
@@ -50,6 +49,10 @@ export const getGameData = async (uuid) => {
   }
 };
 
+/**
+ * 게임 데이터 초기화
+ * @param {String} uuid
+ */
 export const clearGameData = (uuid) => {
   const key = `user:${uuid}:${GAME_SET}`;
   try {
@@ -59,6 +62,11 @@ export const clearGameData = (uuid) => {
   }
 };
 
+/**
+ * 유저 점수 조회
+ * @param {String} uuid
+ * @returns {Int} score
+ */
 export const getScore = async (uuid) => {
   const key = `user:${uuid}:${GAME_SET}`;
   try {
@@ -69,6 +77,11 @@ export const getScore = async (uuid) => {
   }
 };
 
+/**
+ * 유저 점수 갱신
+ * @param {String} uuid
+ * @param {Int} amount
+ */
 export const updateScore = async (uuid, amount) => {
   const key = `user:${uuid}:${GAME_SET}`;
   try {
@@ -79,6 +92,11 @@ export const updateScore = async (uuid, amount) => {
   }
 };
 
+/**
+ * 유저 골드 조회
+ * @param {String} uuid
+ * @returns {Int}
+ */
 export const getUserGold = async (uuid) => {
   const key = `user:${uuid}:${GAME_SET}`;
   try {
@@ -89,6 +107,11 @@ export const getUserGold = async (uuid) => {
   }
 };
 
+/**
+ * 유저 골드 갱신
+ * @param {String} uuid
+ * @param {Int} amount
+ */
 export const updateUserGold = async (uuid, amount) => {
   const key = `user:${uuid}:${GAME_SET}`;
   try {
@@ -101,6 +124,11 @@ export const updateUserGold = async (uuid, amount) => {
   }
 };
 
+/**
+ * 유저 몬스터 스폰 간격 갱신
+ * @param {String} uuid
+ * @param {Int} amount
+ */
 export const updateMonsterSpawnInterval = async (uuid, amount) => {
   const key = `user:${uuid}:${GAME_SET}`;
   try {
@@ -110,6 +138,11 @@ export const updateMonsterSpawnInterval = async (uuid, amount) => {
   }
 };
 
+/**
+ * 유저 슬로운 장판 사용횟수 갱신
+ * @param {String} uuid
+ * @param {Int} count
+ */
 export const updateSlowEffectCount = async (uuid, count) => {
   const key = `user:${uuid}:${GAME_SET}`;
   try {

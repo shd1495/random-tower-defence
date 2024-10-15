@@ -1,22 +1,32 @@
 import { Base } from './base.js';
 import { Monster } from './monster.js';
 import { Tower } from './tower.js';
-import { CLIENT_VERSION } from './constants.js';
+import {
+  CLIENT_VERSION,
+  SLOW_EFFECT_COOLDOWN,
+  SLOW_EFFECT_COST,
+  NUM_OF_MONSTERS,
+  SERVER_URL,
+} from './constants.js';
 import { getGameAssets } from '../init/assets.js';
 import { extendAccessToken } from '../utils/extendAccessToken.js';
 
 const { monsterAssetData, towerAssetData, gameAssetData, waveLevelAssetData } = getGameAssets();
 
-const SERVER_URL = 'http://localhost:3080'; // 실제 서버 주소로 변경하세요.
-
-/* 
-  어딘가에 엑세스 토큰이 저장이 안되어 있다면 로그인을 유도하는 코드를 여기에 추가해주세요!
-*/
 extendAccessToken();
 
 let serverSocket; // 서버 웹소켓 객체
+/**
+ * 이벤트
+ */
 let sendEvent;
+/**
+ * 몬스터 이벤트
+ */
 let sendMonsterEvent;
+/**
+ * 타워 이벤트
+ */
 let sendTowerEvent;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -24,11 +34,7 @@ const ctx = canvas.getContext('2d');
 // 느림 장판 배열
 let slowEffects = [];
 let slowEffectCooldown = 0;
-const SLOW_EFFECT_COOLDOWN = 1000;
-const SLOW_EFFECT_COST = 1;
 let slowEffectCount = 0;
-
-const NUM_OF_MONSTERS = 6; // 몬스터 개수
 
 let userGold = 0; // 유저 골드
 let base; // 기지 객체
@@ -36,6 +42,7 @@ let baseHp = 0; // 기지 체력
 let towerUniqueId = 1; // 타워 고유 아이디
 let towerType = 0; // 타워 종류
 let numOfInitialTowers = 0; // 초기 타워 개수
+let MonsterLevelUpCount = 0; // 게임을 종료시키기 위한 몬스터 레벨업 조건 관련 변수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
 let monsterInterval;
@@ -47,6 +54,10 @@ let score = 0; // 게임 점수
 let highScore = 0; // 기존 최고 점수
 let isInitGame = false;
 let isWaveChange = true;
+
+// 루프 중단 변수
+let animationId;
+let isGameOver = false;
 
 // 이미지 로딩 파트
 const backgroundImage = new Image();
@@ -68,6 +79,11 @@ for (let i = 1; i <= NUM_OF_MONSTERS; i++) {
   monsterImages.push(img);
 }
 
+/**
+ * 점수판 그리는 함수
+ * @param {*} ctx
+ * @param {*} scoreBoardImage
+ */
 function drawScoreboard(ctx, scoreBoardImage) {
   const canvasWidth = ctx.canvas.width;
   const canvasHeight = ctx.canvas.height;
@@ -84,6 +100,10 @@ let monsterPath = [];
 let bgm = null;
 let bgmInitialized = false;
 
+/**
+ * BGM 함수
+ * 반복 재생
+ */
 function initializeBGM() {
   if (!bgmInitialized) {
     bgm = new Audio('../assets/sound/bgmSound.mp3');
@@ -95,6 +115,10 @@ function initializeBGM() {
 }
 initializeBGM();
 
+/**
+ * 몬스터의 경로 생성 함수
+ * @returns {Array} path
+ */
 function generateMonsterPath() {
   const path = [];
   const centerX = 1600 / 2; // 캔버스 중앙 X
@@ -116,12 +140,18 @@ function generateMonsterPath() {
   return path;
 }
 
+/**
+ * 배경 및 경로 그리는 함수
+ */
 function initMap() {
   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // 배경 이미지 그리기
   monsterPath = generateMonsterPath(); // 몬스터 경로 생성
   drawPath(); // 경로 그리기
 }
 
+/**
+ * 경로 생성 함수
+ */
 function drawPath() {
   const segmentLength = 20; // 몬스터 경로 세그먼트 길이
   const imageWidth = 60; // 몬스터 경로 이미지 너비
@@ -147,6 +177,15 @@ function drawPath() {
   }
 }
 
+/**
+ * 길 그리는 함수
+ * @param {*} image
+ * @param {*} x
+ * @param {*} y
+ * @param {*} width
+ * @param {*} height
+ * @param {*} angle
+ */
 function drawRotatedImage(image, x, y, width, height, angle) {
   ctx.save();
   ctx.translate(x + width / 2, y + height / 2);
@@ -155,6 +194,10 @@ function drawRotatedImage(image, x, y, width, height, angle) {
   ctx.restore();
 }
 
+/**
+ * 슬로우 장판 그리는 함수
+ * @param {*} ctx
+ */
 function drawSlowEffects(ctx) {
   ctx.globalAlpha = 0.3;
   ctx.fillStyle = 'blue';
@@ -166,6 +209,11 @@ function drawSlowEffects(ctx) {
   ctx.globalAlpha = 1;
 }
 
+/**
+ * 경로 내에 타워를 랜덤 위치에 생성하는 함수
+ * @param {*} maxDistance
+ * @returns {Object} x, y 좌표
+ */
 function getRandomPositionNearPath(maxDistance) {
   // 타워 배치를 위한 몬스터가 지나가는 경로 상에서 maxDistance 범위 내에서 랜덤한 위치를 반환하는 함수!
   const segmentIndex = Math.floor(Math.random() * (monsterPath.length - 1));
@@ -197,12 +245,10 @@ function getRandomPositionNearPath(maxDistance) {
   };
 }
 
+/**
+ * 초기 타워 생성 함수
+ */
 function placeInitialTowers() {
-  /* 
-    타워를 초기에 배치하는 함수입니다.
-    무언가 빠진 코드가 있는 것 같지 않나요? 
-  */
-
   // 서버로 타워 초기화 정보 전송
   for (let i = 0; i < numOfInitialTowers; i++) {
     const { x, y } = getRandomPositionNearPath(200);
@@ -219,14 +265,13 @@ function placeInitialTowers() {
   }
 }
 
+/**
+ * 타워 구매 함수
+ * @param {*} towerPosX
+ * @param {*} towerPosY
+ */
 function placeNewTower(towerPosX, towerPosY) {
-  /* 
-    타워를 구입할 수 있는 자원이 있을 때 타워 구입 후 랜덤 배치하면 됩니다.
-    빠진 코드들을 채워넣어주세요! 
-  */
-
   // 서버로 타워 구매 정보 전송
-  //const { x, y } = getRandomPositionNearPath(200); // 구버전 - 랜덤 좌표
   sendTowerEvent(21, {
     // getUserGold 와 검증할 데이터
     userGold: userGold,
@@ -240,12 +285,16 @@ function placeNewTower(towerPosX, towerPosY) {
   });
 }
 
+/**
+ * 타워 판매 함수
+ * @param {*} index
+ */
 function sellTower(index) {
   sendTowerEvent(22, { tower: towers[index] });
 }
 
 /**
- * 타워 업그레이드
+ * 타워 업그레이드 함수
  * @param {int} index 선택된 타워index
  */
 function upgradeTower(index) {
@@ -259,25 +308,39 @@ function upgradeTower(index) {
   });
 }
 
+/**
+ * 베이스 생성 및 그리는 함수
+ * 몬스터 경로의 마지막 위치
+ */
 function placeBase() {
   const lastPoint = monsterPath[monsterPath.length - 1];
   base = new Base(lastPoint.x, lastPoint.y, baseHp);
   base.draw(ctx, baseImage);
 }
 
+/**
+ * 몬스터 생성 함수
+ */
 function spawnMonster() {
   monsters.push(new Monster(monsterPath, monsterImages, monsterAssetData.data, monsterLevel));
-  //  console.log("MONSTERS", MONSTERS);
 }
 
-// 서버에서 받은 monsterId를 통해 황금 고블린 생성하는 함수입니다.
+/**
+ * 황금 고블린 생성 함수
+ * @param {*} monsterId
+ */
 function spawnGoldMonster(monsterId) {
   monsters.push(
     new Monster(monsterPath, monsterImages, monsterAssetData.data, monsterLevel, monsterId),
   );
 }
 
-// 느려짐 효과 생성
+/**
+ * 슬로우 장판 생성 함수
+ * @param {*} rightBtnX
+ * @param {*} rightBtnY
+ * @returns
+ */
 function createSlowEffect(rightBtnX, rightBtnY) {
   if (slowEffectCooldown > 0 || userGold < SLOW_EFFECT_COST) {
     return;
@@ -300,19 +363,20 @@ function createSlowEffect(rightBtnX, rightBtnY) {
   });
 }
 
-// 마우스 포인터로 지정한 위치에 스킬을 쓰게 만드는 것 구현하기
-// slowEffect 시간 지나면 사라지도록
+/**
+ * 지속 시간 경과 후 슬로우 장판 삭제
+ */
 function updateSlowEffects() {
   const now = Date.now();
   slowEffects = slowEffects.filter((effect) => now - effect.createdAt < effect.duration);
 }
 
+// 게임 프레임 60으로 고정
 let lastTime = 0;
 const fps = 60;
 const interval = 1000 / fps;
 
 function gameLoop(currentTime) {
-  //   requestAnimationFrame(gameLoop);
   const delta = currentTime - lastTime;
 
   if (delta >= interval) {
@@ -352,7 +416,6 @@ function gameLoop(currentTime) {
 
     // 몬스터가 공격을 했을 수 있으므로 기지 다시 그리기
     base.draw(ctx, baseImage);
-
     for (let i = monsters.length - 1; i >= 0; i--) {
       const monster = monsters[i];
       if (monster.hp > 0) {
@@ -361,7 +424,10 @@ function gameLoop(currentTime) {
           /* 게임 오버 */
           sendEvent(3, { timestamp: Date.now(), score });
           if (score > highScore) {
+            isGameOver = true;
             alert('축하드립니다! 최고 점수를 달성하셨습니다!');
+            cancelAnimationFrame(animationId);
+            break;
           }
         }
 
@@ -386,17 +452,11 @@ function gameLoop(currentTime) {
         monster.draw(ctx);
       } else {
         /* 몬스터가 죽었을 때 */
-
-        if (monster.hp <= 0) {
-          // const monsterId = monster.monsterId;
-          // const incrementMoney = monster.reward;
-          // const incrementScore = monster.score;
-          // sendMonsterEvent(11, {
-          //   monsterId,
-          //   incrementMoney,
-          //   incrementScore,
-          // });
-          // 웨이브 레벨업  요청하기 보내주기
+        MonsterLevelUpCount++;
+        // 몬스터 레벨 7 이후부터 몬스터 50마리당 몬스터 레벨 증가
+        if (monsterLevel >= 7 && MonsterLevelUpCount > 50) {
+          MonsterLevelUpCount = 0;
+          monsterLevel++;
         }
         monsters.splice(i, 1);
       }
@@ -410,9 +470,12 @@ function gameLoop(currentTime) {
       slowEffectCooldown = 0;
     }
   }
-  requestAnimationFrame(gameLoop); // 지속적으로 다음 프레임에 gameLoop 함수 호출할 수 있도록 함
+  if (!isGameOver) animationId = requestAnimationFrame(gameLoop); // 지속적으로 다음 프레임에 gameLoop 함수 호출할 수 있도록 함
 }
 
+/**
+ * 웨이브 레벨 변경 함수
+ */
 function changeWave() {
   if (
     waveLevelAssetData.data[monsterLevel] &&
@@ -436,6 +499,10 @@ function changeWave() {
   }
 }
 
+/**
+ * 게임 시작 함수
+ * @returns
+ */
 function initGame() {
   if (isInitGame) {
     return;
@@ -462,7 +529,6 @@ Promise.all([
   ...towers.map((tower) => new Promise((resolve) => (tower.image.onload = resolve))),
 ]).then(() => {
   /* 서버 접속 코드 (여기도 완성해주세요!) */
-  let somewhere;
   serverSocket = io(SERVER_URL, {
     query: {
       clientVersion: CLIENT_VERSION,
@@ -490,7 +556,6 @@ Promise.all([
   /* 토큰 유효하지 않을 시 */
   // 토큰 만료 시
   serverSocket.on('tokenExpired', (data) => {
-    console.log(data.message);
     alert('세션이 만료되었습니다. 다시 로그인해 주세요.');
 
     window.location.href = 'index.html';
@@ -498,8 +563,21 @@ Promise.all([
 
   // 토큰 조작 시
   serverSocket.on('unauthorized', (data) => {
-    console.log(data.message);
     alert('유효하지 않은 토큰입니다.');
+
+    window.location.href = 'index.html';
+  });
+
+  // 토큰 없을 시
+  serverSocket.on('tokenNotFound', (data) => {
+    alert(data.message);
+
+    window.location.href = 'index.html';
+  });
+
+  // 토큰이 Bearer 형식이 아닐 시
+  serverSocket.on('Bearer', (data) => {
+    alert(data.message);
 
     window.location.href = 'index.html';
   });
@@ -519,7 +597,6 @@ Promise.all([
     }
 
     if (data.type === 'gameEnd' && data.status === 'success') {
-      console.log(data.message);
       alert('게임 오버. 스파르타 본부를 지키지 못했다...ㅠㅠ');
       location.reload();
     }
@@ -542,10 +619,8 @@ Promise.all([
     }
 
     if (data.type === 'waveLevelIncrease' && data.status === 'success') {
-      console.log(data.message);
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
       if (data.monsterSpawnInterval) monsterSpawnInterval = data.monsterSpawnInterval;
-      console.log(monsterSpawnInterval, data.monsterSpawnInterval);
       clearInterval(monsterInterval);
       monsterInterval = setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
     }
@@ -569,7 +644,6 @@ Promise.all([
 
     if (data.type === 'slowEffectUsed' && data.status === 'success') {
       userGold = +data.result.userGold;
-      console.log('느려짐 장판 사용 횟수: ', data.result.slowEffectCount);
     }
 
     if (data.status === 'fail') {
@@ -641,7 +715,7 @@ function responseSellTower(data) {
     // 판매할 타워 클라이언트에서 제거
     towers.splice(index, 1);
   } else {
-    console.log('판매할 타워를 찾지 못했습니다.');
+    alert('판매할 타워를 찾지 못했습니다.');
   }
 }
 
@@ -657,7 +731,7 @@ function responseUpgradeTower(data) {
     // 삭제할 타워 클라이언트에서 제거
     towers.splice(index, 1);
   } else {
-    console.log('삭제할 타워를 찾지 못했습니다.');
+    alert('삭제할 타워를 찾지 못했습니다.');
   }
   // 클라이언트에 타워 객체 생성
   const TOWER = new Tower(
@@ -754,8 +828,11 @@ let selectedTowerIndex = null; // 현재 선택된 타워의 인덱스 저장
 let towerPosX = 0;
 let towerPosY = 0;
 
-// 버튼 클릭 이벤트
+// 버튼 클릭 상태
+let towerClickState = false;
+let clickState = false;
 
+// 버튼 클릭 이벤트
 canvas.addEventListener('click', (event) => {
   const rect = canvas.getBoundingClientRect();
   const mouseX = event.clientX - rect.left;
@@ -774,18 +851,32 @@ canvas.addEventListener('click', (event) => {
       // 선택 타워 출력 로그
       selectedTowerIndex = index;
       console.log(`${selectedTowerIndex + 1}번째 타워 선택됨`);
-      // 버튼 위치 설정(기획이 변경되면 계산식 수정)
-      // 판매 및 업그레이드 버튼 - 타워 머리 위로 표시
-      upgradeTowerButton.style.left = `${rect.left + tower.x + (tower.width * tower.imgMagnification) / 2 + 50}px`;
-      upgradeTowerButton.style.top = `${rect.top + tower.y + (tower.height * tower.imgMagnification) / 2 - 50}px`;
-      sellTowerButton.style.left = `${rect.left + tower.x + (tower.width * tower.imgMagnification) / 2 - 200}px`;
-      sellTowerButton.style.top = `${rect.top + tower.y + (tower.height * tower.imgMagnification) / 2 - 50}px`;
-      // 타워가 선택되면
-      // 판매 및 업그레이드 버튼 활성화
-      upgradeTowerButton.style.display = 'block';
-      upgradeTowerButton.disabled = false;
-      sellTowerButton.style.display = 'block';
-      sellTowerButton.disabled = false;
+      if (!towerClickState) {
+        // 버튼 위치 설정(기획이 변경되면 계산식 수정)
+        // 판매 및 업그레이드 버튼 - 타워 머리 위로 표시
+        upgradeTowerButton.style.left = `${rect.left + tower.x + (tower.width * tower.imgMagnification) / 2 + 50}px`;
+        upgradeTowerButton.style.top = `${rect.top + tower.y + (tower.height * tower.imgMagnification) / 2 - 50}px`;
+        sellTowerButton.style.left = `${rect.left + tower.x + (tower.width * tower.imgMagnification) / 2 - 200}px`;
+        sellTowerButton.style.top = `${rect.top + tower.y + (tower.height * tower.imgMagnification) / 2 - 50}px`;
+        // 타워가 선택되면
+        // 판매 및 업그레이드 버튼 활성화
+        upgradeTowerButton.style.display = 'block';
+        upgradeTowerButton.disabled = false;
+        sellTowerButton.style.display = 'block';
+        sellTowerButton.disabled = false;
+        // 버튼 클릭 상태
+        towerClickState = true;
+        clickState = true;
+      } else {
+        // 판매 및 업그레이드 버튼 비활성화
+        upgradeTowerButton.style.display = 'none';
+        upgradeTowerButton.disabled = true;
+        sellTowerButton.style.display = 'none';
+        sellTowerButton.disabled = true;
+        // 버튼 클릭 상태
+        towerClickState = false;
+        clickState = false;
+      }
       // 구매 버튼 비활성화
       buyTowerButton1.style.display = 'none';
       buyTowerButton1.disabled = true;
@@ -793,35 +884,54 @@ canvas.addEventListener('click', (event) => {
       buyTowerButton2.disabled = true;
       buyTowerButton3.style.display = 'none';
       buyTowerButton3.disabled = true;
-
+      // 클릭 위치 타워 탐색 유무
       towerFoundState = true;
     }
   });
-
   // 타워를 클릭하지 않았을 경우
   if (!towerFoundState) {
-    // 타워 생성 버튼 - 마우스 클릭 위치에 표시
-    towerPosX = event.clientX;
-    towerPosY = event.clientY;
-    buyTowerButton1.style.left = `${towerPosX - 75}px`;
-    buyTowerButton1.style.top = `${towerPosY - 75}px`;
-    buyTowerButton2.style.left = `${towerPosX - 175}px`;
-    buyTowerButton2.style.top = `${towerPosY + 25}px`;
-    buyTowerButton3.style.left = `${towerPosX + 25}px`;
-    buyTowerButton3.style.top = `${towerPosY + 25}px`;
-    // 선택된 타워가 없으면 판매 및 업그레이드 버튼 비활성화
-    upgradeTowerButton.style.display = 'none';
-    upgradeTowerButton.disabled = true;
-    sellTowerButton.style.display = 'none';
-    sellTowerButton.disabled = true;
-    buyTowerButton1.style.display = 'block';
-    buyTowerButton1.disabled = false;
-    buyTowerButton2.style.display = 'block';
-    buyTowerButton2.disabled = false;
-    buyTowerButton3.style.display = 'block';
-    buyTowerButton3.disabled = false;
-    // 선택된 인덱스 초기화
-    selectedTowerIndex = null;
+    if (!clickState) {
+      // 타워 생성 버튼 - 마우스 클릭 위치에 표시
+      towerPosX = event.clientX;
+      towerPosY = event.clientY;
+      buyTowerButton1.style.left = `${towerPosX - 75}px`;
+      buyTowerButton1.style.top = `${towerPosY - 75}px`;
+      buyTowerButton2.style.left = `${towerPosX - 175}px`;
+      buyTowerButton2.style.top = `${towerPosY + 25}px`;
+      buyTowerButton3.style.left = `${towerPosX + 25}px`;
+      buyTowerButton3.style.top = `${towerPosY + 25}px`;
+      // 선택된 타워가 없으면 판매 및 업그레이드 버튼 비활성화
+      upgradeTowerButton.style.display = 'none';
+      upgradeTowerButton.disabled = true;
+      sellTowerButton.style.display = 'none';
+      sellTowerButton.disabled = true;
+      buyTowerButton1.style.display = 'block';
+      buyTowerButton1.disabled = false;
+      buyTowerButton2.style.display = 'block';
+      buyTowerButton2.disabled = false;
+      buyTowerButton3.style.display = 'block';
+      buyTowerButton3.disabled = false;
+      // 선택된 인덱스 초기화
+      selectedTowerIndex = null;
+      // 버튼 클릭 상태
+      towerClickState = true;
+      clickState = true;
+    } else {
+      // 모든 버튼 비활성화
+      upgradeTowerButton.style.display = 'none';
+      upgradeTowerButton.disabled = true;
+      sellTowerButton.style.display = 'none';
+      sellTowerButton.disabled = true;
+      buyTowerButton1.style.display = 'none';
+      buyTowerButton1.disabled = true;
+      buyTowerButton2.style.display = 'none';
+      buyTowerButton2.disabled = true;
+      buyTowerButton3.style.display = 'none';
+      buyTowerButton3.disabled = true;
+      // 버튼 클릭 상태
+      towerClickState = false;
+      clickState = false;
+    }
   }
 });
 
@@ -849,7 +959,9 @@ buyTowerButton3.addEventListener('click', () => {
 });
 document.body.appendChild(buyTowerButton3);
 
-// 타워 생성 버튼 이벤트 로직
+/**
+ * 타워 생성 버튼 이벤트 로직
+ */
 function buyTowerButton() {
   // 타워가 선택된 상태가 아닐 경우
   if (selectedTowerIndex === null) {
@@ -904,7 +1016,7 @@ upgradeTowerButton.addEventListener('click', () => {
     // 선택된 인덱스 초기화
     selectedTowerIndex = null;
   } else if (towers[selectedTowerIndex].nextGradeId === -1)
-    console.log('업그레이드 할 타워 레벨이 MAX 입니다.');
+    alert('업그레이드 할 타워 레벨이 MAX 입니다.');
 });
 document.body.appendChild(upgradeTowerButton);
 
