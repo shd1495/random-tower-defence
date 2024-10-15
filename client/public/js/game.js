@@ -25,6 +25,8 @@ const ctx = canvas.getContext('2d');
 let slowEffects = [];
 let slowEffectCooldown = 0;
 const SLOW_EFFECT_COOLDOWN = 1000;
+const SLOW_EFFECT_COST = 1;
+let slowEffectCount = 0;
 
 const NUM_OF_MONSTERS = 6; // 몬스터 개수
 
@@ -274,20 +276,11 @@ function spawnGoldMonster(monsterId) {
   );
 }
 
-// 느려짐 효과 생성기(장판 생성 버튼) (createSlowEffect, isClickOnPath, isPointNearLine, updateSlowEffects)
+// 느려짐 효과 생성
 function createSlowEffect(rightBtnX, rightBtnY) {
-  // const position = getRandomPositionOnPath();
-  // slowEffects.push({
-  //   x: position.posX,
-  //   y: position.posY,
-  //   radius: 50,
-  //   duration: 5000,
-  //   createdAt: Date.now(),
-  // });
-  if (slowEffectCooldown > 0) {
+  if (slowEffectCooldown > 0 || userGold < SLOW_EFFECT_COST) {
     return;
   }
-
   slowEffects.push({
     x: rightBtnX,
     y: rightBtnY,
@@ -296,7 +289,14 @@ function createSlowEffect(rightBtnX, rightBtnY) {
     createdAt: Date.now(),
   });
 
+  userGold -= SLOW_EFFECT_COST;
+  slowEffectCount++;
   slowEffectCooldown = SLOW_EFFECT_COOLDOWN;
+
+  sendEvent(32, {
+    cost: SLOW_EFFECT_COST,
+    usageCount: slowEffectCount,
+  });
 }
 
 // 마우스 포인터로 지정한 위치에 스킬을 쓰게 만드는 것 구현하기
@@ -402,6 +402,7 @@ function gameLoop(currentTime) {
     }
   }
 
+  // 만약 안되면 if(delta) 코드 안에 넣어야 할 것으로 예상
   if (slowEffectCooldown > 0) {
     slowEffectCooldown -= 10;
     if (slowEffectCooldown < 0) {
@@ -563,6 +564,11 @@ Promise.all([
       if (data.result.goldMonsterId) {
         spawnGoldMonster(data.result.goldMonsterId); // 황금 고블린 생성
       }
+    }
+
+    if (data.type === 'slowEffectUsed' && data.status === 'success') {
+      userGold = +data.result.userGold;
+      console.log('느려짐 장판 사용 횟수: ', data.result.slowEffectCount);
     }
 
     if (data.status === 'fail') {
