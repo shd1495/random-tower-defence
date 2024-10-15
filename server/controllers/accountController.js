@@ -7,14 +7,13 @@ import bcrypt from 'bcrypt';
 import score from '../services/scoreService.js';
 
 /**
-//  * 회원가입
-//  * @param {Object} req
-//  * @param {Object} res
-//  * @param {*} next
-//  * @returns
-//  */
-
-export async function signup(req, res) {
+ * 회원 가입
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns {Object} response
+ */
+export async function signup(req, res, next) {
   try {
     const { accountId, password, confirmPassword } = req.body;
     // 데이터 유효성 검사
@@ -53,7 +52,7 @@ export async function signup(req, res) {
  * @param {*} req
  * @param {*} res
  * @param {*} next
- * @returns
+ * @returns {Object} response
  */
 export async function signin(req, res, next) {
   try {
@@ -106,7 +105,7 @@ export async function signin(req, res, next) {
 
 /**
  * 게임 실행 중 토큰연장하는 함수
- * @returns
+ * @returns {Object} response
  */
 export async function tokenExtension(req, res, next) {
   try {
@@ -134,6 +133,13 @@ export async function tokenExtension(req, res, next) {
   }
 }
 
+/**
+ * 랭킹 조회
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns {Object} response
+ */
 export async function getRanking(req, res, next) {
   try {
     const page = parseInt(req.query.page) || 1;

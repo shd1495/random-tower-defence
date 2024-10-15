@@ -5,17 +5,14 @@ export const useSlowEffect = async (uuid, payload) => {
 
   try {
     const currentCost = await getUserGold(uuid);
-    if (currentCost < cost) {
-      return {
-        status: 'error',
-        message: 'Not enough gold',
-      };
-    }
+    if (!currentCost) return { status: 'fail', message: 'slowEffect cost not found' };
+    if (currentCost < cost) return { status: 'fail', message: 'Not enough gold' };
 
     await updateUserGold(uuid, -cost);
     await updateSlowEffectCount(uuid, usageCount);
 
     const updatedGold = await getUserGold(uuid);
+    if (!updatedGold) return { status: 'fail', message: 'userGold not found' };
 
     return {
       status: 'success',
@@ -26,7 +23,7 @@ export const useSlowEffect = async (uuid, payload) => {
       },
     };
   } catch (error) {
-    console.error('error in slowEffect: ', error);
-    return { status: 'error', message: 'server error' };
+    console.error(error.message);
+    return { status: 'fail', message: error.message };
   }
 };

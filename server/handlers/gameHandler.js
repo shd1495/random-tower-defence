@@ -6,6 +6,13 @@ import { clearTowers } from '../models/towerModel.js';
 import { totalScore } from '../utils/scoreValidation.js';
 import scoreService from '../services/scoreService.js';
 
+/**
+ * 게임 시작 함수
+ * @param {String} uuid
+ * @param {*} payload
+ * @param {*} socket
+ * @returns {Object} 상태, 초기데이터, 최고 기록
+ */
 export const gameStart = async (uuid, payload, socket) => {
   const { game, waveLevel } = getGameAssets();
 
@@ -37,6 +44,13 @@ export const gameStart = async (uuid, payload, socket) => {
   }
 };
 
+/**
+ * 게임 종료 함수
+ * @param {String} uuid
+ * @param {Object} payload
+ * @param {*} socket
+ * @returns {Object} 상태, 메시지
+ */
 export const gameEnd = async (uuid, payload, socket) => {
   const { timestamp, score } = payload;
 
@@ -50,7 +64,7 @@ export const gameEnd = async (uuid, payload, socket) => {
       return { status: 'fail', type: 'gameEnd', message: 'can not reading serverScore' };
 
     if (score !== serverScore)
-      return { status: 'fail', type: 'gameEnd', message: 'unmatched score = server' };
+      return { status: 'fail', type: 'gameEnd', message: 'unmatched score = serverScore' };
 
     // 최고 점수 갱신
     if (score > highScore) await scoreService.updateHighScore(uuid, score, timestamp);
