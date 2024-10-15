@@ -461,15 +461,16 @@ function gameLoop(currentTime) {
         monsters.splice(i, 1);
       }
     }
-  }
 
-  // 만약 안되면 if(delta) 코드 안에 넣어야 할 것으로 예상
-  if (slowEffectCooldown > 0) {
-    slowEffectCooldown -= 10;
-    if (slowEffectCooldown < 0) {
-      slowEffectCooldown = 0;
+    // 만약 안되면 if(delta) 코드 안에 넣어야 할 것으로 예상
+    if (slowEffectCooldown > 0) {
+      slowEffectCooldown -= 1;
+      if (slowEffectCooldown < 0) {
+        slowEffectCooldown = 0;
+      }
     }
   }
+
   if (!isGameOver) animationId = requestAnimationFrame(gameLoop); // 지속적으로 다음 프레임에 gameLoop 함수 호출할 수 있도록 함
 }
 
