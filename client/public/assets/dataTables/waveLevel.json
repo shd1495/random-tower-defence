@@ -2,12 +2,12 @@
   "name": "wave_level",
   "version": "1.0.0",
   "data": [
-    { "id": 1, "score": 0, "goldMonsterProbability": 0, "monsterSpawnInterval": 1000 },
-    { "id": 2, "score": 100, "goldMonsterProbability": 1, "monsterSpawnInterval": 900 },
-    { "id": 3, "score": 300, "goldMonsterProbability": 2, "monsterSpawnInterval": 800 },
-    { "id": 4, "score": 500, "goldMonsterProbability": 3, "monsterSpawnInterval": 700 },
-    { "id": 5, "score": 1000, "goldMonsterProbability": 4, "monsterSpawnInterval": 600 },
-    { "id": 6, "score": 2000, "goldMonsterProbability": 5, "monsterSpawnInterval": 500 },
-    { "id": 7, "score": 5000, "goldMonsterProbability": 5, "monsterSpawnInterval": 400 }
+    { "id": 1, "score": 0, "goldMonsterProbability": 0, "monsterSpawnInterval": 1500 },
+    { "id": 2, "score": 250, "goldMonsterProbability": 1, "monsterSpawnInterval": 1200 },
+    { "id": 3, "score": 500, "goldMonsterProbability": 2, "monsterSpawnInterval": 1000 },
+    { "id": 4, "score": 1500, "goldMonsterProbability": 3, "monsterSpawnInterval": 800 },
+    { "id": 5, "score": 3000, "goldMonsterProbability": 4, "monsterSpawnInterval": 600 },
+    { "id": 6, "score": 5000, "goldMonsterProbability": 5, "monsterSpawnInterval": 500 },
+    { "id": 7, "score": 10000, "goldMonsterProbability": 5, "monsterSpawnInterval": 400 }
   ]
 }

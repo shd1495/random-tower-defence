@@ -4,7 +4,7 @@ import { setWaveLevel, getWaveLevel } from '../models/waveLevelModel.js';
 import { scoreValidation } from '../utils/scoreValidation.js';
 
 /**
- *
+ * 웨이브 레벨 상승 함수
  * @param {string} uuid 해당 유저의 uuid
  * @param {JSON} payload 클라이언트에서 받은 데이터
  * @returns
@@ -71,7 +71,6 @@ export const waveLevelIncrease = async (uuid, payload) => {
       message: 'wave level is increment successfully',
       waveLevel: payload.nextLevel,
       monsterSpawnInterval: waveData.monsterSpawnInterval,
-      hadlerId: 31,
     };
   } catch (error) {
     console.error(error.message);

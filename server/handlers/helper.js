@@ -42,7 +42,8 @@ export const handleConnection = async (socket, uuid) => {
  * @param {Object} io
  * @param {Object} socket
  * @param {Object} data
- * @returns
+ * @returns {null}
+ * @author response를 클라이언트에 전달하고 type으로 이벤트 구분
  */
 export const handleEvent = async (io, socket, data) => {
   // 클라언트 버전 체크
