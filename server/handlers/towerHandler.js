@@ -58,9 +58,6 @@ export const towerCreate = async (uuid, payload) => {
     // 유저 보유 금액이 데이터베이스에 저장된 타워의 값보다 적을 경우를 방지
     if (userGold < towers.data[towerType].price) throw new Error('not enough golds');
 
-    console.log('clientTowers', clientTowers);
-    console.log('redisTowers', redisTowers);
-
     // Towers DB 검증
     if (
       (clientTowers !== undefined && redisTowers === undefined) ||
@@ -71,9 +68,11 @@ export const towerCreate = async (uuid, payload) => {
       return { status: 'fail', type: 'setTower', message: 'Towers init type mismatch' };
     // Unique Id 검증
     else if (clientTowers.length !== 0 && redisTowers.length !== 0 && uniqueId !== 0) {
-      if (uniqueId !== redisTowers[redisTowers.length - 1].uniqueId + 1)
-        return { status: 'fail', type: 'setTower', message: 'Tower init unique Id mismatch' };
+      const uniqueIdMap = redisTowers.map((tower) => tower.uniqueId);
+      if (uniqueId <= uniqueIdMap[uniqueIdMap.length - 1])
+        return { status: 'fail', type: 'setTower', message: 'Tower init unique Id value is low' };
     }
+    // 생성, 판매, 판매, 생성
 
     // 유저 보유 타워수 비교(기획이 바뀌면 수정 필요)
     // 한번 살때 복수 구매 방지
