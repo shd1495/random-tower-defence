@@ -57,6 +57,8 @@ export const gameEnd = async (uuid, payload, socket) => {
   // 최고 점수
   try {
     const highScore = await scoreService.getHighScore(uuid);
+    if (!highScore && highScore !== 0)
+      return { status: 'fail', type: 'gameStart', message: 'can not read highScore.' };
 
     // 서버 점수와 클라 점수 검증
     const serverScore = await totalScore(uuid);

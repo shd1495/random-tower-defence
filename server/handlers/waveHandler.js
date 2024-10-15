@@ -6,12 +6,10 @@ import { scoreValidation, scoreValidationOverSevenStage } from '../utils/scoreVa
 /**
  * 웨이브 레벨 상승 함수
  * @param {string} uuid 해당 유저의 uuid
- * @param {JSON} payload 클라이언트에서 받은 데이터
- * @returns
+ * @param {Object} payload 클라이언트에서 받은 데이터
+ * @returns {Object} 상태, 타입, 웨이브레벨, 스폰인터벌
  */
 export const waveLevelIncrease = async (uuid, payload) => {
-  // paload는 : score, currentLevel, nextLevel
-
   try {
     // 유저의 현재 스테이지 정보 불러오기
     const currentWave = await getWaveLevel(uuid);
