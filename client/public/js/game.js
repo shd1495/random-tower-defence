@@ -885,28 +885,44 @@ canvas.addEventListener('click', (event) => {
 
   // 타워를 클릭하지 않았을 경우
   if (!towerFoundState) {
-    // 타워 생성 버튼 - 마우스 클릭 위치에 표시
-    towerPosX = event.clientX;
-    towerPosY = event.clientY;
-    buyTowerButton1.style.left = `${towerPosX - 75}px`;
-    buyTowerButton1.style.top = `${towerPosY - 75}px`;
-    buyTowerButton2.style.left = `${towerPosX - 175}px`;
-    buyTowerButton2.style.top = `${towerPosY + 25}px`;
-    buyTowerButton3.style.left = `${towerPosX + 25}px`;
-    buyTowerButton3.style.top = `${towerPosY + 25}px`;
-    // 선택된 타워가 없으면 판매 및 업그레이드 버튼 비활성화
-    upgradeTowerButton.style.display = 'none';
-    upgradeTowerButton.disabled = true;
-    sellTowerButton.style.display = 'none';
-    sellTowerButton.disabled = true;
-    buyTowerButton1.style.display = 'block';
-    buyTowerButton1.disabled = false;
-    buyTowerButton2.style.display = 'block';
-    buyTowerButton2.disabled = false;
-    buyTowerButton3.style.display = 'block';
-    buyTowerButton3.disabled = false;
-    // 선택된 인덱스 초기화
-    selectedTowerIndex = null;
+    if (clickState) {
+      // 타워 생성 버튼 - 마우스 클릭 위치에 표시
+      towerPosX = event.clientX;
+      towerPosY = event.clientY;
+      buyTowerButton1.style.left = `${towerPosX - 75}px`;
+      buyTowerButton1.style.top = `${towerPosY - 75}px`;
+      buyTowerButton2.style.left = `${towerPosX - 175}px`;
+      buyTowerButton2.style.top = `${towerPosY + 25}px`;
+      buyTowerButton3.style.left = `${towerPosX + 25}px`;
+      buyTowerButton3.style.top = `${towerPosY + 25}px`;
+      // 선택된 타워가 없으면 판매 및 업그레이드 버튼 비활성화
+      upgradeTowerButton.style.display = 'none';
+      upgradeTowerButton.disabled = true;
+      sellTowerButton.style.display = 'none';
+      sellTowerButton.disabled = true;
+      buyTowerButton1.style.display = 'block';
+      buyTowerButton1.disabled = false;
+      buyTowerButton2.style.display = 'block';
+      buyTowerButton2.disabled = false;
+      buyTowerButton3.style.display = 'block';
+      buyTowerButton3.disabled = false;
+      // 선택된 인덱스 초기화
+      selectedTowerIndex = null;
+      clickState = false;
+    } else {
+      // 모든 버튼 비활성화
+      upgradeTowerButton.style.display = 'none';
+      upgradeTowerButton.disabled = true;
+      sellTowerButton.style.display = 'none';
+      sellTowerButton.disabled = true;
+      buyTowerButton1.style.display = 'none';
+      buyTowerButton1.disabled = true;
+      buyTowerButton2.style.display = 'none';
+      buyTowerButton2.disabled = true;
+      buyTowerButton3.style.display = 'none';
+      buyTowerButton3.disabled = true;
+      clickState = true;
+    }
   }
 });
 
