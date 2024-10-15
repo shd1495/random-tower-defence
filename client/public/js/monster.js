@@ -1,5 +1,3 @@
-import { sendMonsterEvent } from './game.js';
-
 export class Monster {
   constructor(path, monsterImages, monsters, monsterLevel, monsterId) {
     // 생성자 안에서 몬스터의 속성을 정의한다고 생각하시면 됩니다!
