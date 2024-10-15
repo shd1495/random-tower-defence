@@ -2,7 +2,7 @@
   "name": "user",
   "version": "1.0.0",
   "data": {
-    "userGold": 100,
+    "userGold": 10000,
     "baseHp": 500,
     "score": 0,
     "numOfInitialTowers": 2,

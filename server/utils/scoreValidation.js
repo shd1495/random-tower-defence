@@ -19,7 +19,11 @@ export const scoreValidation = async (uuid, payload) => {
   // 클라이언트 점수와 서버에서 계산한 점수와 동일한지 체크
   // 게임데이터 wave 목표점수보다 높은지 확인
   const nextWaveLevel = waveLevel.data.find((wave) => wave.id === payload.nextLevel);
-  if (payload.score !== suverTotalScore || payload.score < nextWaveLevel.score) return false;
+  if (
+    (payload.score !== suverTotalScore || payload.score < nextWaveLevel.score) &&
+    payload.nextLevel <= 7
+  )
+    return false;
   else return true;
 };
 

@@ -47,6 +47,7 @@ let score = 0; // 게임 점수
 let highScore = 0; // 기존 최고 점수
 let isInitGame = false;
 let isWaveChange = true;
+let currentWave = 1;
 
 // 이미지 로딩 파트
 const backgroundImage = new Image();
@@ -424,6 +425,7 @@ function changeWave() {
       currentLevel: monsterLevel,
       nextLevel: monsterLevel + 1,
     });
+
     isWaveChange = false;
   }
   // 만약 웨이브이전 점수보다 높으면 isWaveChange 다시 초기화
@@ -543,7 +545,14 @@ Promise.all([
 
     if (data.type === 'waveLevelIncrease' && data.status === 'success') {
       console.log(data.message);
-      if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
+      // 몬스터레벨 동기화
+      if (currentWave <= 7 && data.waveLevel) {
+        monsterLevel = data.waveLevel;
+        currentWave = monsterLevel;
+      }
+      // 몬스터 레벨 json 데이터 오버시 몬스터 레벨 무한대(게임 종료시키기 위한 목적)
+      else if (currentWave > 7) monsterLevel++;
+
       if (data.monsterSpawnInterval) monsterSpawnInterval = data.monsterSpawnInterval;
       console.log(monsterSpawnInterval, data.monsterSpawnInterval);
       clearInterval(monsterInterval);
@@ -553,7 +562,7 @@ Promise.all([
     if (data.type === 'killMonster' && data.status === 'success') {
       userGold = +data.result.userGold;
       score = +data.result.score;
-      changeWave();
+      if (currentWave < 7) changeWave();
       sendEvent(13);
     }
 
