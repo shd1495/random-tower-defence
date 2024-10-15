@@ -3,6 +3,7 @@ import { gameEnd, gameStart } from './gameHandler.js';
 import { attackedByMonster, killMonster } from './monsterHandler.js';
 import { towerCreateInit, towerCreate, towerSell, towerUpgrade } from './towerHandler.js';
 import { waveLevelIncrease } from './waveHandler.js';
+import { useSlowEffect } from './slowEffectHandler.js';
 
 const handlerMappings = {
   2: gameStart,
@@ -15,6 +16,7 @@ const handlerMappings = {
   22: towerSell,
   23: towerUpgrade,
   31: waveLevelIncrease,
+  32: useSlowEffect,
 };
 
 export default handlerMappings;

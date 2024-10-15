@@ -23,6 +23,10 @@ const ctx = canvas.getContext('2d');
 
 // 느림 장판 배열
 let slowEffects = [];
+let slowEffectCooldown = 0;
+const SLOW_EFFECT_COOLDOWN = 1000;
+const SLOW_EFFECT_COST = 1;
+let slowEffectCount = 0;
 
 const NUM_OF_MONSTERS = 6; // 몬스터 개수
 
@@ -151,7 +155,7 @@ function drawRotatedImage(image, x, y, width, height, angle) {
 }
 
 function drawSlowEffects(ctx) {
-  ctx.globalAlpha = 0.5;
+  ctx.globalAlpha = 0.3;
   ctx.fillStyle = 'blue';
   slowEffects.forEach((effect) => {
     ctx.beginPath();
@@ -272,23 +276,26 @@ function spawnGoldMonster(monsterId) {
   );
 }
 
-// 느려짐 효과 생성기(장판 생성 버튼) (createSlowEffect, isClickOnPath, isPointNearLine, updateSlowEffects)
+// 느려짐 효과 생성
 function createSlowEffect(rightBtnX, rightBtnY) {
-  // const position = getRandomPositionOnPath();
-  // slowEffects.push({
-  //   x: position.posX,
-  //   y: position.posY,
-  //   radius: 50,
-  //   duration: 5000,
-  //   createdAt: Date.now(),
-  // });
-
+  if (slowEffectCooldown > 0 || userGold < SLOW_EFFECT_COST) {
+    return;
+  }
   slowEffects.push({
     x: rightBtnX,
     y: rightBtnY,
     radius: 50,
     duration: 5000,
     createdAt: Date.now(),
+  });
+
+  userGold -= SLOW_EFFECT_COST;
+  slowEffectCount++;
+  slowEffectCooldown = SLOW_EFFECT_COOLDOWN;
+
+  sendEvent(32, {
+    cost: SLOW_EFFECT_COST,
+    usageCount: slowEffectCount,
   });
 }
 
@@ -392,6 +399,14 @@ function gameLoop(currentTime) {
         }
         monsters.splice(i, 1);
       }
+    }
+  }
+
+  // 만약 안되면 if(delta) 코드 안에 넣어야 할 것으로 예상
+  if (slowEffectCooldown > 0) {
+    slowEffectCooldown -= 10;
+    if (slowEffectCooldown < 0) {
+      slowEffectCooldown = 0;
     }
   }
   requestAnimationFrame(gameLoop); // 지속적으로 다음 프레임에 gameLoop 함수 호출할 수 있도록 함
@@ -549,6 +564,11 @@ Promise.all([
       if (data.result.goldMonsterId) {
         spawnGoldMonster(data.result.goldMonsterId); // 황금 고블린 생성
       }
+    }
+
+    if (data.type === 'slowEffectUsed' && data.status === 'success') {
+      userGold = +data.result.userGold;
+      console.log('느려짐 장판 사용 횟수: ', data.result.slowEffectCount);
     }
 
     if (data.status === 'fail') {
@@ -897,7 +917,13 @@ canvas.addEventListener('contextmenu', (event) => {
   // client는 페이지 전체 좌표로 클릭한 곳이 canvas 내 어느 위치인지 확인하려면 canvas 내부의 요소의 left, top값을 빼줘야 한다(마우스가 클릭한 위치를 canvas 내부에서 상대적으로 찾는 것)
   const mouseX = event.clientX - rect.left;
   const mouseY = event.clientY - rect.top;
-  if (mouseX >= 0 && mouseX <= canvas.width && mouseY >= 0 && mouseY <= canvas.height) {
+  if (
+    mouseX >= 0 &&
+    mouseX <= canvas.width &&
+    mouseY >= 0 &&
+    mouseY <= canvas.height &&
+    slowEffectCooldown === 0
+  ) {
     createSlowEffect(mouseX, mouseY);
   }
 });
