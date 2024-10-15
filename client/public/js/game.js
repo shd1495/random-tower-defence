@@ -453,21 +453,10 @@ function gameLoop(currentTime) {
       } else {
         /* 몬스터가 죽었을 때 */
         MonsterLevelUpCount++;
-        // 몬스터 레벨 7 이후부터 몬스터 10마리당 몬스터 레벨 증가
-        if (monsterLevel >= 7 && MonsterLevelUpCount > 10) {
+        // 몬스터 레벨 7 이후부터 몬스터 50마리당 몬스터 레벨 증가
+        if (monsterLevel >= 7 && MonsterLevelUpCount > 50) {
           MonsterLevelUpCount = 0;
           monsterLevel++;
-        }
-        if (monster.hp <= 0) {
-          // const monsterId = monster.monsterId;
-          // const incrementMoney = monster.reward;
-          // const incrementScore = monster.score;
-          // sendMonsterEvent(11, {
-          //   monsterId,
-          //   incrementMoney,
-          //   incrementScore,
-          // });
-          // 웨이브 레벨업  요청하기 보내주기
         }
         monsters.splice(i, 1);
       }

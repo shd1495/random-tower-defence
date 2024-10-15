@@ -11,7 +11,7 @@ export const addUser = async (user) => {
     await redisClient.set(user.userId, JSON.stringify(user));
     await redisClient.sadd(USER_SET, user.userId);
   } catch (error) {
-    throw new Error('유저 정보를 저장하는 중 오류가 발생했습니다.' + error.message);
+    console.error(`error addUser for user ${uuid}`);
   }
 };
 
@@ -25,7 +25,7 @@ export const removeUser = (uuid) => {
     // 유저 UUID를 세트에서 제거
     redisClient.srem(USER_SET, uuid);
   } catch (error) {
-    throw new Error('유저 정보를 삭제하는 중 에러가 발생했습니다.' + error.message);
+    console.error(`error removeUser for user ${uuid}`);
   }
 };
 
@@ -44,7 +44,7 @@ export const getUsers = async () => {
     );
     return users;
   } catch (error) {
-    throw new Error('유저 정보를 조회하는 중 오류가 발생했습니다.' + error.message);
+    console.error(`error getUsers for user ${uuid}`);
   }
 };
 
@@ -58,6 +58,6 @@ export const getUser = async (uuid) => {
     const user = await redisClient.get(uuid);
     return user ? JSON.parse(user) : null;
   } catch (error) {
-    throw new Error('유저 정보를 불러오는 중 오류가 발생했습니다.' + error.message);
+    console.error(`error getUser for user ${uuid}`);
   }
 };

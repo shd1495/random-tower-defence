@@ -26,9 +26,6 @@
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
-        /**
-                       회원가입 API 호출 후 회원가입 성공 시 index.html로 이동시켜주세요!
-                     */
         fetch('/api/signup', {
           method: 'POST',
           headers: {
