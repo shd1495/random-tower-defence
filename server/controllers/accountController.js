@@ -91,14 +91,14 @@ export async function signin(req, res, next) {
 
     // JWT 토큰, secret-key는 나중에 수정해야 함
     const token = jwt.sign({ accountId: existingAccount.id }, process.env.SESSION_SECRET_KEY, {
-      expiresIn: '10m',
+      expiresIn: '15s',
     });
 
     const refreshToken = jwt.sign(
       { accountId: existingAccount.id },
       process.env.REFRESH_TOKEN_KEY,
       {
-        expiresIn: '1d',
+        expiresIn: '1h',
       },
     );
 
@@ -123,6 +123,10 @@ export async function tokenExtension(req, res, next) {
   try {
     const { refreshToken } = req.cookies;
 
+    // 엑세스 토큰 체크
+    if (!req.accessTokenExpired)
+      return res.status(200).json({ message: '아직 엑세스 토큰이 유효합니다.' });
+
     // 리프레쉬 토큰 검증하기
     if (!refreshToken)
       return res.status(401).json({ message: '발급받은 리프레쉬 토큰이 없습니다.' });
@@ -137,7 +141,7 @@ export async function tokenExtension(req, res, next) {
 
     // 새롭게 토큰 갱신하여 연장하기
     const token = jwt.sign({ accountId: existingAccount.id }, process.env.SESSION_SECRET_KEY, {
-      expiresIn: '10m',
+      expiresIn: '15s',
     });
 
     res.header('authorization', `Bearer ${token}`);

@@ -2,20 +2,26 @@
  * 리프레쉬 토큰 체크 및 엑세스 토큰 연장(갱신)하는 함수입니다.
  */
 export function extendAccessToken() {
+  const oldToken = localStorage.getItem('jwt');
+
   fetch('/api/tokenextend', {
     method: 'POST',
     credentials: 'include', // 쿠키를 포함한 요청
     headers: {
       'Content-Type': 'application/json',
+      authorization: oldToken,
     },
   })
     .then(async (response) => {
       const resData = await response.json();
 
       if (!response.ok) throw new Error(resData.message);
-      const token = response.headers.get('Authorization');
 
-      localStorage.setItem('jwt', token);
+      if (response.headers.get('Authorization')) {
+        const token = response.headers.get('Authorization');
+        console.log('token', token);
+        localStorage.setItem('jwt', token);
+      }
 
       console.log(resData.message);
     })

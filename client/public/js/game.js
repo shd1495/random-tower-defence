@@ -449,6 +449,8 @@ function initGame() {
 
   monsterInterval = setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
 
+  setInterval(extendAccessToken, 8 * 1000); // 엑세스 토큰 연장
+
   gameLoop(); // 게임 루프 최초 실행
   isInitGame = true;
 }
