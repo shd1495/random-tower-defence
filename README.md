@@ -28,7 +28,7 @@
 
 - [x] 타워 환불 기능
 - [x] 특정 타워 업그레이드 기능
-- [x] 보물 고블린 몬스터 출연 기능
+- [x] 보물 고블린 몬스터 출현 기능
 
 ## 패킷 구조 및 핸들러 맵핑
 [![pngwing com](https://github.com/user-attachments/assets/0b16d6ab-5527-4ff3-8201-a86b290ee0ed)](https://frosted-occupation-9b9.notion.site/Pangyo-Night-11f6a99984a18084a9ecc828bc501ffc)
@@ -73,37 +73,68 @@
 ![monster6](https://github.com/user-attachments/assets/a9a23d2e-e00a-4226-8544-f1b36e8da1c3)
 #### 베이스
 
-![base](https://github.com/user-attachments/assets/7d49b050-b9a5-41ca-a3bb-478707040eeb)
+<img src="https://github.com/user-attachments/assets/7d49b050-b9a5-41ca-a3bb-478707040eeb" width="400" height="400"/>
 
 #### 배경
 ![bg](https://github.com/user-attachments/assets/2fef1bd0-942f-43cb-aa4b-78b80933f87a)
 
 #### 타워
 - 전기 살충제 - 밸런스 잡힌 기본 타워
-  
-![tower1](https://github.com/user-attachments/assets/e5f4199a-01c4-4dfe-8eea-3556b20b0fc9)
-![tower1-2](https://github.com/user-attachments/assets/6cf0d547-175c-40bd-9ce7-a0aae3e26427)
-![tower1-3](https://github.com/user-attachments/assets/de164b0e-739d-4268-8459-71212c3242aa)
+
+<img src="https://github.com/user-attachments/assets/e5f4199a-01c4-4dfe-8eea-3556b20b0fc9" width="70" height="150"/>
+<img src="https://github.com/user-attachments/assets/6cf0d547-175c-40bd-9ce7-a0aae3e26427" width="70" height="150"/>
+<img src="https://github.com/user-attachments/assets/de164b0e-739d-4268-8459-71212c3242aa" width="70" height="150"/>
 
 - 화염 살충제 - 공격 속도가 느리지만 강력한 타워
-  
-![tower2](https://github.com/user-attachments/assets/18331808-26e1-459b-bd64-d7b9a73a39bb)
-![tower2-2](https://github.com/user-attachments/assets/8b3c6120-0ba0-4867-ba69-57bd10ff4735)
-![tower2-3](https://github.com/user-attachments/assets/8fe1fc73-c970-450b-bbd7-e429143f704f)
+
+<img src="https://github.com/user-attachments/assets/18331808-26e1-459b-bd64-d7b9a73a39bb" width="70" height="150"/>
+<img src="https://github.com/user-attachments/assets/8b3c6120-0ba0-4867-ba69-57bd10ff4735" width="70" height="150"/>
+<img src="https://github.com/user-attachments/assets/8fe1fc73-c970-450b-bbd7-e429143f704f" width="70" height="150"/>
 
 - 화학 살충제 - 공격 속도가 빠르지만 약한 타워
-  
-![tower3](https://github.com/user-attachments/assets/9dda5037-9f23-489d-99cc-48aa1d0e583f)
-![tower3-2](https://github.com/user-attachments/assets/56be1de6-73a5-4fb0-9f8a-11ceb18fd4b7)
-![tower3-3](https://github.com/user-attachments/assets/8bbab2ef-017f-4db4-a74f-b6cee03c17f5)
+
+<img src="https://github.com/user-attachments/assets/9dda5037-9f23-489d-99cc-48aa1d0e583f" width="70" height="150"/>
+<img src="https://github.com/user-attachments/assets/56be1de6-73a5-4fb0-9f8a-11ceb18fd4b7" width="70" height="150"/>
+<img src="https://github.com/user-attachments/assets/8bbab2ef-017f-4db4-a74f-b6cee03c17f5" width="70" height="150"/>
 
 ## 기능 설명
 ### 타워 설치
+- 게임 시작 시 몬스터 경로에서 가까운 위치에 랜덤하게 2개의 타워를 생성한다.
+
+- 100골드를 사용해서 원하는 위치에 타워를 생성할 수 있고 타워는 3종류가 존재한다.
+
+![타워생성](https://github.com/user-attachments/assets/f33c5887-a5fd-4226-8fec-7e6ea09df7b2)
 
 ### 타워 판매
+- 판매하고 싶은 타워를 클릭하면 판매 버튼이 활성화되며 판매 시 타워에 사용한 골드의 50%를 돌려받는다.
+  
+![타워판매](https://github.com/user-attachments/assets/a4678c8b-cf5c-4f22-904d-a513a90fd395)
 
 ### 타워 업그레이드
+- 업그레이드하고 싶은 타워를 클릭하면 업그레이드 버튼이 활성화되며 업그레이드 시 타워의 레벨이 상승한다.
 
-### 황금 고블린
+- 타워의 레벨은 3레벨까지 존재하며 1 -> 2레벨 75골드 / 2 -> 3레벨 175골드를 소모한다.
+  
+![타워업글](https://github.com/user-attachments/assets/ede166c1-229e-4959-b052-d3db9173f144)
 
 ### 슬로우 장판 설치
+- 슬로우 장판에 닿은 몬스터는 이동속도가 50% 감소한다.
+
+- 슬로우 장판은 일정 재사용 대기시간을 가지고 있으며 사용할 때마다 골드를 소모한다.
+  
+![느려짐 장판](https://github.com/user-attachments/assets/0d96e9a0-315c-42c6-9f1c-4b1e39da9fd9)
+
+### 황금 고블린
+- 몬스터 처치 시 낮은 확률로 황금 고블린을 추가로 생성시킨다.
+
+- 웨이브 별로 황금 고블린의 생성 확률이 변동되며 황금 고블린은 많은 골드를 제공한다. / 레벨 * 100골드
+
+- 1웨이브 - 0%
+- 2웨이브 - 1%
+- 3웨이브 - 2%
+- 4웨이브 - 3%
+- 5웨이브 - 4%
+- 6웨이브 - 5%
+- 7웨이브 - 5%
+
+
