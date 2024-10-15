@@ -394,7 +394,9 @@ function gameLoop(currentTime) {
     ctx.fillStyle = 'yellow';
     ctx.fillText(`골드: ${userGold}`, 100, 150); // 골드 표시
     ctx.fillStyle = 'skyblue';
-    ctx.fillText(`현재 레벨: ${monsterLevel}`, 100, 200); // 최고 기록 표시
+    ctx.fillText(`현재 레벨: ${monsterLevel}`, 100, 200); // 현재 레벨
+    ctx.fillStyle = 'white';
+    ctx.fillText(`슬로우 장판 소모 골드: ${SLOW_EFFECT_COST}`, 1400, 50); // 슬로우 장판 소모 골드
 
     // 타워 그리기 및 몬스터 공격 처리
     towers.forEach((tower) => {
