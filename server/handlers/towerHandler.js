@@ -117,7 +117,7 @@ export const towerSell = async (uuid, payload) => {
   try {
     // redis에 저장된 지울 타워
     let redisTower = await getTower(uuid, uniqueId);
-    if (!redisTowers) return { status: 'fail', type: 'sellTower', message: 'Towers not found' };
+    if (!redisTower) return { status: 'fail', type: 'sellTower', message: 'Towers not found' };
 
     // json에 저장된 타워와 클라에서 받아온 타워의 Id가 같은지 확인
     if (tower.id !== redisTower.id)
