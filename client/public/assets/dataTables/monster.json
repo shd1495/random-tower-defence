@@ -44,6 +44,22 @@
     },
     {
       "id": 6,
+      "speed": 1,
+      "power": 30,
+      "score": 5,
+      "hp": 500,
+      "reward": 50
+    },
+    {
+      "id": 7,
+      "speed": 1,
+      "power": 45,
+      "score": 10,
+      "hp": 700,
+      "reward": 100
+    },
+    {
+      "id": 8,
       "speed": 2,
       "power": 30,
       "score": 15,

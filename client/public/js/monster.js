@@ -1,5 +1,3 @@
-import { sendMonsterEvent } from './game.js';
-
 export class Monster {
   constructor(path, monsterImages, monsters, monsterLevel, monsterId) {
     // 생성자 안에서 몬스터의 속성을 정의한다고 생각하시면 됩니다!
@@ -7,10 +5,12 @@ export class Monster {
       throw new Error('몬스터가 이동할 경로가 필요합니다.');
     }
 
+    this.monsterId = null;
     if (monsterId) {
       this.monsterId = monsterId;
     } else {
-      this.monsterId = Math.floor(Math.random() * (monsters.length - 1)) + 1; // 몬스터 번호 (1 ~ 5. 몬스터를 추가해도 숫자가 자동으로 매겨집니다!) // 이부분 수정하기
+      this.monsterId = Math.floor(Math.random() * 5) + 1; // 몬스터 번호 (1 ~ 5. 몬스터를 추가해도 숫자가 자동으로 매겨집니다!) // 이부분 수정하기
+      console.log(this.monsterId);
     }
 
     this.path = path; // 몬스터가 이동할 경로

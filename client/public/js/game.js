@@ -4,6 +4,7 @@ import { Tower } from './tower.js';
 import { CLIENT_VERSION } from './constants.js';
 import { getGameAssets } from '../init/assets.js';
 import { extendAccessToken } from '../utils/extendAccessToken.js';
+import { bossMonster } from './bossMonster.js';
 
 const { monsterAssetData, towerAssetData, gameAssetData, waveLevelAssetData } = getGameAssets();
 
@@ -26,7 +27,7 @@ let slowEffects = [];
 let slowEffectCooldown = 0;
 const SLOW_EFFECT_COOLDOWN = 1000;
 
-const NUM_OF_MONSTERS = 6; // 몬스터 개수
+const NUM_OF_MONSTERS = 8; // 몬스터 개수
 
 let userGold = 0; // 유저 골드
 let base; // 기지 객체
@@ -36,6 +37,7 @@ let towerType = 0; // 타워 종류
 let numOfInitialTowers = 0; // 초기 타워 개수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
+let monsterInterval; // setInterval ID를 저장할 변수
 
 const monsters = [];
 const towers = [];
@@ -267,6 +269,11 @@ function spawnMonster() {
   //  console.log("MONSTERS", MONSTERS);
 }
 
+function spawnBossMonster() {
+  monsters.push(new bossMonster(monsterPath, monsterImages, monsterAssetData.data, monsterLevel));
+  //  console.log("MONSTERS", MONSTERS);
+}
+
 // 서버에서 받은 monsterId를 통해 황금 고블린 생성하는 함수입니다.
 function spawnGoldMonster(monsterId) {
   monsters.push(
@@ -423,6 +430,7 @@ function changeWave() {
       nextLevel: monsterLevel + 1,
     });
     isWaveChange = false;
+    spawnBossMonster();
   }
   // 만약 웨이브이전 점수보다 높으면 isWaveChange 다시 초기화
   if (
@@ -445,8 +453,8 @@ function initGame() {
   placeBase(); // 기지 배치
   drawScoreboard(ctx, scoreBoardImage);
 
-  setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
-
+  monsterInterval = setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
+  spawnBossMonster();
   // 58분마다 한번씩 토큰연장 현재 토큰 만료시간이 1시간으로 지정해놔서 게임실행 중 58분마다 연장해 주는 걸로 했습니다.
   // setInterval(extendAccessToken, 7 * 60 * 1000);
   gameLoop(); // 게임 루프 최초 실행
@@ -545,14 +553,18 @@ Promise.all([
       console.log(data.message);
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
       if (data.monsterSpawnInterval) monsterSpawnInterval = data.monsterSpawnInterval;
-      console.log(monsterSpawnInterval, data.monsterSpawnInterval);
+      // console.log(monsterSpawnInterval, data.monsterSpawnInterval);
+
+      // 몬스터 생성 주기 다시 맟추기
+      clearInterval(monsterInterval);
+      monsterInterval = setInterval(spawnMonster, monsterSpawnInterval);
     }
 
     if (data.type === 'killMonster' && data.status === 'success') {
       userGold = +data.result.userGold;
       score = +data.result.score;
       changeWave();
-      sendEvent(13);
+      sendMonsterEvent(13);
     }
 
     if (data.type === 'attackedByMonster' && data.status === 'success') {
