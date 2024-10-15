@@ -1,7 +1,7 @@
 import { getGameAssets } from '../init/assets.js';
 import { updateMonsterSpawnInterval } from '../models/gameModel.js';
 import { setWaveLevel, getWaveLevel } from '../models/waveLevelModel.js';
-import { scoreValidation } from '../utils/scoreValidation.js';
+import { scoreValidation, scoreValidationOverSevenStage } from '../utils/scoreValidation.js';
 
 /**
  *
@@ -45,12 +45,22 @@ export const waveLevelIncrease = async (uuid, payload) => {
     }
 
     // 점수 검증
-    if (!(await scoreValidation(uuid, payload))) {
-      return {
-        status: 'fail',
-        type: 'waveLevelIncrease',
-        message: 'Invalid elapsed time',
-      };
+    if (payload.currentLevel < 7) {
+      if (!(await scoreValidation(uuid, payload))) {
+        return {
+          status: 'fail',
+          type: 'waveLevelIncrease',
+          message: 'Invalid elapsed time',
+        };
+      }
+    } else {
+      if (!(await scoreValidationOverSevenStage(uuid, payload))) {
+        return {
+          status: 'fail',
+          type: 'waveLevelIncrease',
+          message: 'Invalid elapsed time Over Seven Stage',
+        };
+      }
     }
 
     // 다음 웨이브 id 추가

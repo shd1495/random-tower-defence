@@ -29,6 +29,26 @@ export const scoreValidation = async (uuid, payload) => {
 };
 
 /**
+ * 서버에서 계산한 점수와 클라의 점수가 맞는지 확인하는 점수 검정 함수
+ * @param {string} uuid
+ * @param {JSON} payload
+ * @returns
+ */
+export const scoreValidationOverSevenStage = async (uuid, payload) => {
+  const { waveLevel } = getGameAssets();
+  const currentWaveLevel = waveLevel.data.find((wave) => wave.id === payload.currentLevel);
+  // 오차범위
+  const errorScope = 15 * currentWaveLevel.id; // 몬스터 하나만큼 차이
+  // 서버에서 총합점수 계산
+  const serverTotalScore = await totalScore(uuid);
+  // 오차범위 구하기
+  const scoreDifference = Math.abs(payload.score - serverTotalScore);
+  // 점수가 오차 범위에 들어오는지 확인
+  if (scoreDifference > errorScope) return false;
+  else return true;
+};
+
+/**
  * 서버에서 계산한 총합 점수
  * @param {string} uuid
  * @returns

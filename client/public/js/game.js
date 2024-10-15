@@ -36,6 +36,7 @@ let baseHp = 0; // 기지 체력
 let towerUniqueId = 1; // 타워 고유 아이디
 let towerType = 0; // 타워 종류
 let numOfInitialTowers = 0; // 초기 타워 개수
+let MonsterLevelUpCount = 0; // 게임을 종료시키기 위한 몬스터 레벨업 조건 관련 변수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
 let monsterInterval;
@@ -47,6 +48,10 @@ let score = 0; // 게임 점수
 let highScore = 0; // 기존 최고 점수
 let isInitGame = false;
 let isWaveChange = true;
+
+// 루프 중단 변수
+let animationId;
+let isGameOver = false;
 
 // 이미지 로딩 파트
 const backgroundImage = new Image();
@@ -352,7 +357,6 @@ function gameLoop(currentTime) {
 
     // 몬스터가 공격을 했을 수 있으므로 기지 다시 그리기
     base.draw(ctx, baseImage);
-
     for (let i = monsters.length - 1; i >= 0; i--) {
       const monster = monsters[i];
       if (monster.hp > 0) {
@@ -361,7 +365,10 @@ function gameLoop(currentTime) {
           /* 게임 오버 */
           sendEvent(3, { timestamp: Date.now(), score });
           if (score > highScore) {
+            isGameOver = true;
             alert('축하드립니다! 최고 점수를 달성하셨습니다!');
+            cancelAnimationFrame(animationId);
+            break;
           }
         }
 
@@ -386,7 +393,12 @@ function gameLoop(currentTime) {
         monster.draw(ctx);
       } else {
         /* 몬스터가 죽었을 때 */
-
+        MonsterLevelUpCount++;
+        // 몬스터 레벨 7 이후부터 몬스터 10마리당 몬스터 레벨 증가
+        if (monsterLevel >= 7 && MonsterLevelUpCount > 10) {
+          MonsterLevelUpCount = 0;
+          monsterLevel++;
+        }
         if (monster.hp <= 0) {
           // const monsterId = monster.monsterId;
           // const incrementMoney = monster.reward;
@@ -410,7 +422,7 @@ function gameLoop(currentTime) {
       slowEffectCooldown = 0;
     }
   }
-  requestAnimationFrame(gameLoop); // 지속적으로 다음 프레임에 gameLoop 함수 호출할 수 있도록 함
+  if (!isGameOver) animationId = requestAnimationFrame(gameLoop); // 지속적으로 다음 프레임에 gameLoop 함수 호출할 수 있도록 함
 }
 
 function changeWave() {

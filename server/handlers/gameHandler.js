@@ -48,9 +48,12 @@ export const gameEnd = async (uuid, payload, socket) => {
     const serverScore = await totalScore(uuid);
     if (!serverScore && serverScore !== 0)
       return { status: 'fail', type: 'gameEnd', message: 'can not reading serverScore' };
-
-    if (score !== serverScore)
+    console.log('score: ', score);
+    console.log('serverScore: ', serverScore);
+    if (Math.abs(score - serverScore) > 200) {
+      // 데이터 통신 간격으로 인해 차이나는 오차(100~200) 제외
       return { status: 'fail', type: 'gameEnd', message: 'unmatched score = server' };
+    }
 
     // 최고 점수 갱신
     if (score > highScore) await scoreService.updateHighScore(uuid, score, timestamp);
