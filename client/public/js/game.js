@@ -388,15 +388,21 @@ function gameLoop(currentTime) {
 
     ctx.font = '25px "bitbit"';
     ctx.fillStyle = 'pink';
-    ctx.fillText(`최고 기록: ${highScore}`, 100, 50); // 최고 기록 표시
+    ctx.fillText(`최고 기록: ${highScore}`, 100, 50);
     ctx.fillStyle = 'white';
-    ctx.fillText(`점수: ${score}`, 100, 100); // 현재 스코어 표시
+    ctx.fillText(`점수: ${score}`, 100, 100);
     ctx.fillStyle = 'yellow';
-    ctx.fillText(`골드: ${userGold}`, 100, 150); // 골드 표시
+    ctx.fillText(`골드: ${userGold}`, 100, 150);
     ctx.fillStyle = 'skyblue';
-    ctx.fillText(`현재 레벨: ${monsterLevel}`, 100, 200); // 현재 레벨
+    ctx.fillText(`현재 레벨: ${monsterLevel}`, 100, 200);
     ctx.fillStyle = 'white';
-    ctx.fillText(`슬로우 장판 소모 골드: ${SLOW_EFFECT_COST}`, 1400, 50); // 슬로우 장판 소모 골드
+    ctx.fillText(`슬로우 장판 소모 골드: ${SLOW_EFFECT_COST}`, 1400, 50);
+    ctx.fillStyle = 'white';
+    ctx.fillText(`타워 생성 소모 골드: 100`, 1400, 100);
+    ctx.fillStyle = 'white';
+    ctx.fillText(`타워 업그레이드 소모 골드: 1 -> 2 75`, 1400, 150);
+    ctx.fillStyle = 'white';
+    ctx.fillText(`타워 업그레이드 소모 골드: 2 -> 3 175`, 1400, 200);
 
     // 타워 그리기 및 몬스터 공격 처리
     towers.forEach((tower) => {
