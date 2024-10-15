@@ -91,22 +91,23 @@ export async function signin(req, res, next) {
 
     // JWT 토큰, secret-key는 나중에 수정해야 함
     const token = jwt.sign({ accountId: existingAccount.id }, process.env.SESSION_SECRET_KEY, {
-      expiresIn: '1h',
+      expiresIn: '10m',
     });
 
+    const refreshToken = jwt.sign(
+      { accountId: existingAccount.id },
+      process.env.REFRESH_TOKEN_KEY,
+      {
+        expiresIn: '1d',
+      },
+    );
+
     res.header('authorization', `Bearer ${token}`);
-
-    // 쿠키에 저장 refresh 토큰, 이 부분은 필요없으면 삭제 할 것
-    // 사용하려면 재발급 관련 코드 짤 것
-    // const refreshToken = jwt.sign({ accountId: existingAccount.id }, 'refresh-key', {
-    //   expiresIn: '7d',
-    // });
-
-    // res.cookie('refreshToken', refreshToken, {
-    //   httpOnly: true,
-    //   secure: true,
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    // });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: false, // HTTPS 환경에서만 전송 나중에 배포시에 수정
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+    });
 
     return res.status(201).json({ message: '로그인 성공', account: accountId });
   } catch (error) {
@@ -120,34 +121,28 @@ export async function signin(req, res, next) {
  */
 export async function tokenExtension(req, res, next) {
   try {
-    const [tokenType, oldToken] = req.headers.authorization.split(' ');
+    const { refreshToken } = req.cookies;
 
-    console.log('1');
-    // 기존 토큰 검증하기
-    if (tokenType !== 'Bearer')
-      return res.status(401).json({ message: '토큰 타입이 일치하지 않습니다.' });
-    if (!oldToken) return res.status(401).json({ message: '발급받은 토큰이 없습니다.' });
+    // 리프레쉬 토큰 검증하기
+    if (!refreshToken)
+      return res.status(401).json({ message: '발급받은 리프레쉬 토큰이 없습니다.' });
 
-    console.log('2');
-    const id = jwt.verify(oldToken, process.env.SESSION_SECRET_KEY).accountId;
+    const id = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY).accountId;
     const existingAccount = await accountService.findAccountById(id);
 
-    console.log('3');
     if (!existingAccount) {
       // error: 계정이 존재하지 않는 경우
       return res.status(404).json({ message: '계정이 존재 하지 않습니다.' });
     }
-    console.log('4');
 
     // 새롭게 토큰 갱신하여 연장하기
     const token = jwt.sign({ accountId: existingAccount.id }, process.env.SESSION_SECRET_KEY, {
-      expiresIn: '1h',
+      expiresIn: '10m',
     });
-    console.log('5');
 
     res.header('authorization', `Bearer ${token}`);
 
-    return res.status(201).json({ message: '액세스 토큰 연장 성공' });
+    return res.status(201).json({ message: '액세스 토큰 갱신 성공' });
   } catch (error) {
     next(error);
   }

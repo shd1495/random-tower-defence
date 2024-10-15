@@ -38,6 +38,7 @@ let towerType = 0; // 타워 종류
 let numOfInitialTowers = 0; // 초기 타워 개수
 let monsterLevel = 0; // 몬스터 레벨
 let monsterSpawnInterval = 0; // 몬스터 생성 주기
+let monsterInterval;
 
 const monsters = [];
 const towers = [];
@@ -446,10 +447,8 @@ function initGame() {
   placeBase(); // 기지 배치
   drawScoreboard(ctx, scoreBoardImage);
 
-  setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
+  monsterInterval = setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
 
-  // 58분마다 한번씩 토큰연장 현재 토큰 만료시간이 1시간으로 지정해놔서 게임실행 중 58분마다 연장해 주는 걸로 했습니다.
-  setInterval(extendAccessToken, 58 * 60 * 1000);
   gameLoop(); // 게임 루프 최초 실행
   isInitGame = true;
 }
@@ -547,6 +546,8 @@ Promise.all([
       if (data.waveLevel) monsterLevel = data.waveLevel; // 몬스터레벨 동기화
       if (data.monsterSpawnInterval) monsterSpawnInterval = data.monsterSpawnInterval;
       console.log(monsterSpawnInterval, data.monsterSpawnInterval);
+      clearInterval(monsterInterval);
+      monsterInterval = setInterval(spawnMonster, monsterSpawnInterval); // 설정된 몬스터 생성 주기마다 몬스터 생성
     }
 
     if (data.type === 'killMonster' && data.status === 'success') {
