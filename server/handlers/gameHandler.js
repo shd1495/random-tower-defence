@@ -1,10 +1,11 @@
 import { getGameAssets } from '../init/assets.js';
 import { clearGameData, getGameData, initialGameData } from '../models/gameModel.js';
-import { setWaveLevel, clearWaveLevel } from '../models/waveLevelModel.js';
+import { setWaveLevel, clearWaveLevel, getWaveLevel } from '../models/waveLevelModel.js';
 import { clearMonsters } from '../models/monsterModel.js';
 import { clearTowers } from '../models/towerModel.js';
 import { totalScore } from '../utils/scoreValidation.js';
 import scoreService from '../services/scoreService.js';
+import { ERROR_SCOPE } from '../utils/constants.js';
 
 /**
  * 게임 시작 함수
@@ -62,10 +63,13 @@ export const gameEnd = async (uuid, payload, socket) => {
 
     // 서버 점수와 클라 점수 검증
     const serverScore = await totalScore(uuid);
+    const currentWaveLevel = await getWaveLevel(uuid);
+    // 오차범위
+    const errorScope = ERROR_SCOPE * currentWaveLevel; // 몬스터 하나만큼 차이
     if (!serverScore && serverScore !== 0)
       return { status: 'fail', type: 'gameEnd', message: 'can not reading serverScore' };
-    if (Math.abs(score - serverScore) > 200) {
-      // 데이터 통신 간격으로 인해 차이나는 오차(100~200) 제외
+    if (Math.abs(score - serverScore) > errorScope) {
+      // 데이터 통신 간격으로 인해 차이나는 오차 제외
       return { status: 'fail', type: 'gameEnd', message: 'unmatched score = server' };
     }
 
