@@ -59,7 +59,7 @@ const pathImage = new Image();
 pathImage.src = '../assets/images/path.png';
 
 const scoreBoardImage = new Image();
-scoreBoardImage.src = '../assets/images/ScoreBoard3.png';
+scoreBoardImage.src = '../assets/images/scoreBoard3.png';
 
 const monsterImages = [];
 for (let i = 1; i <= NUM_OF_MONSTERS; i++) {

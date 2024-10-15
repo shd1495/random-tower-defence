@@ -17,7 +17,6 @@ import score from '../services/scoreService.js';
 export async function signup(req, res) {
   try {
     const { accountId, password, confirmPassword } = req.body;
-    console.log(req.body);
     // 데이터 유효성 검사
     const schema = Joi.object({
       accountId: Joi.string()
@@ -30,15 +29,11 @@ export async function signup(req, res) {
     });
 
     const { error } = schema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
+    if (error) throw throwError(`${error.details[0].message}`, 400);
 
     // 계정 찾기, 계정 있는지 확인
     const existingAccount = await accountService.findAccount(accountId);
-    if (existingAccount) {
-      return res.status(400).json({ message: '이미 사용 중인 계정 ID입니다.' });
-    }
+    if (existingAccount) throw throwError('이미 사용 중인 계정 ID입니다.', 409);
 
     // 비밀번호 해시화
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -49,8 +44,7 @@ export async function signup(req, res) {
 
     return res.status(201).json({ message: '회원 가입에 성공', account: newAccount });
   } catch (error) {
-    console.error('회원가입 오류:', error);
-    return res.status(500).json({ message: '서버에 문제가 발생했습니다.' });
+    next(error);
   }
 }
 
@@ -73,21 +67,16 @@ export async function signin(req, res, next) {
       password: Joi.string().min(6).max(16).required(),
     });
     const { error } = schema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
+    if (error) throw throwError(`${error.details[0].message}`, 400);
 
     // 존재하는 지, password는 일치하는지
     const existingAccount = await accountService.findAccount(accountId);
-    if (!existingAccount) {
-      // error: 계정이 존재하지 않는 경우
-      return res.status(400).json({ message: '계정이 존재 하지 않습니다.' });
-    }
+
+    // error: 계정이 존재하지 않는 경우
+    if (!existingAccount) throw throwError('계정이 존재 하지 않습니다.', 404);
 
     const isValidPassword = await bcrypt.compare(password, existingAccount.password);
-    if (!isValidPassword) {
-      return res.status(400).json({ message: '비밀 번호 일치 X' });
-    }
+    if (!isValidPassword) throw throwError('비밀 번호가 일치하지 않습니다.', 401);
 
     // JWT 토큰, secret-key는 나중에 수정해야 함
     const token = jwt.sign({ accountId: existingAccount.id }, process.env.SESSION_SECRET_KEY, {
@@ -124,16 +113,13 @@ export async function tokenExtension(req, res, next) {
     const { refreshToken } = req.cookies;
 
     // 리프레쉬 토큰 검증하기
-    if (!refreshToken)
-      return res.status(401).json({ message: '발급받은 리프레쉬 토큰이 없습니다.' });
+    if (!refreshToken) throw throwError('발급받은 리프레쉬 토큰이 없습니다.', 401);
 
     const id = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY).accountId;
     const existingAccount = await accountService.findAccountById(id);
 
-    if (!existingAccount) {
-      // error: 계정이 존재하지 않는 경우
-      return res.status(404).json({ message: '계정이 존재 하지 않습니다.' });
-    }
+    // error: 계정이 존재하지 않는 경우
+    if (!existingAccount) throw throwError('계정이 존재 하지 않습니다.', 404);
 
     // 새롭게 토큰 갱신하여 연장하기
     const token = jwt.sign({ accountId: existingAccount.id }, process.env.SESSION_SECRET_KEY, {
@@ -154,9 +140,7 @@ export async function getRanking(req, res, next) {
     const limit = parseInt(req.query.limit) || 5;
 
     const rankingData = await score.getRanking(page, limit);
-    if (!rankingData) {
-      throw throwError('랭킹 데이터가 존재하지 않습니다.', 404);
-    }
+    if (!rankingData) throw throwError('랭킹 데이터가 존재하지 않습니다.', 404);
 
     return res.status(200).json(rankingData);
   } catch (error) {
