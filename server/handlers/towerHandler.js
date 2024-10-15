@@ -58,6 +58,9 @@ export const towerCreate = async (uuid, payload) => {
     // 유저 보유 금액이 데이터베이스에 저장된 타워의 값보다 적을 경우를 방지
     if (userGold < towers.data[towerType].price) throw new Error('not enough golds');
 
+    console.log('clientTowers', clientTowers);
+    console.log('redisTowers', redisTowers);
+
     // Towers DB 검증
     if (
       (clientTowers !== undefined && redisTowers === undefined) ||
@@ -67,7 +70,7 @@ export const towerCreate = async (uuid, payload) => {
     else if (typeof clientTowers !== typeof redisTowers)
       return { status: 'fail', type: 'setTower', message: 'Towers init type mismatch' };
     // Unique Id 검증
-    else if (clientTowers !== undefined && redisTowers !== undefined && uniqueId !== 0) {
+    else if (clientTowers.length !== 0 && redisTowers.length !== 0 && uniqueId !== 0) {
       if (uniqueId !== redisTowers[redisTowers.length - 1].uniqueId + 1)
         return { status: 'fail', type: 'setTower', message: 'Tower init unique Id mismatch' };
     }
