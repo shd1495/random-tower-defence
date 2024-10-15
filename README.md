@@ -1,4 +1,4 @@
-# pangyo night
+# Pangyo Night
 
 ![판교 나이트](https://github.com/user-attachments/assets/6a0007e8-1be3-4d8c-91a4-562f1e45144e)
 
@@ -48,7 +48,9 @@
 
 ### 컨셉
 
-- 판교의 등대로 몰려드는 날벌레들을 퇴치하자!
+- 판교의 등대로 몰려드는 날벌레들이 몰려든다.
+
+- 선배님들을 위해 손수 퇴치에 나선다!
 
 ### 게임 시스템
 
