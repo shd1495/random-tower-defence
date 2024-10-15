@@ -30,7 +30,7 @@ export class Monster {
   }
 
   init(monsters, level) {
-    this.maxHp = (monsters[this.monsterId - 1].hp * level * 0.66).toFixed(0); // 몬스터의 현재 HP
+    this.maxHp = (monsters[this.monsterId - 1].hp * level).toFixed(0); // 몬스터의 현재 HP
     this.hp = this.maxHp; // 몬스터의 현재 HP
     this.speed = monsters[this.monsterId - 1].speed * level;
     this.attackPower = monsters[this.monsterId - 1].power * level;
