@@ -13,13 +13,18 @@ import { getMonsters } from '../models/monsterModel.js';
  */
 export const scoreValidation = async (uuid, payload) => {
   const { waveLevel } = getGameAssets();
-
-  const suverTotalScore = await totalScore(uuid);
-
-  // 클라이언트 점수와 서버에서 계산한 점수와 동일한지 체크
-  // 게임데이터 wave 목표점수보다 높은지 확인
+  const currentWaveLevel = waveLevel.data.find((wave) => wave.id === payload.currentLevel);
+  // 오차범위
+  const errorScope = 15 * currentWaveLevel.id; // 몬스터 하나만큼 차이
+  // 서버에서 총합점수 계산
+  const serverTotalScore = await totalScore(uuid);
+  // 오차범위 구하기
+  const scoreDifference = Math.abs(payload.score - serverTotalScore);
+  // 다음 스테이지 정보 가져오기
   const nextWaveLevel = waveLevel.data.find((wave) => wave.id === payload.nextLevel);
-  if (payload.score !== suverTotalScore || payload.score < nextWaveLevel.score) return false;
+  // 점수가 오차 범위에 들어오는지 확인
+  // 게임데이터 wave 목표점수보다 높은지 확인
+  if (scoreDifference > errorScope || payload.score < nextWaveLevel.score) return false;
   else return true;
 };
 
