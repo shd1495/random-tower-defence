@@ -638,7 +638,7 @@ Promise.all([
       userGold = +data.result.userGold;
       score = +data.result.score;
       changeWave();
-      sendEvent(13);
+      sendMonsterEvent(13);
     }
 
     if (data.type === 'attackedByMonster' && data.status === 'success') {

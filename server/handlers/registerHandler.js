@@ -13,17 +13,21 @@ const registerHandler = (io) => {
 
     try {
       // 토큰 존재 여부
-      if (!authorization)
+      if (!authorization) {
         socket.emit('tokenNotFound', {
           message: '요청한 사용자의 토큰이 존재하지 않습니다.',
         });
+        return socket.disconnect();
+      }
 
       // 토큰 타입 확인
       const [tokenType, token] = authorization.split(' ');
-      if (tokenType !== 'Bearer')
+      if (tokenType !== 'Bearer') {
         socket.emit('Bearer', {
           message: '토큰 타입이 Bearer 형식이 아닙니다.',
         });
+        return socket.disconnect();
+      }
 
       // 토큰 검증
       decodedToken = jsonwebtoken.verify(token, process.env.SESSION_SECRET_KEY);

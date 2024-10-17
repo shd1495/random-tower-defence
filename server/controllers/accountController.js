@@ -90,14 +90,16 @@ export async function signin(req, res, next) {
       },
     );
 
-    res.header('authorization', `Bearer ${token}`);
+    // res.header('authorization', `Bearer ${token}`);
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: false, // HTTPS 환경에서만 전송 나중에 배포시에 수정
       maxAge: 1 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(201).json({ message: '로그인 성공', account: accountId });
+    return res
+      .status(201)
+      .json({ message: '로그인 성공', token: `Bearer ${token}`, account: accountId });
   } catch (error) {
     next(error);
   }
@@ -125,9 +127,9 @@ export async function tokenExtension(req, res, next) {
       expiresIn: '10m',
     });
 
-    res.header('authorization', `Bearer ${token}`);
+    // res.header('authorization', `Bearer ${token}`);
 
-    return res.status(201).json({ message: '액세스 토큰 갱신 성공' });
+    return res.status(201).json({ message: '액세스 토큰 갱신 성공', token: `Bearer ${token}` });
   } catch (error) {
     next(error);
   }

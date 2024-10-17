@@ -10,13 +10,9 @@ export function extendAccessToken() {
     },
   })
     .then(async (response) => {
-      const resData = await response.json();
-
       if (!response.ok) throw new Error(resData.message);
-      const token = response.headers.get('Authorization');
-
-      localStorage.setItem('jwt', token);
-
+      const resData = await response.json();
+      localStorage.setItem('jwt', resData.token);
       console.log(resData.message);
     })
     .catch((error) => {

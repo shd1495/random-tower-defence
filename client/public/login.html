@@ -34,9 +34,10 @@
             password,
           }),
         })
-          .then((response) => {
-            const token = response.headers.get('Authorization');
-            localStorage.setItem('jwt', token);
+          .then(async (response) => {
+            const resData = await response.json();
+
+            localStorage.setItem('jwt', resData.token);
             if (response.ok) {
               window.location.href = 'game.html';
             } else {
